@@ -1,0 +1,147 @@
+---
+title: "Typ grafu"
+author: "Filip Děchtěrenko"
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+output: html_document
+  fig_caption: false
+---
+
+```{r echo = F}
+library(knitr)
+opts_chunk$set(fig.lp = '')
+```
+
+```{r}
+library(tidyverse)
+library(ggthemes)
+source("utils.R")
+```
+
+```{r data generation, echo = FALSE, results = "hide"}
+#possible_themes <- c("theme_bw","theme_dark","theme_minimal","theme_economist")
+
+#curr_theme <- sample(possible_themes,1)
+#theme_set(eval(parse(text=as.character(curr_theme))))
+
+df_vardesc <- tibble(name = c("příjmy","výdaje","pohlaví","favourite pet"),
+                     type = c("numeric","numeric","factor","factor"),
+                     values = c("10000-100000","1000-40000","muž|žena|jiné","kočka|pes"))
+
+plot_types <- c("scatter","hist","pie","boxplot")
+
+curr_plot_type <- sample(plot_types,1)
+
+if(curr_plot_type == "hist") {
+  n <- sample(5:50,1)
+  df_var <- df_vardesc %>% 
+    filter(type == "numeric") %>% 
+    sample_n(1)
+ ranges <- str_split(df_var$values, pattern = "-", simplify = T) %>% as.numeric()
+ 
+ curr_vals <- runif(n,ranges[1],ranges[2]) 
+ curr_name <- df_var$name
+ df_data <- tibble(!!curr_name:=curr_vals)
+ p <- df_data %>% 
+   ggplot(aes(x=!!sym(curr_name))) +
+   geom_histogram() + 
+   theme(aspect.ratio = 1)
+} else if(curr_plot_type == "scatter") {
+  n <- sample(5:50,1)
+  df_var <- df_vardesc %>% 
+    filter(type == "numeric") %>% 
+    sample_n(2)
+ ranges <- extract_ranges(df_var)
+ 
+ curr_vals1 <- runif(n,ranges[1,1],ranges[1,2]) 
+ curr_name1 <- df_var$name[1]
+ 
+ curr_vals2 <- runif(n,ranges[2,1],ranges[2,2]) 
+ curr_name2 <- df_var$name[2]
+ 
+ df_data <- tibble(!!curr_name1:=curr_vals1,!!curr_name2:=curr_vals2)
+ 
+ p <- df_data %>% 
+   ggplot(aes(x=!!sym(curr_name1), y=!!sym(curr_name2))) +
+   geom_point() + 
+   theme(aspect.ratio = 1)
+} else if(curr_plot_type == "scatter") {
+  n <- sample(5:50,1)
+  df_var_numeric <- df_vardesc %>% 
+    filter(type == "numeric") %>% 
+    sample_n(1)
+  df_var_factor <- df_vardesc %>% 
+    filter(type == "factor") %>% 
+    sample_n(1)
+ 
+ ranges <- extract_ranges(df_var_numeric)
+ values <- extract_values(df_var_factor)
+ curr_vals1 <- runif(n,ranges[1],ranges[2]) 
+ curr_name1 <- df_var_numeric$name[1]
+ curr_vals2 <- sample(values,n,replace = T) 
+ curr_name2 <- df_var_factor$name[1]
+ 
+ df_data <- tibble(!!curr_name1:=curr_vals1,!!curr_name2:=curr_vals2)
+ 
+ p <- df_data %>% 
+   ggplot(aes(x="", y=!!sym(curr_name1), fill = !!sym(curr_name2))) +
+     theme(aspect.ratio = 1) +
+    geom_bar(width = 1, stat = "identity") +
+    coord_polar("y", start=0) 
+ 
+} else if(curr_plot_type == "boxplot") {
+  n <- sample(10:50,1)
+  df_var_numeric <- df_vardesc %>% 
+    filter(type == "numeric") %>% 
+    sample_n(1)
+  df_var_factor <- df_vardesc %>% 
+    filter(type == "factor") %>% 
+    sample_n(1)
+ 
+ ranges <- extract_ranges(df_var_numeric)
+ values <- extract_values(df_var_factor)
+ curr_vals1 <- runif(n,ranges[1],ranges[2]) 
+ curr_name1 <- df_var_numeric$name[1]
+ curr_vals2 <- sample(values,n,replace = T) 
+ curr_name2 <- df_var_factor$name[1]
+ 
+ df_data <- tibble(!!curr_name1:=curr_vals1,!!curr_name2:=curr_vals2)
+ 
+ p <- df_data %>% 
+   ggplot(aes(x=!!sym(curr_name2), y=!!sym(curr_name1))) +
+     theme(aspect.ratio = 1) +
+    geom_boxplot()
+    
+ 
+}
+
+questions <- plot_types
+solutions <- rep(F,length(plot_types))
+solutions[plot_types == curr_plot_type] <- T
+
+o <- sample(1:length(plot_types))
+questions <- questions[o]
+solutions <- solutions[o]
+```
+
+Question
+========
+Určete typ následujícího grafu:
+
+```{r graf,echo = FALSE, warning =F,message=F}
+p
+```
+
+
+```{r questionlist, echo = FALSE, results = "asis"}
+answerlist(questions, markup = "markdown")
+```
+
+Solution
+========
+Tento graf se nazývá `r curr_plot_type`.
+
+Meta-information
+================
+extype: schoice
+exsolution: `r mchoice2string(solutions, single = TRUE)`
+exname: plot_type

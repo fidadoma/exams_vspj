@@ -1,0 +1,103 @@
+---
+title: "Typ grafu"
+author: "Filip Děchtěrenko"
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+output: html_document
+  fig_caption: false
+---
+
+```{r echo = F}
+library(knitr)
+opts_chunk$set(fig.lp = '')
+opts_chunk$set(echo=F)
+```
+
+```{r}
+library(tidyverse)
+library(ggthemes)
+source("utils.R")
+```
+
+```{r data generation, echo = FALSE, results = "hide"}
+#possible_themes <- c("theme_bw","theme_dark","theme_minimal","theme_economist")
+
+#curr_theme <- sample(possible_themes,1)
+#theme_set(eval(parse(text=as.character(curr_theme))))
+
+df_vardesc <- tibble(name = c("příjmy","výdaje","pohlaví","favourite pet"),
+                     type = c("numeric","numeric","factor","factor"),
+                     values = c("10000-100000","1000-40000","muž|žena|jiné","kočka|pes"),
+                     pdist = c("unif","norm","unif","unif"))
+
+n <- sample(5:10,1)
+r <- runif(1,-1,1)
+
+
+df <- MASS::mvrnorm(n=n, mu=c(0, 0), Sigma=matrix(c(1, r, r, 1), nrow=2), empirical=TRUE)
+X <- df[, 1]  # standard normal (mu=0, sd=1)
+Y <- df[, 2]  # standard normal (mu=0, sd=1)
+
+df_currvars <- df_vardesc %>% 
+  filter(type == "numeric") %>% 
+  sample_n(2) %>% 
+  rowwise() %>% 
+  mutate(mean = compute_mean(values, pdist), sd = compute_sd(values,pdist))
+X <- rescale_var(X,df_currvars$mean[1],df_currvars$sd[1]) %>% round(0)
+Y <- rescale_var(Y,df_currvars$mean[2],df_currvars$sd[2]) %>% round(0)
+df_data <- tibble(!!df_currvars$name[1]:=X,!!df_currvars$name[2]:=Y) 
+
+lm1 <- lm(Y~X)
+
+#cor(X, Y)  # yay!
+#cor(X*0.01 + 42, Y*3 - 1) 
+```
+
+
+
+Question
+========
+Spočítejte regresní koeficienty ($b_0$ a $b_1$) předpovídající `r df_currvars$name[2]` v závislosti na `r df_currvars$name[2]`. Data vypadají následovně:
+
+```{r graf,echo = FALSE, warning =F,message=F}
+df_data %>% knitr::kable()
+```
+
+Solution
+========
+Když si vizualizujeme data, vypadají následovně:
+
+```{r plot, fig.path = "", fig.cap = ""}
+df_data %>% 
+  ggplot(aes(x=!!sym(colnames(df_data)[1]), y=!!sym(colnames(df_data)[2]))) +
+  geom_point() + 
+  theme(aspect.ratio = 1)
+```
+
+Lineární závislost popisujeme rovnicí ve tvaru $y = b_1x+b_0$. Pro výpočet regresních koeficientů můžeme využít funkce INTERCEPT (pro parameter $b_0$) a SLOPE (pro parametr $b_1$)
+
+Regresní koeficienty jsou:
+
+* $b_0$ = `r exams::fmt(coef(lm1)[1])`
+* $b_1$ = `r exams::fmt(coef(lm1)[2])`
+
+Pokud zobrazíme regresní přímku do grafu, vychází to následovně.
+
+
+```{r plot plus regression, fig.path = "", fig.cap = ""}
+df_data %>% 
+  ggplot(aes(x=!!sym(colnames(df_data)[1]), y=!!sym(colnames(df_data)[2]))) +
+  geom_point() + 
+  theme(aspect.ratio = 1) +
+  stat_smooth(method ="lm", se = F)
+
+```
+
+Why?
+
+Meta-information
+================
+extype: cloze
+exsolution: `r exams::fmt(coef(lm1)[1])`|`r exams::fmt(coef(lm1)[2])`
+exclozetype: num|num
+extol: 0.01
+exname: regrese
