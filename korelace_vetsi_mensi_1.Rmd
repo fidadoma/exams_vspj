@@ -1,0 +1,122 @@
+---
+title: "Korelace - vetsi mensi"
+author: "Filip Děchtěrenko"
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+output: html_document
+---
+
+```{r setup, echo = F}
+
+knitr::opts_chunk$set(fig.lp = '')
+knitr::opts_chunk$set(echo=F)
+
+library(tidyverse)
+library(ggthemes)
+library(patchwork)
+source("utils.R")
+```
+
+```{r data generation, echo = FALSE, results = "hide"}
+## DATA GENERATION
+df_vardesc <- get_var_desc()
+
+n <- sample(80:120,1)
+r1 <- runif(1,0.7,0.9)
+r2 <- runif(1,0.1,0.4)
+
+df1 <- generate_correlated_data(n,r1)
+df2 <- generate_correlated_data(n,r2)
+
+
+X1 <- df1[, 1]  
+Y1 <- df1[, 2]  
+X2 <- df2[, 1]  
+Y2 <- df2[, 2]  
+
+
+df_currvars <- df_vardesc %>% 
+  filter(type == "numeric") %>% 
+  sample_n(2) %>% 
+  rowwise() %>% 
+  mutate(mean = compute_mean(values, pdist), sd = compute_sd(values,pdist))
+
+X1 <- rescale_var(X1,df_currvars$mean[1],df_currvars$sd[1])
+Y1 <- rescale_var(Y1,df_currvars$mean[2],df_currvars$sd[2])
+
+df_data1 <- tibble(!!df_currvars$name[1]:=X1,!!df_currvars$name[2]:=Y1) 
+
+X2 <- rescale_var(X2,df_currvars$mean[1],df_currvars$sd[1]) 
+Y2 <- rescale_var(Y2,df_currvars$mean[2],df_currvars$sd[2]) 
+
+df_data2 <- tibble(!!df_currvars$name[1]:=X2,!!df_currvars$name[2]:=Y2) 
+
+#cor(X, Y)  # yay!
+#cor(X*0.01 + 42, Y*3 - 1)
+
+plot_titles <- c("Muži","Ženy")
+plot_left_title <- sample(plot_titles,1)
+plot_right_title <- setdiff(plot_titles,plot_left_title)
+
+if (runif(1) <0.5) {
+  df_left <- df_data1  
+  df_right <- df_data2
+  corr_larger <- plot_left_title
+} else {
+  df_left <- df_data2  
+  df_right <- df_data1
+  corr_larger <- plot_right_title
+}
+
+
+x_ranges <- df_currvars$values[1] %>% extract_ranges_vec()
+xmin <- x_ranges[1]
+xmax <- x_ranges[2]
+
+y_ranges <- df_currvars$values[2] %>% extract_ranges_vec()
+ymin <- y_ranges[1]
+ymax <- y_ranges[2]
+
+questions <- plot_titles
+solutions <- rep(F,length(plot_titles))
+solutions[plot_titles == corr_larger] <- T
+
+o <- sample(1:length(plot_titles))
+questions <- questions[o]
+solutions <- solutions[o]
+
+```
+
+Question
+========
+V rámci `r sample(c("průzkumu","dotazníkového šetření","firemního průzkumu"),1)` byla sesbírána data o `r n` osobách. 
+V následujících grafech vidíme vztahy mezi proměnnými `r  df_currvars$name[1]` a `r df_currvars$name[2]` zvlášť pro muže a ženy. Rozhodněte, zda je větší korelace pro podskupinu mužů nebo žen.
+
+Data vypadají následovně:
+
+```{r graf,echo = FALSE, warning =F,message=F, fig.width=10}
+p1 <- df_left %>% ggplot(aes(x = !!sym(df_currvars$name[1]),!!sym(df_currvars$name[2]))) + theme(aspect.ratio = 1) + 
+  geom_point() + 
+  ggtitle(plot_left_title)+ xlim(xmin,xmax) + ylim(ymin,ymax)
+
+p2 <- df_right %>% ggplot(aes(x = !!sym(df_currvars$name[1]),!!sym(df_currvars$name[2]))) + theme(aspect.ratio = 1) + 
+  geom_point() + 
+  ggtitle(plot_right_title) + xlim(xmin,xmax) + ylim(ymin,ymax)
+p1+p2
+```
+
+
+Která ze skupin má vyšší korelaci?
+
+```{r questionlist, echo = FALSE, results = "asis"}
+answerlist(questions, markup = "markdown")
+```
+
+Solution
+========
+Korelace pro levý graf je `r fmt(cor(df_left[1],df_left[2]),2)`, pro pravý je `r fmt(cor(df_right[1],df_right[2]),2)` Vyšší korelaci mají tedy `r corr_larger`.
+
+Meta-information
+================
+extype: schoice
+exsolution: `r mchoice2string(solutions, single = TRUE)`
+exname: correlation_which_larger

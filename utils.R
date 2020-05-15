@@ -35,6 +35,16 @@ compute_mean <- function(v,pdist) {
   }
 }
 
+get_var_desc <- function() {
+  tibble(name = c("příjmy","výdaje","pohlaví","oblíbené zvíře","počet bodů v testu", "studijní průměr na VŠ"),
+         type = c("numeric","numeric","factor","factor","numeric","numeric"),
+         values = c("10000-100000","1000-40000","muž|žena|jiné","kočka|pes","0-40","1-3"),
+         pdist = c("unif","norm","unif","unif","norm","norm"))
+}
+
+generate_correlated_data <- function(n,r) {
+  MASS::mvrnorm(n=n, mu=c(0, 0), Sigma=matrix(c(1, r, r, 1), nrow=2), empirical=TRUE)
+}
 
 compute_sd <- function(v,pdist) {
   ranges <- extract_ranges_vec(v)
