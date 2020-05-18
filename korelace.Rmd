@@ -5,56 +5,84 @@ date: '`r format(Sys.time(), "%d %B, %Y")`'
 output: html_document
 ---
 
-```{r}
-library(tidyverse)
+```{r setup, code = readLines("D:/Documents/git/exams_vspj/common_chunks.R")}
+
 ```
 
-```{r data generation, echo = FALSE, results = "hide"}
-## DATA GENERATION
-n <- sample(6:8, 1)
-x <- sample(0:10,n)
-reg_type <- ifelse()
-if(rnorm(1) < 0.2) { # quadratic
-  b2 <- runif(1, min = 0.1, max = 0.3)
-  b1 <- runif(1, min = 0.1, max = 0.3)
-  b0 <- runif(1, min = -1, max = 1)
-  y <- round(b2*x^2+b1*x +b0)
-  y[y<0] <- 0
+
+```{r data generation, echo = FALSE, message=T}
+
+df_assignmnent <- get_var_desc(curr_theme = "couples_theater")
+df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
+text_question <- sample(df_assignmnent$question,1)
+
+n <- sample(5:10,1)
+r <- runif(1,-1,1)
+
+df_currvars <- df_vardesc %>% 
+    filter(type == "numeric") %>% 
+    sample_n(2) %>% 
+    rowwise() %>% 
+    mutate(mean = compute_mean(values, pdist), sd = compute_sd(values,pdist))
+
+var_ranges <- extract_ranges(df_currvars)
+x_lower <- var_ranges[1,1]
+x_upper <- var_ranges[1,2]
+y_lower <- var_ranges[2,1]
+y_upper <- var_ranges[2,2]
+
+should_continue <- T
+n_try <- 0
+while (should_continue) {
+  n_try <- n_try+1
+  if(n_try > 99) {
+    stop("Impossible to generate, check the variables")
+  }
+  df <- generate_correlated_data(n,r)
   
-} else {
-  b1 <- runif(1, min = 0.1, max = 1.1)
-  b0 <- runif(1, min = -1, max = 1)
-  y <- round(b1*x +b0)
-  y[y<0] <- 0
+  X <- df[, 1]  # standard normal (mu=0, sd=1)
+  Y <- df[, 2]  # standard normal (mu=0, sd=1)
+  
+  X <- rescale_var(X,df_currvars$mean[1],df_currvars$sd[1]) %>% round(df_currvars$round_val[1])
+  Y <- rescale_var(Y,df_currvars$mean[2],df_currvars$sd[2]) %>% round(df_currvars$round_val[2])
+  
+  should_continue <- !(check_var(X, x_lower,x_upper) & check_var(Y, y_lower,y_upper))
 }
+df_data <- tibble(!!df_currvars$name[1]:=X,!!df_currvars$name[2]:=Y) 
+
 
 
 ```
 
 Question
 ========
-U osmi manželských párů se zjišťovalo, kolikrát během roku navštívil každý z manželů divadlo.
+```{r, results='asis'}
+cat(eval(parse(text=text_question)))
+```
 
 Data vypadají následovně:
 
 ```{r echo = FALSE}
-knitr::kable(tibble(muz=x,zena=y))
+knitr::kable(df_data)
 ```
 
 Určete Pearsonův korelační koeficient (s přesností na 2 desetinná místa)
 
 Solution
 ========
-Korelaci spočítáme pomocí funkce CORREL, výsledek je `r fmt(cor(x,y),2)`.  
+Korelaci spočítáme pomocí funkce CORREL, výsledek je `r exams::fmt(cor(X,Y),2)`.  
 Bodový graf vypadá následovně:
 
 ```{r echo = FALSE}
-plot(x,y)
+df_data %>% 
+  ggplot(aes(x=!!sym(colnames(df_data)[1]), y=!!sym(colnames(df_data)[2]))) +
+  geom_point() + 
+  theme(aspect.ratio = 1)
 ```
 
 Meta-information
 ================
 extype: num
-exsolution: `r fmt(cor(x,y),2)`
+exsolution: `r exams::fmt(cor(X,Y),2)`
 exname: correlation
 extol: 0.01

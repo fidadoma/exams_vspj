@@ -6,15 +6,8 @@ output: html_document
   fig_caption: false
 ---
 
-```{r echo = F}
-library(knitr)
-opts_chunk$set(fig.lp = '')
-```
+```{r setup, code = readLines("D:/Documents/git/exams_vspj/common_chunks.R")}
 
-```{r}
-library(tidyverse)
-library(ggthemes)
-source("utils.R")
 ```
 
 ```{r data generation, echo = FALSE, results = "hide"}
@@ -23,12 +16,12 @@ source("utils.R")
 #curr_theme <- sample(possible_themes,1)
 #theme_set(eval(parse(text=as.character(curr_theme))))
 
-df_vardesc <- tibble(name = c("příjmy","výdaje","pohlaví","favourite pet"),
-                     type = c("numeric","numeric","factor","factor"),
-                     values = c("10000-100000","1000-40000","muž|žena|jiné","kočka|pes"))
+df_assignmnent <- get_var_desc()
+df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
+text_question <- sample(df_assignmnent$question,1)
 
 plot_types <- c("scatter","hist","pie","boxplot")
-
+plot_names <- c("Bodový graf","Histogram","Koláčový graf","Krabickový graf")
 curr_plot_type <- sample(plot_types,1)
 
 if(curr_plot_type == "hist") {
@@ -43,7 +36,7 @@ if(curr_plot_type == "hist") {
  df_data <- tibble(!!curr_name:=curr_vals)
  p <- df_data %>% 
    ggplot(aes(x=!!sym(curr_name))) +
-   geom_histogram() + 
+   geom_histogram(bins = 30) + 
    theme(aspect.ratio = 1)
 } else if(curr_plot_type == "scatter") {
   n <- sample(5:50,1)
@@ -64,7 +57,7 @@ if(curr_plot_type == "hist") {
    ggplot(aes(x=!!sym(curr_name1), y=!!sym(curr_name2))) +
    geom_point() + 
    theme(aspect.ratio = 1)
-} else if(curr_plot_type == "scatter") {
+} else if(curr_plot_type == "pie") {
   n <- sample(5:50,1)
   df_var_numeric <- df_vardesc %>% 
     filter(type == "numeric") %>% 
@@ -114,11 +107,11 @@ if(curr_plot_type == "hist") {
  
 }
 
-questions <- plot_types
-solutions <- rep(F,length(plot_types))
+questions <- plot_names
+solutions <- rep(F,length(plot_names))
 solutions[plot_types == curr_plot_type] <- T
 
-o <- sample(1:length(plot_types))
+o <- sample(1:length(plot_names))
 questions <- questions[o]
 solutions <- solutions[o]
 ```
@@ -138,7 +131,7 @@ answerlist(questions, markup = "markdown")
 
 Solution
 ========
-Tento graf se nazývá `r curr_plot_type`.
+Tento graf se nazývá `r questions[solutions]`.
 
 Meta-information
 ================

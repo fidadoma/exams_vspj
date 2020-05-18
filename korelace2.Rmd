@@ -5,29 +5,33 @@ date: '`r format(Sys.time(), "%d %B, %Y")`'
 output: html_document
 ---
 
-```{r}
-library(tidyverse)
+```{r setup, code = readLines("D:/Documents/git/exams_vspj/common_chunks.R")}
+
 ```
 
 ```{r data generation, echo = FALSE, results = "hide"}
-## DATA GENERATION
-n <- sample(10:14, 1)
-x <- sample(0:15,n)
+df_assignmnent <- get_var_desc()
+df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
+text_question <- sample(df_assignmnent$question,1)
 
-reg_type <- ifelse(rnorm(1) < 0.2,"quadratic","linear")
-if(reg_type == "quadratic") {
-  b2 <- runif(1, min = -0.3, max = 0.3)
-  b1 <- runif(1, min = -0.3, max = 0.3)
-  b0 <- runif(1, min = 30, max = 70)
-  y <- round(b2*x^2+b1*x +b0)
-  y[y<0] <- 0
-  
-} else {
-  b1 <- runif(1, min = -2, max = 2)
-  b0 <- runif(1, min = 30, max = 70)
-  y <- round(b1*x +b0)
-  y[y<0] <- 0
-}
+n <- sample(5:10,1)
+r <- runif(1,-1,1)
+
+
+df <- generate_correlated_data(n,r)
+
+X <- df[, 1]  # standard normal (mu=0, sd=1)
+Y <- df[, 2]  # standard normal (mu=0, sd=1)
+
+df_currvars <- df_vardesc %>% 
+  filter(type == "numeric") %>% 
+  sample_n(2) %>% 
+  rowwise() %>% 
+  mutate(mean = compute_mean(values, pdist), sd = compute_sd(values,pdist))
+
+X <- rescale_var(X,df_currvars$mean[1],df_currvars$sd[1]) %>% round(df_currvars$round_val[1])
+Y <- rescale_var(Y,df_currvars$mean[2],df_currvars$sd[2]) %>% round(df_currvars$round_val[2])
+df_data <- tibble(!!df_currvars$name[1]:=X,!!df_currvars$name[2]:=Y) 
 
 
 ```

@@ -5,15 +5,8 @@ date: '`r format(Sys.time(), "%d %B, %Y")`'
 output: html_document
 ---
 
-```{r setup, echo = F}
+```{r setup, code = readLines("D:/Documents/git/exams_vspj/common_chunks.R")}
 
-knitr::opts_chunk$set(fig.lp = '')
-knitr::opts_chunk$set(echo=F)
-
-library(tidyverse)
-library(ggthemes)
-library(patchwork)
-source("utils.R")
 ```
 
 ```{r data generation, echo = FALSE, results = "hide"}
@@ -26,32 +19,48 @@ n <- sample(80:120,1)
 r1 <- runif(1,0.7,0.9)*sample(c(-1,1),1)
 r2 <- runif(1,0.4,0.6)*sample(c(-1,1),1)
 
-df1 <- generate_correlated_data(n,r1)
-df2 <- generate_correlated_data(n,r2)
-
-
-X1 <- df1[, 1]  
-Y1 <- df1[, 2]  
-X2 <- df2[, 1]  
-Y2 <- df2[, 2]  
-
-
 df_currvars <- df_vardesc %>% 
   filter(type == "numeric") %>% 
   sample_n(2) %>% 
   rowwise() %>% 
   mutate(mean = compute_mean(values, pdist), sd = compute_sd(values,pdist))
 
-X1 <- rescale_var(X1,df_currvars$mean[1],df_currvars$sd[1])
-Y1 <- rescale_var(Y1,df_currvars$mean[2],df_currvars$sd[2])
+var_ranges <- extract_ranges(df_currvars)
+x_lower <- var_ranges[1,1]
+x_upper <- var_ranges[1,2]
+y_lower <- var_ranges[2,1]
+y_upper <- var_ranges[2,2]
 
+
+should_continue <- T
+n_try <- 0
+
+while (should_continue) {
+  n_try <- n_try+1
+  if(n_try > 99) {
+    stop("Impossible to generate, check the variables")
+  }
+  
+  df1 <- generate_correlated_data(n,r1)
+  df2 <- generate_correlated_data(n,r2)
+  
+  
+  X1 <- df1[, 1]  
+  Y1 <- df1[, 2]  
+  X2 <- df2[, 1]  
+  Y2 <- df2[, 2]  
+  
+  X1 <- rescale_var(X1,df_currvars$mean[1],df_currvars$sd[1])
+  Y1 <- rescale_var(Y1,df_currvars$mean[2],df_currvars$sd[2])
+  
+  X2 <- rescale_var(X2,df_currvars$mean[1],df_currvars$sd[1]) 
+  Y2 <- rescale_var(Y2,df_currvars$mean[2],df_currvars$sd[2]) 
+  
+  should_continue <- !(check_var(X1, x_lower,x_upper) & check_var(X2, x_lower,x_upper) & check_var(Y1, y_lower,y_upper) & check_var(Y2, y_lower,y_upper))
+  
+}
 df_data1 <- tibble(!!df_currvars$name[1]:=X1,!!df_currvars$name[2]:=Y1) 
-
-X2 <- rescale_var(X2,df_currvars$mean[1],df_currvars$sd[1]) 
-Y2 <- rescale_var(Y2,df_currvars$mean[2],df_currvars$sd[2]) 
-
 df_data2 <- tibble(!!df_currvars$name[1]:=X2,!!df_currvars$name[2]:=Y2) 
-
 #cor(X, Y)  # yay!
 #cor(X*0.01 + 42, Y*3 - 1)
 
@@ -100,7 +109,7 @@ Question
 ========
 
 ```{r, results='asis'}
-cat(eval(parse(text=df_assignmnent$question)))
+cat(eval(parse(text=text_question)))
 ```
 
 V následujících grafech vidíme vztahy mezi proměnnými `r  df_currvars$name[1]` a `r df_currvars$name[2]` zvlášť pro lidi z vesnic a lidé z města. Rozhodněte, které korelace jsou kladné a které záporné.

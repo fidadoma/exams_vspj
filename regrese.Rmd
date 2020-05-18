@@ -1,24 +1,16 @@
 ---
-title: "Typ grafu"
+title: "Regrese"
 author: "Filip Děchtěrenko"
 date: '`r format(Sys.time(), "%d %B, %Y")`'
 output: html_document
-  fig_caption: false
 ---
 
-```{r echo = F}
-library(knitr)
-opts_chunk$set(fig.lp = '')
-opts_chunk$set(echo=F)
+```{r setup, code = readLines("D:/Documents/git/exams_vspj/common_chunks.R")}
+
 ```
 
-```{r}
-library(tidyverse)
-library(ggthemes)
-source("utils.R")
-```
 
-```{r data generation, echo = FALSE, results = "hide"}
+```{r data generation, echo = FALSE}
 #possible_themes <- c("theme_bw","theme_dark","theme_minimal","theme_economist")
 
 #curr_theme <- sample(possible_themes,1)
@@ -31,20 +23,37 @@ text_question <- sample(df_assignmnent$question,1)
 n <- sample(5:10,1)
 r <- runif(1,-1,1)
 
-
-df <- generate_correlated_data(n,r)
-
-X <- df[, 1]  # standard normal (mu=0, sd=1)
-Y <- df[, 2]  # standard normal (mu=0, sd=1)
-
 df_currvars <- df_vardesc %>% 
   filter(type == "numeric") %>% 
   sample_n(2) %>% 
   rowwise() %>% 
   mutate(mean = compute_mean(values, pdist), sd = compute_sd(values,pdist))
 
-X <- rescale_var(X,df_currvars$mean[1],df_currvars$sd[1]) %>% round(df_currvars$round_val[1])
-Y <- rescale_var(Y,df_currvars$mean[2],df_currvars$sd[2]) %>% round(df_currvars$round_val[2])
+var_ranges <- extract_ranges(df_currvars)
+x_lower <- var_ranges[1,1]
+x_upper <- var_ranges[1,2]
+y_lower <- var_ranges[2,1]
+y_upper <- var_ranges[2,2]
+
+should_continue <- T
+n_try <- 0
+
+while (should_continue) {
+  n_try <- n_try+1
+  if(n_try > 99) {
+    stop("Impossible to generate, check the variables")
+  }
+  
+  df <- generate_correlated_data(n,r)
+  
+  X <- df[, 1]  # standard normal (mu=0, sd=1)
+  Y <- df[, 2]  # standard normal (mu=0, sd=1)
+  
+  
+  X <- rescale_var(X,df_currvars$mean[1],df_currvars$sd[1]) %>% round(df_currvars$round_val[1])
+  Y <- rescale_var(Y,df_currvars$mean[2],df_currvars$sd[2]) %>% round(df_currvars$round_val[2])
+  should_continue <- !(check_var(X, x_lower,x_upper) & check_var(Y, y_lower,y_upper))
+}
 df_data <- tibble(!!df_currvars$name[1]:=X,!!df_currvars$name[2]:=Y) 
 
 lm1 <- lm(Y~X)
@@ -58,10 +67,10 @@ lm1 <- lm(Y~X)
 Question
 ========
 ```{r, results='asis'}
-cat(eval(parse(text=df_assignmnent$question)))
+cat(eval(parse(text=text_question)))
 ```
 
-Spočítejte regresní koeficienty ($b_0$ a $b_1$) předpovídající `r df_currvars$name[2]` v závislosti na `r df_currvars$name[2]`. Data vypadají následovně:
+Spočítejte koeficient determinace ($R^2$) předpovídající `r df_currvars$name[1]` v závislosti na `r df_currvars$name[2]`. Data vypadají následovně:
 
 ```{r graf,echo = FALSE, warning =F,message=F}
 df_data %>% knitr::kable()
@@ -80,28 +89,14 @@ df_data %>%
 
 Lineární závislost popisujeme rovnicí ve tvaru $y = b_1x+b_0$. Pro výpočet koeficientu determinace použijeme funkci CORREL()*CORREL()
 
-Regresní koeficienty jsou:
+V tomto případě je koeficient determinace roven `r exams::fmt(summary(lm1)$r.squared,2)`
 
-* $b_0$ = `r exams::fmt(coef(lm1)[1])`
-* $b_1$ = `r exams::fmt(coef(lm1)[2])`
-
-Pokud zobrazíme regresní přímku do grafu, vychází to následovně.
-
-
-```{r plot-plus-regression, fig.path = "", fig.cap = ""}
-df_data %>% 
-  ggplot(aes(x=!!sym(colnames(df_data)[1]), y=!!sym(colnames(df_data)[2]))) +
-  geom_point() + 
-  theme(aspect.ratio = 1) +
-  stat_smooth(method ="lm", se = F, formula='y ~ x')
-
-```
 
 
 
 Meta-information
 ================
 extype: num
-exsolution: `r fmt(summary(lm1)$r.squared,2)`
-exname: correlation
+exsolution: `r exams::fmt(summary(lm1)$r.squared,2)`
+exname: regression_R2
 extol: 0.01
