@@ -35,11 +35,21 @@ compute_mean <- function(v,pdist) {
   }
 }
 
-get_var_desc <- function() {
-  tibble(name = c("příjmy","výdaje","pohlaví","oblíbené zvíře","počet bodů v testu", "studijní průměr na VŠ"),
-         type = c("numeric","numeric","factor","factor","numeric","numeric"),
-         values = c("10000-100000","1000-40000","muž|žena|jiné","kočka|pes","0-40","1-3"),
-         pdist = c("unif","norm","unif","unif","norm","norm"))
+get_var_desc <- function(curr_theme = NULL) {
+  df1_vars <- readxl::read_excel("data/input_data.xlsx",sheet = "variables")
+  df1_questions <- readxl::read_excel("data/input_data.xlsx",sheet = "questions")
+  
+  themes <- df1_vars$group_theme %>% unique()
+  if(is.null(curr_theme)) {
+    curr_theme <- sample(themes,1)  
+  }
+  
+  
+  df_vars <- df1_vars %>% filter(group_theme == curr_theme)
+  df_questions <- df1_questions %>% filter(group_theme == curr_theme) %>% sample_n(1)
+  df_all <- tibble(question = df_questions$test_questions, 
+                   var_desc = nest(df_vars, data = everything()))
+  df_all
 }
 
 generate_correlated_data <- function(n,r) {

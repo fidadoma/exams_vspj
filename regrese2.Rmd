@@ -78,7 +78,7 @@ df_data %>%
   theme(aspect.ratio = 1)
 ```
 
-Lineární závislost popisujeme rovnicí ve tvaru $y = b_1x+b_0$. Pro výpočet koeficientu determinace použijeme funkci CORREL()*CORREL()
+Lineární závislost popisujeme rovnicí ve tvaru $y = b_1x+b_0$. Pro výpočet regresních koeficientů můžeme využít funkce INTERCEPT (pro parameter $b_0$) a SLOPE (pro parametr $b_1$)
 
 Regresní koeficienty jsou:
 
@@ -101,7 +101,8 @@ df_data %>%
 
 Meta-information
 ================
-extype: num
-exsolution: `r fmt(summary(lm1)$r.squared,2)`
-exname: correlation
+extype: cloze
+exsolution: `r exams::fmt(coef(lm1)[1])`|`r exams::fmt(coef(lm1)[2])`
+exclozetype: num|num
 extol: 0.01
+exname: regrese
