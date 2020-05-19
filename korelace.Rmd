@@ -46,7 +46,7 @@ while (should_continue) {
   X <- rescale_var(X,df_currvars$mean[1],df_currvars$sd[1]) %>% round(df_currvars$round_val[1])
   Y <- rescale_var(Y,df_currvars$mean[2],df_currvars$sd[2]) %>% round(df_currvars$round_val[2])
   
-  should_continue <- !(check_var(X, x_lower,x_upper) & check_var(Y, y_lower,y_upper))
+  should_continue <- !any(check_var(X, x_lower,x_upper) & check_var(Y, y_lower,y_upper))
 }
 df_data <- tibble(!!df_currvars$name[1]:=X,!!df_currvars$name[2]:=Y) 
 
