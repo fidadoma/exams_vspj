@@ -23,11 +23,7 @@ df <- generate_correlated_data(n,r)
 X <- df[, 1]  # standard normal (mu=0, sd=1)
 Y <- df[, 2]  # standard normal (mu=0, sd=1)
 
-df_currvars <- df_vardesc %>% 
-  filter(type == "numeric") %>% 
-  sample_n(2) %>% 
-  rowwise() %>% 
-  mutate(mean = compute_mean(values, pdist), sd = compute_sd(values,pdist))
+df_currvars <- sample_vars(df_vardesc, nvar = 2)
 
 X <- rescale_var(X,df_currvars$mean[1],df_currvars$sd[1]) %>% round(df_currvars$round_val[1])
 Y <- rescale_var(Y,df_currvars$mean[2],df_currvars$sd[2]) %>% round(df_currvars$round_val[2])

@@ -19,11 +19,7 @@ text_question <- sample(df_assignmnent$question,1)
 n <- sample(5:10,1)
 r <- runif(1,-1,1)
 
-df_currvars <- df_vardesc %>% 
-  filter(type == "numeric") %>% 
-  sample_n(2) %>% 
-  rowwise() %>% 
-  mutate(mean = compute_mean(values, pdist), sd = compute_sd(values,pdist))
+df_currvars <- sample_vars(df_vardesc, nvar = 2)
 
 var_ranges <- extract_ranges(df_currvars)
 x_lower <- var_ranges[1,1]

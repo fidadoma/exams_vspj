@@ -77,3 +77,12 @@ check_var <- function(x,x_lower,x_upper) {
   x>=x_lower&x<=x_upper
   
 }
+
+sample_vars <- function(df_vardesc, var_type = "numeric", nvar = 2) {
+  df_vardesc %>% 
+    filter(type == var_type) %>% 
+    sample_n(nvar) %>% 
+    rowwise() %>% 
+    mutate(mean = compute_mean(values, pdist), 
+           sd = compute_sd(values,pdist))
+}
