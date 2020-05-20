@@ -3,7 +3,8 @@ extract_ranges <- function(df_var) {
                 pattern = "-", 
                 simplify = T) %>% 
     as.numeric()  
-  matrix(r, ncol = nrow(df_var))
+  m <- matrix(r, ncol = nrow(df_var))
+  colnames(m) <- c("lower","upper")
 }
 
 extract_ranges_vec <- function(v) {
@@ -85,4 +86,32 @@ sample_vars <- function(df_vardesc, var_type = "numeric", nvar = 2) {
     rowwise() %>% 
     mutate(mean = compute_mean(values, pdist), 
            sd = compute_sd(values,pdist))
+}
+
+safe_generate_correlated_data <- function(n, r, var_ranges) {
+  x_lower <- var_ranges[1,1]
+  x_upper <- var_ranges[1,2]
+  y_lower <- var_ranges[2,1]
+  y_upper <- var_ranges[2,2]
+  should_continue <- T
+  n_try <- 0
+  
+  while (should_continue) {
+    n_try <- n_try+1
+    if(n_try > 99) {
+      stop("Impossible to generate, check the variables")
+    }
+    
+    df <- generate_correlated_data(n,r)
+    
+    X <- df[, 1]  # standard normal (mu=0, sd=1)
+    Y <- df[, 2]  # standard normal (mu=0, sd=1)
+    
+    
+    X <- rescale_var(X,df_currvars$mean[1],df_currvars$sd[1]) %>% round(df_currvars$round_val[1])
+    Y <- rescale_var(Y,df_currvars$mean[2],df_currvars$sd[2]) %>% round(df_currvars$round_val[2])
+    should_continue <- !(check_var(X, x_lower,x_upper) & check_var(Y, y_lower,y_upper))
+  }
+  df_data <- tibble(!!df_currvars$name[1]:=X,!!df_currvars$name[2]:=Y) 
+  
 }

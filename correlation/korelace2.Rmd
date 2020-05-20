@@ -20,16 +20,9 @@ r <- runif(1,-1,1)
 
 df <- generate_correlated_data(n,r)
 
-X <- df[, 1]  # standard normal (mu=0, sd=1)
-Y <- df[, 2]  # standard normal (mu=0, sd=1)
+var_ranges <- extract_ranges(df_currvars)
 
-df_currvars <- sample_vars(df_vardesc, nvar = 2)
-
-X <- rescale_var(X,df_currvars$mean[1],df_currvars$sd[1]) %>% round(df_currvars$round_val[1])
-Y <- rescale_var(Y,df_currvars$mean[2],df_currvars$sd[2]) %>% round(df_currvars$round_val[2])
-df_data <- tibble(!!df_currvars$name[1]:=X,!!df_currvars$name[2]:=Y) 
-
-
+df_data <- safe_generate_correlated_data(n,r,var_ranges)
 ```
 
 Question
