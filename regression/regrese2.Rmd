@@ -21,8 +21,7 @@ r <- runif(1,-1,1)
 
 df_currvars <- sample_vars(df_vardesc, nvar = 2)
 
-var_ranges <- extract_ranges(df_currvars)
-df_data <- safe_generate_correlated_data(n,r,var_ranges)
+df_data <- safe_generate_correlated_data(n,r,df_currvars)
 
 lm1 <- lm(Y~X)
 

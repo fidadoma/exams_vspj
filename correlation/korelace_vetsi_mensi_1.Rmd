@@ -21,9 +21,8 @@ r2 <- runif(1,0.1,0.4)
 
 df_currvars <- sample_vars(df_vardesc, nvar = 2)
 
-var_ranges <- extract_ranges(df_currvars)
-df_data1 <- safe_generate_correlated_data(n,r1,var_ranges)
-df_data2 <- safe_generate_correlated_data(n,r1,var_ranges)
+df_data1 <- safe_generate_correlated_data(n,r1,df_currvars)
+df_data2 <- safe_generate_correlated_data(n,r1,df_currvars)
 
 plot_titles <- c("Muži","Ženy")
 plot_left_title <- sample(plot_titles,1)
