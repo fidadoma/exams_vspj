@@ -88,7 +88,9 @@ sample_vars <- function(df_vardesc, var_type = "numeric", nvar = 2) {
            sd = compute_sd(values,pdist))
 }
 
-safe_generate_correlated_data <- function(n, r, var_ranges) {
+safe_generate_correlated_data <- function(n, r, df_currvars) {
+  stopifnot(nrow(df)==2)
+  var_ranges <- extract_ranges(df_currvars)
   x_lower <- var_ranges[1,1]
   x_upper <- var_ranges[1,2]
   y_lower <- var_ranges[2,1]
@@ -113,5 +115,35 @@ safe_generate_correlated_data <- function(n, r, var_ranges) {
     should_continue <- !(check_var(X, x_lower,x_upper) & check_var(Y, y_lower,y_upper))
   }
   df_data <- tibble(!!df_currvars$name[1]:=X,!!df_currvars$name[2]:=Y) 
+  df_data
+}
+
+safe_generate_data <- function(n, df_currvars) {
+  stopifnot(nrow(df)==1)
+  var_ranges <- extract_ranges(df_currvars)
+  x_lower <- var_ranges[1,1]
+  x_upper <- var_ranges[1,2]
+  should_continue <- T
+  n_try <- 0
   
+  while (should_continue) {
+    n_try <- n_try+1
+    if(n_try > 99) {
+      stop("Impossible to generate, check the variables")
+    }
+    
+    if(df_currvars$pdist == "norm") {
+      X <- rnorm(n)  
+    } else if(df_currvars$pdist == "unif") {
+      X <- runif(n)  
+    }
+    
+    X <- df[, 1]  
+    
+    X <- rescale_var(X,df_currvars$mean[1],df_currvars$sd[1]) %>% round(df_currvars$round_val[1])
+    
+    should_continue <- !(check_var(X, x_lower,x_upper))
+  }
+  df_data <- tibble(!!df_currvars$name[1]:=X) 
+  df_data
 }

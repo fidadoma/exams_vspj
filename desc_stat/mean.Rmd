@@ -1,0 +1,58 @@
+---
+title: "Korelace"
+author: "Filip Děchtěrenko"
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+output: html_document
+---
+
+```{r setup, code = readLines("D:/Documents/git/exams_vspj/common_chunks.R")}
+
+```
+
+
+```{r data generation, echo = FALSE, message=T}
+
+df_assignmnent <- get_var_desc()
+df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
+text_question <- sample(df_assignmnent$question,1)
+
+n <- sample(5:15,1)
+
+df_currvars <- sample_vars(df_vardesc, nvar = 1)
+
+df_data <- safe_generate_data(n,df_currvars)
+
+```
+
+Question
+========
+```{r, results='asis'}
+cat(eval(parse(text=text_question)))
+```
+
+Data vypadají následovně:
+
+```{r echo = FALSE}
+knitr::kable(df_data)
+```
+
+Určete Pearsonův korelační koeficient (s přesností na 2 desetinná místa)
+
+Solution
+========
+Korelaci spočítáme pomocí funkce CORREL, výsledek je `r exams::fmt(cor(X,Y),2)`.  
+Bodový graf vypadá následovně:
+
+```{r echo = FALSE}
+df_data %>% 
+  ggplot(aes(x=!!sym(colnames(df_data)[1]), y=!!sym(colnames(df_data)[2]))) +
+  geom_point() + 
+  theme(aspect.ratio = 1)
+```
+
+Meta-information
+================
+extype: num
+exsolution: `r exams::fmt(cor(X,Y),2)`
+exname: correlation
+extol: 0.01
