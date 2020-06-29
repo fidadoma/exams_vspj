@@ -75,6 +75,10 @@ rescale_var <- function(x, m, sd) {
   as.numeric(scale(x)*sd+m)
 }
 
+rescale_var_range <- function(x, old_min, old_max, new_min, new_max) {
+  return (new_max - new_min) * (x - old_min) / (old_max - old_min) + new_min
+}
+
 check_var <- function(x,x_lower,x_upper) {
   all(x>=x_lower&x<=x_upper)
   
