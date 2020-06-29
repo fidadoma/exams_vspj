@@ -5,6 +5,7 @@ extract_ranges <- function(df_var) {
     as.numeric()  
   m <- matrix(r, ncol = nrow(df_var))
   colnames(m) <- c("lower","upper")
+  m
 }
 
 extract_ranges_vec <- function(v) {
@@ -37,8 +38,8 @@ compute_mean <- function(v,pdist) {
 }
 
 get_var_desc <- function(curr_theme = NULL) {
-  df1_vars <- readxl::read_excel("D:/Documents/git/exams_vspj/data/input_data.xlsx",sheet = "variables",na="NA")
-  df1_questions <- readxl::read_excel("D:/Documents/git/exams_vspj/data/input_data.xlsx",sheet = "questions")
+  df1_vars <- readxl::read_excel("data/input_data.xlsx",sheet = "variables",na="NA")
+  df1_questions <- readxl::read_excel("data/input_data.xlsx",sheet = "questions")
   
   themes <- df1_vars %>% filter(exam_type=="all") %>% pull(group_theme) %>% unique()
   if(is.null(curr_theme)) {
@@ -62,7 +63,7 @@ compute_sd <- function(v,pdist) {
   if(pdist == "unif") {
     a <- ranges[1]
     b <- ranges[2]
-    return(sqrt((a+b)^2/12))
+    return(sqrt(((a+b)^2)/12))
   } else if(pdist == "norm"){
     a <- ranges[1]
     b <- ranges[2]
@@ -75,7 +76,7 @@ rescale_var <- function(x, m, sd) {
 }
 
 check_var <- function(x,x_lower,x_upper) {
-  x>=x_lower&x<=x_upper
+  all(x>=x_lower&x<=x_upper)
   
 }
 

@@ -1,0 +1,111 @@
+---
+title: "Korelace - vetsi mensi"
+author: "Filip Děchtěrenko"
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+output: html_document
+---
+
+```{r setup, code = readLines("D:/Documents/git/exams_vspj/common_chunks.R")}
+
+```
+
+```{r data generation, echo = FALSE, results = "hide"}
+## DATA GENERATION
+df_assignmnent <- get_var_desc()
+df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
+text_question <- sample(df_assignmnent$question,1)
+
+n <- sample(80:120,1)
+r0 <- 0
+r1 <- runif(1,0.7,0.9)
+r2 <- runif(1,0.4,0.6)
+r3 <- runif(1,-0.9,-0.7)
+r4 <- runif(1,-0.6,-0.4)
+
+rs <- c(r0,r1,r2,r3,r4) %>% sample(3)
+
+df_currvars <- sample_vars(df_vardesc, nvar = 2)
+
+df_data1 <- safe_generate_correlated_data(n,rs[1],df_currvars)
+df_data2 <- safe_generate_correlated_data(n,rs[2],df_currvars)
+df_data3 <- safe_generate_correlated_data(n,rs[3],df_currvars)
+
+l_data <- list(df_data1, df_data2, df_data3)
+
+selected_plot <- sample(3,1)
+selected_r    <- rs[selected_plot] 
+selected_data <- l_data[selected_plot]
+rest_data     <- l_data[setdiff(1:3,selected_plot)]
+
+test_question <- case_when(
+  selected_r <= -0.7 ~ "jako velmi silně negativní",
+  selected_r <= -0.4 ~ "jako mírně až silně negativní",
+  selected_r == 0 ~ "jako nulový",
+  selected_r >= 0.7 ~ "jako velmi silně pozitivní",
+  selected_r >= 0.4 ~ "jako mírně až silně pozitivní"
+) 
+
+x_ranges <- df_currvars$values[1] %>% extract_ranges_vec()
+xmin <- x_ranges[1]
+xmax <- x_ranges[2]
+
+y_ranges <- df_currvars$values[2] %>% extract_ranges_vec()
+ymin <- y_ranges[1]
+ymax <- y_ranges[2]
+
+questions <- c("Obě pozitivní","Obě negativní","Vlevo pozitivní, vpravo negativní","Vlevo negativní, vpravo pozitivní")
+solutions <- rep(F,length(questions))
+if(r1>0&r2>0) {
+  solutions[1] <- T
+} else if(r1<0&r2<0) {
+  solutions[2] <- T
+} else if(r1>0&r2<0) {
+  solutions[3] <- T
+}  else if(r1<0&r2>0) {
+  solutions[4] <- T
+}
+
+o <- sample(1:length(questions))
+questions <- questions[o]
+solutions <- solutions[o]
+
+```
+
+Question
+========
+
+```{r, results='asis'}
+cat(eval(parse(text=text_question)))
+```
+
+Při čtení závěrečné zprávy projektu jsme narazili na tuto větu: "Vztah mezi proměnnými se ukázal `r `V následujících grafech vidíme vztahy mezi proměnnými `r  df_currvars$name[1]` a `r df_currvars$name[2]` zvlášť pro lidi z vesnic a lidé z města. Rozhodněte, které korelace jsou kladné a které záporné.
+
+Data vypadají následovně:
+
+```{r graf,echo = FALSE, warning =F,message=F, fig.width=10}
+p1 <- df_left %>% ggplot(aes(x = !!sym(df_currvars$name[1]),!!sym(df_currvars$name[2]))) + theme(aspect.ratio = 1) + 
+  geom_point() + 
+  ggtitle(plot_left_title)+ xlim(xmin,xmax) + ylim(ymin,ymax)
+
+p2 <- df_right %>% ggplot(aes(x = !!sym(df_currvars$name[1]),!!sym(df_currvars$name[2]))) + theme(aspect.ratio = 1) + 
+  geom_point() + 
+  ggtitle(plot_right_title) + xlim(xmin,xmax) + ylim(ymin,ymax)
+p1+p2
+```
+
+
+Které korelace jsou kladné a které záporné?
+
+```{r questionlist, echo = FALSE, results = "asis"}
+answerlist(questions, markup = "markdown")
+```
+
+Solution
+========
+Korelace pro levý graf je `r fmt(cor(df_left[1],df_left[2]),2)`, pro pravý je `r fmt(cor(df_right[1],df_right[2]),2)` Správná odpověď je tedy `r questions[solutions]`
+
+Meta-information
+================
+extype: schoice
+exsolution: `r mchoice2string(solutions, single = TRUE)`
+exname: correlation_which_larger
