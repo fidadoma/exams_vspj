@@ -1,0 +1,78 @@
+---
+title: "Kontignenční tabulka"
+author: "Filip Děchtěrenko"
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+output: html_document
+---
+
+```{r setup, code = readLines("D:/Documents/git/exams_vspj/common_chunks.R")}
+
+```
+
+```{r data generation, echo = FALSE, results = "hide"}
+df_assignmnent <- get_var_desc()
+df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
+text_question <- sample(df_assignmnent$question,1)
+
+n <- sample(5:15,1)
+r <- runif(1,-1,1)
+
+df_currvars <- df_vardesc %>% 
+  filter(type == "numeric") %>% 
+  sample_n(2) %>% 
+  rowwise() %>% 
+  mutate(mean = compute_mean(values, pdist), sd = compute_sd(values,pdist))
+
+df <- generate_correlated_data(n,r)
+
+X <- df[, 1]  # standard normal (mu=0, sd=1)
+Y <- df[, 2]  # standard normal (mu=0, sd=1)
+
+X <- rescale_var(X,df_currvars$mean[1],df_currvars$sd[1]) %>% round(df_currvars$round_val[1])
+Y <- rescale_var(Y,df_currvars$mean[2],df_currvars$sd[2]) %>% round(df_currvars$round_val[2])
+df_data <- tibble(!!df_currvars$name[1]:=X)
+questions <- c("průměr", "median", "směrodatnou odchylku", "rozptyl", "dolní kvartil", "horní kvartil")
+functions <- c(mean, median, sd, var, lower_quartile, upper_quartile)
+solutions_text <- c(
+  "Průměr spočítáme pomocí funkce PRŮMĚR $m_x = \\frac{1}{n}\\sum_{i=1}^{n}{x_i}$",
+  "Median spočítáme pomocí vzorce MEDIAN",
+  "Směrodatnou odchylku spočítáme pomocí vzorce SMODCH.S",
+  "Rozptyl spočítáme pomocí vzorce VAR.S",
+  "Dolní kvartil spočítáme pomocí vzorce ",
+  "Gorní kvartil kvartil spočítáme pomocí vzorce "
+)
+stopifnot(length(questions) == length(functions))
+#ix <- sample(1:length(questions),1)
+ix <- 1
+f <- functions[[ix]]
+
+
+solutions <- exams::fmt(f(X),2)
+
+```
+
+Question
+========
+```{r, results='asis'}
+cat(eval(parse(text=text_question)))
+```
+
+Spočítejte `r questions[ix]` pro následující data.
+
+```{r plot, fig.path = "", fig.cap = ""}
+df_data %>% knitr::kable()
+```
+
+Solution
+========
+
+`r solutions_text[ix]`
+
+
+V tomto případě je výsledek `r solutions`
+
+Meta-information
+================
+extype: num
+exsolution: `r solutions`
+exname: desc_var

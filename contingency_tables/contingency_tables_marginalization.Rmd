@@ -1,0 +1,76 @@
+---
+title: "Kontignenční tabulka - marginalizace"
+author: "Filip Děchtěrenko"
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+output: html_document
+---
+
+```{r setup, code = readLines("D:/Documents/git/exams_vspj/common_chunks.R")}
+
+```
+
+```{r data generation, echo = FALSE, results = "hide"}
+df_assignmnent <- get_var_desc()
+df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
+text_question <- sample(df_assignmnent$question,1)
+
+n <- sample(100:500,1)
+r <- runif(1,-1,1)
+
+df_currvars <- df_vardesc %>% 
+  filter(type == "factor") %>% 
+  sample_n(2) %>% 
+  rowwise() %>% 
+  mutate(n_levels = get_n_factor_levels(values))
+
+
+df <- generate_contingency_table(n,r, x_lev = df_currvars$n_levels[1],y_lev = df_currvars$n_levels[2])
+
+colnames(df) <- get_factor_levels(df_currvars$values[1])
+rownames(df) <- get_factor_levels(df_currvars$values[2])
+
+query_var <- sample(rownames(df),1)
+
+df <- df %>% as_tibble(rownames = df_currvars$name[2]) 
+
+solution <- df %>% filter(!!sym(df_currvars$name[2]) == query_var) %>% select(-!!sym(df_currvars$name[2])) %>% rowSums()
+
+
+#
+#colSm <- colSums(df %>% select(-!!df_currvars$name[2]))
+#rowSm <- rowSums(df %>% select(-!!df_currvars$name[2]))
+#df <- df %>% mutate_if(is.numeric, as.character)  
+
+#df %>% mutate(`součet řádků` = rowSm) %>% 
+#  rbind(tibble(!!df_currvars$name := "Součet řádků", ))
+#  tibble::tbl_sum()
+
+
+```
+
+Question
+========
+
+```{r, results='asis'}
+cat(eval(parse(text=text_question)))
+```
+
+Získali jsme data o proměnných `r df_currvars$name[1]` a `r df_currvars$name[2]`. 
+
+Data vypadají následovně:
+
+```{r echo = FALSE}
+knitr::kable(df)
+```
+
+Pokud bychom neměli brát ohled na rozdělení dle proměnné `r df_currvars$name[2]`, kolik je v datech pozorovaní, kde `r df_currvars$name[1]`="`r query_var`"?
+
+Solution
+========
+Stačí sečíst součty v řádcích v tabulce. Pro podkategorii "`r query_var`" je součet `r solution`.  
+
+Meta-information
+================
+extype: num
+exsolution: `r solution`
+exname: cont_table_partial_sum
