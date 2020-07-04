@@ -12,18 +12,15 @@ output: html_document
 
 ```{r data generation, echo = FALSE, message=T}
 
-df_assignmnent <- get_var_desc(curr_theme = "couples_theater")
+df_assignmnent <- get_var_desc()
 df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
 text_question <- sample(df_assignmnent$question,1)
 
-n <- sample(5:10,1)
-r <- runif(1,-1,1)
+n <- sample(5:15,1)
 
-df_currvars <- sample_vars(df_vardesc, nvar = 2)
+df_currvars <- sample_vars(df_vardesc, nvar = 1)
 
-var_ranges <- extract_ranges(df_currvars)
-
-df_data <- safe_generate_correlated_data(n,r,var_ranges)
+df_data <- safe_generate_data(n,df_currvars)
 
 ```
 

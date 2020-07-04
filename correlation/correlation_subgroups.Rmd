@@ -16,28 +16,34 @@ df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
 text_question <- sample(df_assignmnent$question,1)
 
 n <- sample(80:120,1)
-r1 <- runif(1,0.7,0.9)*sample(c(-1,1),1)
-r2 <- runif(1,0.4,0.6)*sample(c(-1,1),1)
+r0 <- 0
+r1 <- runif(1,0.7,0.9)
+r2 <- runif(1,0.4,0.6)
+r3 <- runif(1,-0.9,-0.7)
+r4 <- runif(1,-0.6,-0.4)
+
+rs <- c(r0,r1,r2,r3,r4) %>% sample(3)
 
 df_currvars <- sample_vars(df_vardesc, nvar = 2)
 
-df_data1 <- safe_generate_correlated_data(n,r1,df_currvars)
-df_data1 <- safe_generate_correlated_data(n,r2,df_currvars)
+df_data1 <- safe_generate_correlated_data(n,rs[1],df_currvars)
+df_data2 <- safe_generate_correlated_data(n,rs[2],df_currvars)
+df_data3 <- safe_generate_correlated_data(n,rs[3],df_currvars)
 
-plot_titles <- c("Z vesnice","Z města")
-plot_left_title <- sample(plot_titles,1)
-plot_right_title <- setdiff(plot_titles,plot_left_title)
+l_data <- list(df_data1, df_data2, df_data3)
 
-if (runif(1) <0.5) {
-  df_left <- df_data1  
-  df_right <- df_data2
-  corr_larger <- plot_left_title
-} else {
-  df_left <- df_data2  
-  df_right <- df_data1
-  corr_larger <- plot_right_title
-}
+selected_plot <- sample(3,1)
+selected_r    <- rs[selected_plot] 
+selected_data <- l_data[selected_plot]
+rest_data     <- l_data[setdiff(1:3,selected_plot)]
 
+test_question <- case_when(
+  selected_r <= -0.7 ~ "jako velmi silně negativní",
+  selected_r <= -0.4 ~ "jako mírně až silně negativní",
+  selected_r == 0 ~ "jako nulový",
+  selected_r >= 0.7 ~ "jako velmi silně pozitivní",
+  selected_r >= 0.4 ~ "jako mírně až silně pozitivní"
+) 
 
 x_ranges <- df_currvars$values[1] %>% extract_ranges_vec()
 xmin <- x_ranges[1]
@@ -72,7 +78,7 @@ Question
 cat(eval(parse(text=text_question)))
 ```
 
-V následujících grafech vidíme vztahy mezi proměnnými `r  df_currvars$name[1]` a `r df_currvars$name[2]` zvlášť pro lidi z vesnic a lidé z města. Rozhodněte, které korelace jsou kladné a které záporné.
+Při čtení závěrečné zprávy projektu jsme narazili na tuto větu: "Vztah mezi proměnnými se ukázal `r `V následujících grafech vidíme vztahy mezi proměnnými `r  df_currvars$name[1]` a `r df_currvars$name[2]` zvlášť pro lidi z vesnic a lidé z města. Rozhodněte, které korelace jsou kladné a které záporné.
 
 Data vypadají následovně:
 

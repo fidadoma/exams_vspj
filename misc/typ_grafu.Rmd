@@ -26,85 +26,76 @@ curr_plot_type <- sample(plot_types,1)
 
 if(curr_plot_type == "hist") {
   n <- sample(5:50,1)
-  df_var <- df_vardesc %>% 
-    filter(type == "numeric") %>% 
-    sample_n(1)
- ranges <- str_split(df_var$values, pattern = "-", simplify = T) %>% as.numeric()
- 
- curr_vals <- runif(n,ranges[1],ranges[2]) 
- curr_name <- df_var$name
- df_data <- tibble(!!curr_name:=curr_vals)
- p <- df_data %>% 
-   ggplot(aes(x=!!sym(curr_name))) +
-   geom_histogram(bins = 30) + 
-   theme(aspect.ratio = 1)
+  df_currvars <- sample_vars(df_vardesc, nvar = 1)
+  
+  ranges <- extract_ranges(df_var)
+  
+  curr_vals <- runif(n,ranges[1],ranges[2]) 
+  curr_name <- df_var$name
+  df_data <- tibble(!!curr_name:=curr_vals)
+  p <- df_data %>% 
+    ggplot(aes(x=!!sym(curr_name))) +
+    geom_histogram(bins = 30) + 
+    theme(aspect.ratio = 1)
 } else if(curr_plot_type == "scatter") {
   n <- sample(5:50,1)
-  df_var <- df_vardesc %>% 
-    filter(type == "numeric") %>% 
-    sample_n(2)
- ranges <- extract_ranges(df_var)
- 
- curr_vals1 <- runif(n,ranges[1,1],ranges[1,2]) 
- curr_name1 <- df_var$name[1]
- 
- curr_vals2 <- runif(n,ranges[2,1],ranges[2,2]) 
- curr_name2 <- df_var$name[2]
- 
- df_data <- tibble(!!curr_name1:=curr_vals1,!!curr_name2:=curr_vals2)
- 
- p <- df_data %>% 
-   ggplot(aes(x=!!sym(curr_name1), y=!!sym(curr_name2))) +
-   geom_point() + 
-   theme(aspect.ratio = 1)
+  df_var <- sample_vars(df_vardesc, nvar = 2)
+  
+  ranges <- extract_ranges(df_var)
+  
+  curr_vals1 <- runif(n,ranges[1,1],ranges[1,2]) 
+  curr_name1 <- df_var$name[1]
+  
+  curr_vals2 <- runif(n,ranges[2,1],ranges[2,2]) 
+  curr_name2 <- df_var$name[2]
+  
+  df_data <- tibble(!!curr_name1:=curr_vals1,!!curr_name2:=curr_vals2)
+  
+  p <- df_data %>% 
+    ggplot(aes(x=!!sym(curr_name1), y=!!sym(curr_name2))) +
+    geom_point() + 
+    theme(aspect.ratio = 1)
 } else if(curr_plot_type == "pie") {
   n <- sample(5:50,1)
-  df_var_numeric <- df_vardesc %>% 
-    filter(type == "numeric") %>% 
-    sample_n(1)
-  df_var_factor <- df_vardesc %>% 
-    filter(type == "factor") %>% 
-    sample_n(1)
- 
- ranges <- extract_ranges(df_var_numeric)
- values <- extract_values(df_var_factor)
- curr_vals1 <- runif(n,ranges[1],ranges[2]) 
- curr_name1 <- df_var_numeric$name[1]
- curr_vals2 <- sample(values,n,replace = T) 
- curr_name2 <- df_var_factor$name[1]
- 
- df_data <- tibble(!!curr_name1:=curr_vals1,!!curr_name2:=curr_vals2)
- 
- p <- df_data %>% 
-   ggplot(aes(x="", y=!!sym(curr_name1), fill = !!sym(curr_name2))) +
-     theme(aspect.ratio = 1) +
+  df_var_numeric <- sample_vars(df_vardesc, nvar = 1)
+  df_var_factor <- sample_vars(df_vardesc, nvar = 1,var_type = "factor")
+  
+  ranges <- extract_ranges(df_var_numeric)
+  values <- extract_values(df_var_factor)
+  curr_vals1 <- runif(n,ranges[1],ranges[2]) 
+  curr_name1 <- df_var_numeric$name[1]
+  curr_vals2 <- sample(values,n,replace = T) 
+  curr_name2 <- df_var_factor$name[1]
+  
+  df_data <- tibble(!!curr_name1:=curr_vals1,!!curr_name2:=curr_vals2)
+  
+  p <- df_data %>% 
+    ggplot(aes(x="", y=!!sym(curr_name1), fill = !!sym(curr_name2))) +
+    theme(aspect.ratio = 1) +
     geom_bar(width = 1, stat = "identity") +
     coord_polar("y", start=0) 
- 
+  
 } else if(curr_plot_type == "boxplot") {
   n <- sample(10:50,1)
-  df_var_numeric <- df_vardesc %>% 
-    filter(type == "numeric") %>% 
-    sample_n(1)
-  df_var_factor <- df_vardesc %>% 
-    filter(type == "factor") %>% 
-    sample_n(1)
- 
- ranges <- extract_ranges(df_var_numeric)
- values <- extract_values(df_var_factor)
- curr_vals1 <- runif(n,ranges[1],ranges[2]) 
- curr_name1 <- df_var_numeric$name[1]
- curr_vals2 <- sample(values,n,replace = T) 
- curr_name2 <- df_var_factor$name[1]
- 
- df_data <- tibble(!!curr_name1:=curr_vals1,!!curr_name2:=curr_vals2)
- 
- p <- df_data %>% 
-   ggplot(aes(x=!!sym(curr_name2), y=!!sym(curr_name1))) +
-     theme(aspect.ratio = 1) +
+  
+  df_var_numeric <- sample_vars(df_vardesc, nvar = 1)
+  df_var_factor <- sample_vars(df_vardesc, nvar = 1,var_type = "factor")
+  
+  ranges <- extract_ranges(df_var_numeric)
+  values <- extract_values(df_var_factor)
+  curr_vals1 <- runif(n,ranges[1],ranges[2]) 
+  curr_name1 <- df_var_numeric$name[1]
+  curr_vals2 <- sample(values,n,replace = T) 
+  curr_name2 <- df_var_factor$name[1]
+  
+  df_data <- tibble(!!curr_name1:=curr_vals1,!!curr_name2:=curr_vals2)
+  
+  p <- df_data %>% 
+    ggplot(aes(x=!!sym(curr_name2), y=!!sym(curr_name1))) +
+    theme(aspect.ratio = 1) +
     geom_boxplot()
-    
- 
+  
+  
 }
 
 questions <- plot_names

@@ -3,7 +3,9 @@ extract_ranges <- function(df_var) {
                 pattern = "-", 
                 simplify = T) %>% 
     as.numeric()  
-  matrix(r, ncol = nrow(df_var))
+  m <- matrix(r, ncol = nrow(df_var))
+  colnames(m) <- c("lower","upper")
+  m
 }
 
 extract_ranges_vec <- function(v) {
@@ -44,8 +46,8 @@ compute_mean <- function(v,pdist) {
 }
 
 get_var_desc <- function(curr_theme = NULL) {
-  df1_vars <- readxl::read_excel("D:/Documents/git/exams_vspj/data/input_data.xlsx",sheet = "variables",na="NA")
-  df1_questions <- readxl::read_excel("D:/Documents/git/exams_vspj/data/input_data.xlsx",sheet = "questions")
+  df1_vars <- readxl::read_excel("data/input_data.xlsx",sheet = "variables",na="NA")
+  df1_questions <- readxl::read_excel("data/input_data.xlsx",sheet = "questions")
   
   themes <- df1_vars %>% filter(exam_type=="all") %>% pull(group_theme) %>% unique()
   if(is.null(curr_theme)) {
@@ -93,7 +95,7 @@ compute_sd <- function(v,pdist) {
   if(pdist == "unif") {
     a <- ranges[1]
     b <- ranges[2]
-    return(sqrt((a+b)^2/12))
+    return(sqrt(((a+b)^2)/12))
   } else if(pdist == "norm"){
     a <- ranges[1]
     b <- ranges[2]
@@ -105,10 +107,15 @@ rescale_var <- function(x, m, sd) {
   as.numeric(scale(x)*sd+m)
 }
 
+rescale_var_range <- function(x, old_min, old_max, new_min, new_max) {
+  return (new_max - new_min) * (x - old_min) / (old_max - old_min) + new_min
+}
+
 check_var <- function(x,x_lower,x_upper) {
-  x>=x_lower&x<=x_upper
+  all(x>=x_lower&x<=x_upper)
   
 }
+
 
 lower_quartile <- function(x) {
   quantile(x,probs = 0.25)
@@ -116,4 +123,74 @@ lower_quartile <- function(x) {
 
 upper_quartile <- function(x) {
   quantile(x,probs = 0.75)
+}
+
+sample_vars <- function(df_vardesc, var_type = "numeric", nvar = 2) {
+  df_vardesc %>% 
+    filter(type == var_type) %>% 
+    sample_n(nvar) %>% 
+    rowwise() %>% 
+    mutate(mean = compute_mean(values, pdist), 
+           sd = compute_sd(values,pdist))
+}
+
+safe_generate_correlated_data <- function(n, r, df_currvars) {
+  stopifnot(nrow(df)==2)
+  var_ranges <- extract_ranges(df_currvars)
+  x_lower <- var_ranges[1,1]
+  x_upper <- var_ranges[1,2]
+  y_lower <- var_ranges[2,1]
+  y_upper <- var_ranges[2,2]
+  should_continue <- T
+  n_try <- 0
+  
+  while (should_continue) {
+    n_try <- n_try+1
+    if(n_try > 99) {
+      stop("Impossible to generate, check the variables")
+    }
+    
+    df <- generate_correlated_data(n,r)
+    
+    X <- df[, 1]  # standard normal (mu=0, sd=1)
+    Y <- df[, 2]  # standard normal (mu=0, sd=1)
+    
+    
+    X <- rescale_var(X,df_currvars$mean[1],df_currvars$sd[1]) %>% round(df_currvars$round_val[1])
+    Y <- rescale_var(Y,df_currvars$mean[2],df_currvars$sd[2]) %>% round(df_currvars$round_val[2])
+    should_continue <- !(check_var(X, x_lower,x_upper) & check_var(Y, y_lower,y_upper))
+  }
+  df_data <- tibble(!!df_currvars$name[1]:=X,!!df_currvars$name[2]:=Y) 
+  df_data
+}
+
+safe_generate_data <- function(n, df_currvars) {
+  stopifnot(nrow(df)==1)
+  var_ranges <- extract_ranges(df_currvars)
+  x_lower <- var_ranges[1,1]
+  x_upper <- var_ranges[1,2]
+  should_continue <- T
+  n_try <- 0
+  
+  while (should_continue) {
+    n_try <- n_try+1
+    if(n_try > 99) {
+      stop("Impossible to generate, check the variables")
+    }
+    
+    if(df_currvars$pdist == "norm") {
+      X <- rnorm(n)  
+    } else if(df_currvars$pdist == "unif") {
+      X <- runif(n)  
+    }
+    
+    X <- df[, 1]  
+    
+    X <- rescale_var(X,df_currvars$mean[1],df_currvars$sd[1]) %>% round(df_currvars$round_val[1])
+    
+    should_continue <- !(check_var(X, x_lower,x_upper))
+  }
+  df_data <- tibble(!!df_currvars$name[1]:=X) 
+  df_data
+
 }
