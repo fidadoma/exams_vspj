@@ -5,11 +5,6 @@ date: '`r format(Sys.time(), "%d %B, %Y")`'
 output: html_document
 ---
 
-```{r}
-questions <- c("průměr", "median", "směrodatnou odchylku", "rozptyl", "dolní kvartil", "horní kvartil")
-ix <- sample(1:length(questions),1)
-
-```
 
 ```{r setup, code = readLines("D:/Documents/git/exams_vspj/common_chunks.R")}
 
@@ -20,7 +15,7 @@ df_assignmnent <- get_var_desc()
 df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
 text_question <- sample(df_assignmnent$question,1)
 
-n <- sample(5:15,1)
+n <- sample(50:100,1)
 r <- runif(1,-1,1)
 
 df_currvars <- df_vardesc %>% 

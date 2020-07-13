@@ -108,7 +108,7 @@ rescale_var <- function(x, m, sd) {
 }
 
 rescale_var_range <- function(x, old_min, old_max, new_min, new_max) {
-  return (new_max - new_min) * (x - old_min) / (old_max - old_min) + new_min
+  return ((new_max - new_min) * (x - old_min) / (old_max - old_min) + new_min)
 }
 
 check_var <- function(x,x_lower,x_upper) {
@@ -134,8 +134,27 @@ sample_vars <- function(df_vardesc, var_type = "numeric", nvar = 2) {
            sd = compute_sd(values,pdist))
 }
 
+standardize_value <- function(x) {
+  # we need to convert data to z-scores
+  x <- scale(x)  # standard normal (mu=0, sd=1)
+  if(length(x) < 50) {
+    n_max <- 4
+  } else {
+    n_max <- 4
+  }
+  if(max(x) > n_max) {
+    x[x>n_max] <- n_max
+  } 
+  if (min(x) < -n_max) {
+    x[x< -n_max] <- -n_max  
+  }
+  x
+  
+  
+}
+
 safe_generate_correlated_data <- function(n, r, df_currvars) {
-  stopifnot(nrow(df)==2)
+  stopifnot(nrow(df_currvars)==2)
   var_ranges <- extract_ranges(df_currvars)
   x_lower <- var_ranges[1,1]
   x_upper <- var_ranges[1,2]
@@ -152,12 +171,12 @@ safe_generate_correlated_data <- function(n, r, df_currvars) {
     
     df <- generate_correlated_data(n,r)
     
-    X <- df[, 1]  # standard normal (mu=0, sd=1)
-    Y <- df[, 2]  # standard normal (mu=0, sd=1)
+    X <- standardize_value(df[, 1])
+    Y <- standardize_value(df[, 2])
     
+    X <- rescale_var_range(X, old_min=-4, old_max=4, new_min=x_lower, new_max = x_upper) %>% as.numeric() %>% round(df_currvars$round_val[1])
+    Y <- rescale_var_range(Y, old_min=-4, old_max=4, new_min=y_lower, new_max = y_upper) %>% as.numeric() %>% round(df_currvars$round_val[2])
     
-    X <- rescale_var(X,df_currvars$mean[1],df_currvars$sd[1]) %>% round(df_currvars$round_val[1])
-    Y <- rescale_var(Y,df_currvars$mean[2],df_currvars$sd[2]) %>% round(df_currvars$round_val[2])
     should_continue <- !(check_var(X, x_lower,x_upper) & check_var(Y, y_lower,y_upper))
   }
   df_data <- tibble(!!df_currvars$name[1]:=X,!!df_currvars$name[2]:=Y) 
