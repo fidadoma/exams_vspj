@@ -3,7 +3,7 @@ extract_ranges <- function(df_var) {
                 pattern = "-", 
                 simplify = T) %>% 
     as.numeric()  
-  m <- matrix(r, ncol = nrow(df_var))
+  m <- matrix(r, nrow = nrow(df_var))
   colnames(m) <- c("lower","upper")
   m
 }
