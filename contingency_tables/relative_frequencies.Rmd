@@ -191,7 +191,7 @@ V tabulce procent,  `r rowsums[variant]` je přibližně 100
 
 ```{r solutionlist, echo = FALSE, results = "asis"}
 answerlist(
-  ifelse(solutions, "True", "False"),
+  ifelse(solutions, "Pravda", "Nepravda"),
   explanations, markup = "markdown")
 ```
 
