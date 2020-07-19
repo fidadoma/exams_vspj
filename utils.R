@@ -153,6 +153,11 @@ standardize_value <- function(x) {
   
 }
 
+getmode <- function(v) {
+  uniqv <- unique(v)
+  uniqv[which.max(tabulate(match(v, uniqv)))]
+}
+
 safe_generate_correlated_data <- function(n, r, df_currvars) {
   stopifnot(nrow(df_currvars)==2)
   var_ranges <- extract_ranges(df_currvars)
