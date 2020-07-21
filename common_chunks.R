@@ -9,7 +9,7 @@ library(tidyverse)
 library(ggthemes)
 library(patchwork)
 source("D:/Documents/git/exams_vspj/utils.R")
-
+source("D:/Documents/git/exams_vspj/utils_probability.R", encoding = "utf-8")
 
 theme_ix <- sample(1:6,1)
 

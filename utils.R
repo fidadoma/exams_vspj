@@ -46,8 +46,8 @@ compute_mean <- function(v,pdist) {
 }
 
 get_var_desc <- function(curr_theme = NULL) {
-  df1_vars <- readxl::read_excel("data/input_data.xlsx",sheet = "variables",na="NA")
-  df1_questions <- readxl::read_excel("data/input_data.xlsx",sheet = "questions")
+  df1_vars <- readxl::read_excel("D:/Documents/git/exams_vspj/data/input_data.xlsx",sheet = "variables",na="NA")
+  df1_questions <- readxl::read_excel("D:/Documents/git/exams_vspj/data/input_data.xlsx",sheet = "questions")
   
   themes <- df1_vars %>% filter(exam_type=="all") %>% pull(group_theme) %>% unique()
   if(is.null(curr_theme)) {

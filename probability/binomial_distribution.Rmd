@@ -1,0 +1,109 @@
+---
+title: "Binomial distribution"
+author: "Filip Děchtěrenko"
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+output: html_document
+---
+
+```{r setup, code = readLines("D:/Documents/git/exams_vspj/common_chunks.R")}
+
+```
+
+```{r data generation, echo = FALSE, message=T}
+
+df_assignmnent <- get_prob_var(distr_type = "binomial")
+df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
+text_question <- sample(df_assignmnent$question,1)
+
+if(is.na(df_vardesc$pi_range)) {
+  pi_lower <- 0.35
+  pi_upper <- 0.65 
+} else {
+  pi_ranges <- str_split(df_vardesc$pi_range, "_", simplify = T)
+  pi_lower <- as.numeric(pi_ranges[1])
+  pi_upper <- as.numeric(pi_ranges[2])
+}
+
+
+if(is.na(df_vardesc$pi_param)) {
+  pi_param <- runif(1,pi_lower,pi_upper) %>% round(2)  
+} else {
+  pi_param <- df_vardesc$pi_param
+}
+
+if(is.na(df_vardesc$n_range)) {
+  n_lower <- 5
+  n_upper <- 10 
+} else {
+  n_ranges <- str_split(df_vardesc$n_range, "_", simplify = T)
+  n_lower <- as.numeric(n_ranges[1])
+  n_upper <- as.numeric(n_ranges[2])
+}
+
+
+n <- sample(n_lower:n_upper, 1)
+k <- sample(0:n, 1)
+
+if(k == n) {
+  quantifier <- sample(c("nejvýše", "méně než", "právě"),1)
+  
+} else if(k == 0){
+  quantifier <- sample(c("více než", "právě"), 1)
+  
+} else {
+  quantifier <- sample(c("alespoň", "nejvýše", "méně než", "více než", "právě"),1)  
+}
+
+
+n_text_tmp <- case_when(
+  n == 1 ~ df_vardesc$n_1,
+  n >= 2 & n <= 4 ~ df_vardesc$n_2_4,
+  n >= 5 & n <= 9 ~ df_vardesc$n_5_9,
+  n >= 10         ~ df_vardesc$n_10more
+)
+
+n_text <- sprintf("%d %s",n, n_text_tmp)
+
+k_text_tmp <- case_when(
+  k == 0 ~ df_vardesc$k_0,
+  k == 1 ~ df_vardesc$k_1,
+  k >= 2 & k <= 4 ~ df_vardesc$k_2_4,
+  k >= 5 & k <= 9 ~ df_vardesc$k_5_9,
+  k >= 10         ~ df_vardesc$k_10more
+)
+if(is.na(k_text_tmp)) {
+  k_text <- sprintf("%s %d", quantifier, k)
+} else {
+  k_text <- sprintf("%s %d %s", quantifier, k, k_text_tmp)
+}
+
+
+#if (k == n/2& runif(1) < 0.5) {
+#  k_text <- sprintf("%s polovinu ", quantifier, n, k_text_tmp)
+#}
+
+l <- probability_binomial_setting(n,k,pi_param, quantifier)
+solution <- l$solution
+explanation <- l$explanation
+```
+
+Question
+========
+
+```{r, results='asis'}
+cat(eval(parse(text=text_question)))
+```
+
+Solution
+========
+
+```{r echo = FALSE, results='asis'}
+cat(explanation)
+```
+
+Meta-information
+================
+extype: num
+exsolution: `r exams::fmt(solution,3)`
+exname: binom_prob
+extol: 0.001
