@@ -56,6 +56,8 @@ get_prob_var <- function(distr_type, curr_theme = NULL){
   } else if(distr_type== "poisson") {
     df1_vars <- readxl::read_excel("D:/Documents/git/exams_vspj/data/input_data.xlsx",sheet = "probability_theme_poisson",na="NA")  
     
+  } else if(distr_type== "normal") {
+    df1_vars <- readxl::read_excel("D:/Documents/git/exams_vspj/data/input_data.xlsx",sheet = "probability_theme_normal",na="NA")  
   }
   
   #df1_questions <- readxl::read_excel("data/input_data.xlsx",sheet = "questions")
