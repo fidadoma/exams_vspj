@@ -50,6 +50,85 @@ probability_poisson_setting <- function(lambda, k, quantifier) {
   l
 }
 
+
+probability_normal_setting <- function(k, mu_param, sigma_param, quantifier) {
+  
+  if (quantifier == "alespoň") {
+    solution <- 1 - (pnorm(k, mu_param, sigma_param))
+    explanation <- sprintf("V tomto případě nás zajímá P(X >= %d) = 1 - F(%d). Dosadíme do vzorce pro normální rozdělení s parametry \\mu=%d, \\sigma=%d,  k=%d. Pravděpodobnost je %.3f", k, k, mu_param, sigma_param, k, solution)
+  } else if (quantifier == "nejvýše") {
+    solution <- pnorm(k, mu_param, sigma_param)
+    explanation <- sprintf("V tomto případě nás zajímá P(X <= %d) = F(%d). Dosadíme do vzorce pro normální rozdělení s parametry \\mu=%d, \\sigma=%d,  k=%d. Pravděpodobnost je %.3f", k, k, mu_param, sigma_param, k, solution)
+  } else if (quantifier == "méně než") {
+    solution <- pnorm(k, mu_param, sigma_param)
+    explanation <- sprintf("V tomto případě nás zajímá P(X < %d) = F(%d). Dosadíme do vzorce pro normální rozdělení s parametry \\mu=%d, \\sigma=%d,  k=%d. Pravděpodobnost je %.3f", k, k, mu_param, sigma_param, k, solution)
+  } else if (quantifier == "více než") {
+    solution <- 1 - pnorm(k, mu_param, sigma_param)
+    explanation <- sprintf("V tomto případě nás zajímá P(X > %d) = 1 - F(X%d). Dosadíme do vzorce pro normální rozdělení s parametry \\mu=%d, \\sigma=%d,  k=%d. Pravděpodobnost je %.3f", k, k, mu_param, sigma_param, k, solution)
+  } else {
+    
+    stop(sprintf("incorrect settings: k=%d, quantifier = '%s'",k, quantifier))
+  }
+  
+  l <- list(solution = solution, explanation=explanation)
+  l
+}
+
+probability_normal_setting_range <- function(k_lower, k_upper, mu_param, sigma_param) {
+  
+  
+  solution <- pnorm(k_upper, mu_param, sigma_param) - pnorm(k_lower, mu_param, sigma_param)
+  explanation <- sprintf("Máme-li v zadání rozsah hodnot, použijeme vzorec P(X > větší hodnota) - P(X < menší hodnota). V tomto případě tedy použijeme P(X > %d) - P(X < %d) = F(%d) - F(%d). Dosadíme do vzorce pro normální rozdělení s parametry \\mu=%d, \\sigma=%d,  k=%d a k=%d. Pravděpodobnost je %.3f", k_upper, k_lower, k_upper, k_lower, mu_param, sigma_param, k_lower, k_upper, solution)
+  
+  l <- list(solution = solution, explanation=explanation)
+  l
+}
+
+probability_normal_setting_perc <- function(perc, mu_param, sigma_param) {
+  
+  
+  solution <- qnorm(perc, mu_param, sigma_param)
+  explanation <- sprintf("V této inverzní úloze máme zadanou pravděpodobnost p a zajímá nás hodnota k, pro kterou platí P(X < k) = p. K tomuto se dá použít funkce NORM.INV. V tomto případě pro parametery \\mu=%d, \\sigma=%d,  p=%.2f. Daná hodnota je %.3f", mu_param, sigma_param, perc, solution)
+  
+  l <- list(solution = solution, explanation=explanation)
+  l
+}
+
+probability_normal_setting_sum <- function(n, perc, mu_param, sigma_param, quantifier) {
+  
+  if (quantifier == "alespoň") {
+  solution <- 1 - (pnorm(k, mu_param*n, sigma_param*n))
+  explanation <- sprintf("Pro sumu normálních rozdělení platí, že $\\mu_sum = n*\\mu$ a $\\sigma_sum = n*\\sigma$. 
+                         V tomto případě nás zajímá P(X >= %d) = 1 - F(%d). 
+                         Dosadíme do vzorce pro normální rozdělení s parametry $\\mu$=%d, $\\sigma$=%d,  k=%d. 
+                         Pravděpodobnost je %.3f", k, k, n*mu_param, n*sigma_param, k, solution)
+  } else if (quantifier == "nejvýše") {
+    solution <- pnorm(k, mu_param*n, sigma_param*n)
+    explanation <- sprintf("Pro sumu normálních rozdělení platí, že $\\mu_sum = n*\\mu$ a $\\sigma_sum = n*\\sigma$. 
+                         V tomto případě nás zajímá P(X <= %d) = F(%d). 
+                         Dosadíme do vzorce pro normální rozdělení s parametry $\\mu$=%d, $\\sigma$=%d,  k=%d. 
+                         Pravděpodobnost je %.3f", k, k, n*mu_param, n*sigma_param, k, solution)
+  } else if (quantifier == "méně než") {
+    solution <- pnorm(k, mu_param*n, sigma_param*n)
+    explanation <- sprintf("Pro sumu normálních rozdělení platí, že $\\mu_sum = n*\\mu$ a $\\sigma_sum = n*\\sigma$. 
+                         V tomto případě nás zajímá P(X < %d) = F(%d). 
+                         Dosadíme do vzorce pro normální rozdělení s parametry $\\mu$=%d, $\\sigma$=%d,  k=%d. 
+                         Pravděpodobnost je %.3f", k, k, n*mu_param, n*sigma_param, k, solution)
+  } else if (quantifier == "více než") {
+    solution <- 1 - pnorm(k, mu_param*n, sigma_param*n)
+    explanation <- sprintf("Pro sumu normálních rozdělení platí, že $\\mu_sum = n*\\mu$ a $\\sigma_sum = n*\\sigma$. 
+                         V tomto případě nás zajímá P(X < %d) = F(%d). 
+                         Dosadíme do vzorce pro normální rozdělení s parametry $\\mu$=%d, $\\sigma$=%d,  k=%d. 
+                         Pravděpodobnost je %.3f", k, k, n*mu_param, n*sigma_param, k, solution)
+  } else {
+    
+    stop(sprintf("incorrect settings: k=%d, quantifier = '%s'",k, quantifier))
+  }
+  
+  l <- list(solution = solution, explanation=explanation)
+  l
+}
+
 get_prob_var <- function(distr_type, curr_theme = NULL){
   if(distr_type== "binomial") {
     df1_vars <- readxl::read_excel("D:/Documents/git/exams_vspj/data/input_data.xlsx",sheet = "probability_theme_binomial",na="NA")  
@@ -69,7 +148,19 @@ get_prob_var <- function(distr_type, curr_theme = NULL){
   
   
   df_vars <- df1_vars %>% filter(group_theme == curr_theme)
-  df_all <- tibble(question = df_vars$test_question, 
-                   var_desc = nest(df_vars, data = everything()))
+  if (curr_theme == "normal") {
+    
+    df_all <- tibble(settings = df_vars$text_settings, 
+                     question = df_vars$text_question,
+                     question_range = df_vars$text_question_range,
+                     question_perc = df_vars$text_question_perc,
+                     question_sum = df_vars$text_question_sum,
+                     question_mean = df_vars$text_question_mean,
+                     var_desc = nest(df_vars, data = everything()))
+  } else {
+    df_all <- tibble(settings = df_vars$text_settings, 
+                     question = df_vars$text_question,
+                     var_desc = nest(df_vars, data = everything()))
+  }
   df_all
 }
