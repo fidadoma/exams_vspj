@@ -94,7 +94,7 @@ probability_normal_setting_perc <- function(perc, mu_param, sigma_param) {
   l
 }
 
-probability_normal_setting_sum <- function(n, perc, mu_param, sigma_param, quantifier) {
+probability_normal_setting_sum <- function(k, n, mu_param, sigma_param, quantifier) {
   
   if (quantifier == "alespoň") {
   solution <- 1 - (pnorm(k, mu_param*n, sigma_param*n))
@@ -129,6 +129,41 @@ probability_normal_setting_sum <- function(n, perc, mu_param, sigma_param, quant
   l
 }
 
+probability_normal_setting_mean <- function(k, n, mu_param, sigma_param, quantifier) {
+  
+  if (quantifier == "alespoň") {
+    solution <- 1 - (pnorm(k, mu_param, sigma_param/n))
+    explanation <- sprintf("Pro průměr normálních rozdělení platí, že $\\mu_{mean} = \\mu$ a $\\sigma_{sum} = \\sigma/n$. 
+                         V tomto případě nás zajímá P(X >= %d) = 1 - F(%d). 
+                         Dosadíme do vzorce pro normální rozdělení s parametry $\\mu$=%d, $\\sigma$=%d/%d,  k=%d. 
+                         Pravděpodobnost je %.3f", k, k, mu_param, sigma_param,n, k, solution)
+  } else if (quantifier == "nejvýše") {
+    solution <- pnorm(k, mu_param, sigma_param/n)
+    explanation <- sprintf("Pro průměr normálních rozdělení platí, že $\\mu_{mean} = \\mu$ a $\\sigma_{sum} = \\sigma/n$. 
+                         V tomto případě nás zajímá P(X <= %d) = F(%d). 
+                         Dosadíme do vzorce pro normální rozdělení s parametry $\\mu$=%d, $\\sigma$=%d/%d,  k=%d. 
+                         Pravděpodobnost je %.3f", k, k, mu_param, sigma_param,n, k, solution)
+  } else if (quantifier == "méně než") {
+    solution <- pnorm(k, mu_param, sigma_param/n)
+    explanation <- sprintf("Pro průměr normálních rozdělení platí, že $\\mu_{mean} = \\mu$ a $\\sigma_{sum} = \\sigma/n$. 
+                         V tomto případě nás zajímá P(X < %d) = F(%d). 
+                         Dosadíme do vzorce pro normální rozdělení s parametry $\\mu$=%d, $\\sigma$=%d/%d,  k=%d. 
+                         Pravděpodobnost je %.3f", k, k, mu_param, sigma_param,n, k, solution)
+  } else if (quantifier == "více než") {
+    solution <- 1 - pnorm(k, mu_param, sigma_param/n)
+    explanation <- sprintf("Pro průměr normálních rozdělení platí, že $\\mu_{mean} = \\mu$ a $\\sigma_{sum} = \\sigma/n$. 
+                         V tomto případě nás zajímá P(X < %d) = F(%d). 
+                         Dosadíme do vzorce pro normální rozdělení s parametry $\\mu$=%d, $\\sigma$=%d/%d,  k=%d. 
+                         Pravděpodobnost je %.3f", k, k, mu_param, sigma_param,n, k, solution)
+  } else {
+    
+    stop(sprintf("incorrect settings: k=%d, quantifier = '%s'",k, quantifier))
+  }
+  
+  l <- list(solution = solution, explanation=explanation)
+  l
+}
+
 get_prob_var <- function(distr_type, curr_theme = NULL){
   if(distr_type== "binomial") {
     df1_vars <- readxl::read_excel("D:/Documents/git/exams_vspj/data/input_data.xlsx",sheet = "probability_theme_binomial",na="NA")  
@@ -148,7 +183,7 @@ get_prob_var <- function(distr_type, curr_theme = NULL){
   
   
   df_vars <- df1_vars %>% filter(group_theme == curr_theme)
-  if (curr_theme == "normal") {
+  if (distr_type == "normal") {
     
     df_all <- tibble(settings = df_vars$text_settings, 
                      question = df_vars$text_question,

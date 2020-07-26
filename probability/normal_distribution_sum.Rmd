@@ -18,7 +18,7 @@ curr_theme <- NULL
 df_assignmnent <- get_prob_var(distr_type = "normal", curr_theme = curr_theme)
 df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
 text_settings <- sample(df_assignmnent$settings,1)
-text_question <- sample(df_assignmnent$question,1)
+text_question <- sample(df_assignmnent$question_sum,1)
 
 if(is.na(df_vardesc$mu_range)) {
   mu_lower <- 1
@@ -51,6 +51,23 @@ if(is.na(df_vardesc$sigma_param)) {
   sigma_param <- sample(sigma_lower:sigma_upper,1)  
 } else {
   sigma_param <- df_vardesc$sigma_param
+}
+
+
+if(is.na(df_vardesc$n_range)) {
+  n_lower <- 1
+  n_upper <- 10 
+} else {
+  n_ranges <- str_split(df_vardesc$n_range, "_", simplify = T)
+  n_lower <- as.numeric(n_ranges[1])
+  n_upper <- as.numeric(n_ranges[2])
+}
+
+
+if(is.na(df_vardesc$n_param)) {
+  n <- sample(n_lower:n_upper,1)  
+} else {
+  n <- df_vardesc$n_param
 }
 
 k <- rnorm(1, mu_param, sigma_param) %>% round()
@@ -93,11 +110,23 @@ k_text_tmp <- case_when(
   k >= 10         ~ df_vardesc$k_10more
 )
 if(is.na(k_text_tmp)) {
-  k_text <- sprintf("%s %d", quantifier, k)
+  k_text <- sprintf("%s %d", quantifier, k*n)
 } else {
-  k_text <- sprintf("%s %d %s", quantifier, k, k_text_tmp)
+  k_text <- sprintf("%s %d %s", quantifier, k*n, k_text_tmp)
 }
 
+n_text_tmp <- case_when(
+  n == 0 ~ df_vardesc$n_0,
+  n == 1 ~ df_vardesc$n_1,
+  n >= 2 & n <= 4 ~ df_vardesc$n_2_4,
+  n >= 5 & n <= 9 ~ df_vardesc$n_5_9,
+  n >= 10         ~ df_vardesc$n_10more
+)
+if(is.na(n_text_tmp)) {
+  n_text <- sprintf("%d", n)
+} else {
+  n_text <- sprintf("%d %s", n, n_text_tmp)
+}
 
 #if (k == n/2& runif(1) < 0.5) {
 #  k_text <- sprintf("%s polovinu ", quantifier, n, k_text_tmp)
@@ -105,7 +134,7 @@ if(is.na(k_text_tmp)) {
 
 
 
-l <- probability_normal_setting(k, mu_param, sigma_param, quantifier)
+l <- probability_normal_setting_sum(k, n, mu_param, sigma_param, quantifier)
 solution <- l$solution
 explanation <- l$explanation
 ```
@@ -129,5 +158,5 @@ Meta-information
 ================
 extype: num
 exsolution: `r exams::fmt(solution,3)`
-exname: normal_prob
+exname: normal_prob_sum
 extol: 0.001

@@ -1,13 +1,9 @@
 ---
-title: "Normal distribution"
+title: "Normal distribution - range"
 author: "Filip Děchtěrenko"
 date: '`r format(Sys.time(), "%d %B, %Y")`'
 output: html_document
 ---
-
-```{r possible_parameters}
-curr_theme <- NULL
-```
 
 ```{r setup, code = readLines("D:/Documents/git/exams_vspj/common_chunks.R")}
 
@@ -15,10 +11,10 @@ curr_theme <- NULL
 
 ```{r data generation, echo = FALSE, message=T}
 
-df_assignmnent <- get_prob_var(distr_type = "normal", curr_theme = curr_theme)
+df_assignmnent <- get_prob_var(distr_type = "normal")
 df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
 text_settings <- sample(df_assignmnent$settings,1)
-text_question <- sample(df_assignmnent$question,1)
+text_question_range <- sample(df_assignmnent$question_range,1)
 
 if(is.na(df_vardesc$mu_range)) {
   mu_lower <- 1
@@ -53,11 +49,16 @@ if(is.na(df_vardesc$sigma_param)) {
   sigma_param <- df_vardesc$sigma_param
 }
 
-k <- rnorm(1, mu_param, sigma_param) %>% round()
-
-
-
-quantifier <- sample(c("alespoň", "nejvýše", "méně než", "více než"),1)  
+should_continue <- T
+while(should_continue) {
+  k1 <- rnorm(1, mu_param, sigma_param) %>% round()
+  k2 <- rnorm(1, mu_param, sigma_param) %>% round()
+  if(k1 != k2) {
+    should_continue <- F
+  }
+  k_lower <- min(k1, k2)
+  k_upper <- max(k1, k2)
+}
 
 
 
@@ -79,23 +80,21 @@ sigma_text_tmp <- case_when(
   sigma_param >= 10         ~ df_vardesc$sigma_10more
 )
 
-if (df_vardesc$sigma_type == "var") {
-  sigma_text <- sprintf("%d %s",sigma_param^2, sigma_text_tmp)
-} else {
-  sigma_text <- sprintf("%d %s",sigma_param, sigma_text_tmp)
-}
+sigma_text <- sprintf("%d %s",sigma_param, sigma_text_tmp)
+
 
 k_text_tmp <- case_when(
-  k == 0 ~ df_vardesc$k_0,
-  k == 1 ~ df_vardesc$k_1,
-  k >= 2 & k <= 4 ~ df_vardesc$k_2_4,
-  k >= 5 & k <= 9 ~ df_vardesc$k_5_9,
-  k >= 10         ~ df_vardesc$k_10more
+  k_upper == 0 ~ df_vardesc$k_0,
+  k_upper == 1 ~ df_vardesc$k_1,
+  k_upper >= 2 & k_upper <= 4 ~ df_vardesc$k_2_4,
+  k_upper >= 5 & k_upper <= 9 ~ df_vardesc$k_5_9,
+  k_upper >= 10         ~ df_vardesc$k_10more
 )
+
 if(is.na(k_text_tmp)) {
-  k_text <- sprintf("%s %d", quantifier, k)
+  k_text <- sprintf("%d-%d",  k_lower, k_upper)
 } else {
-  k_text <- sprintf("%s %d %s", quantifier, k, k_text_tmp)
+  k_text <- sprintf("%d-%d %s", k_lower, k_upper, k_text_tmp)
 }
 
 
@@ -105,7 +104,7 @@ if(is.na(k_text_tmp)) {
 
 
 
-l <- probability_normal_setting(k, mu_param, sigma_param, quantifier)
+l <- probability_normal_setting_range(k_lower, k_upper, mu_param, sigma_param)
 solution <- l$solution
 explanation <- l$explanation
 ```
@@ -115,7 +114,7 @@ Question
 
 ```{r, results='asis'}
 cat(eval(parse(text=text_settings)))
-cat(eval(parse(text=text_question)))
+cat(eval(parse(text=text_question_range)))
 ```
 
 Solution
@@ -129,5 +128,5 @@ Meta-information
 ================
 extype: num
 exsolution: `r exams::fmt(solution,3)`
-exname: normal_prob
+exname: normal_prob_range
 extol: 0.001
