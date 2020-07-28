@@ -39,12 +39,12 @@ Y_med <- median(Y)
 while (should_continue) {
   should_continue <- F
   if(any(X_med==X)) {
-    X_med <- X_med + 1
+    X_med <- X_med + 1*10^(-df_currvars$round_val[1])
     should_continue <- T
   } 
   
   if(any(Y_med==Y)) {
-    Y_med <- Y_med + 1
+    Y_med <- Y_med + 1*10^(-df_currvars$round_val[2])
     should_continue <- T
   }   
   
@@ -119,15 +119,15 @@ df_data %>%
 Rozhodli jsme se každou z těchto číselných proměnných rozdělit na dvě kategorie (méně a více) podle následujích hodnot: Pro proměnnou `r df_currvars$name[1]` je rozdělující hodnota medianu `r X_med` a pro proměnnou `r df_currvars$name[2]` je hodnota medianu `r Y_med`). Pokud bychom tyto kategorizovaná data zapsali kontingenční tabulkou, která z následujících tabulek by to byla?
 
 ```{r Tabulka 1 }
-l_tbs[[1]] %>% knitr::kable("Tabulka A")
+l_tbs[[1]] %>% knitr::kable(caption = "Tabulka A")
 ```
 
 ```{r Tabulka 2 }
-l_tbs[[2]] %>% knitr::kable("Tabulka B")
+l_tbs[[2]] %>% knitr::kable(caption = "Tabulka B")
 ```
 
 ```{r Tabulka 3}
-l_tbs[[3]] %>% knitr::kable("Tabulka C")
+l_tbs[[3]] %>% knitr::kable(caption = "Tabulka C")
 ```
 
 ```{r questionlist, echo = FALSE, results = "asis"}

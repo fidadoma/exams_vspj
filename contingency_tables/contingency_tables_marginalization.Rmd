@@ -10,6 +10,7 @@ output: html_document
 ```
 
 ```{r data generation, echo = FALSE, results = "hide"}
+
 df_assignmnent <- get_var_desc()
 df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
 text_question <- sample(df_assignmnent$question,1)
@@ -23,17 +24,36 @@ df_currvars <- df_vardesc %>%
   rowwise() %>% 
   mutate(n_levels = get_n_factor_levels(values))
 
+x_levels <- get_factor_levels(df_currvars$values[1])
+y_levels <- get_factor_levels(df_currvars$values[2])
 
-df <- generate_contingency_table(n,r, x_lev = df_currvars$n_levels[1],y_lev = df_currvars$n_levels[2])
+df <- generate_flat_ctable(n, r, x_levels, y_levels) %>% 
+  mutate(x_categ = sprintf("%s-%s", df_currvars$name[1], x_categ),
+         y_categ = sprintf("%s-%s", df_currvars$name[2], y_categ)) %>% 
+  mutate(!!sym(df_currvars$name[1]):=x_categ, !!sym(df_currvars$name[2]):=y_categ)
 
-colnames(df) <- get_factor_levels(df_currvars$values[1])
-rownames(df) <- get_factor_levels(df_currvars$values[2])
+if(runif(1) < 0.5) {
+  selected_var <- "x"
+  query_var <- df_currvars$name[1]
+  group_var_levels <- y_levels  
+  
+  group_var <- df_currvars$name[2]
+  
+} else {
+  selected_var <- "y"
+  query_var <- df_currvars$name[2]
+  group_var_levels <- x_levels  
 
-query_var <- sample(rownames(df),1)
+  group_var <- df_currvars$name[1]
+}
 
-df <- df %>% as_tibble(rownames = df_currvars$name[2]) 
+selected_level <- sample(group_var_levels,1)
 
-solution <- df %>% filter(!!sym(df_currvars$name[2]) == query_var) %>% select(-!!sym(df_currvars$name[2])) %>% rowSums()
+solution <- df %>% 
+    group_by(!!sym(group_var)) %>% 
+    summarize(n = n()) %>% 
+  filter(!!sym(group_var) == sprintf("%s-%s",group_var, selected_level)) %>% 
+  pull(n)
 
 
 #
@@ -45,6 +65,22 @@ solution <- df %>% filter(!!sym(df_currvars$name[2]) == query_var) %>% select(-!
 #  rbind(tibble(!!df_currvars$name := "Součet řádků", ))
 #  tibble::tbl_sum()
 
+  if(runif(1) < 0.5) {
+    xt <- xtabs(~x_categ + y_categ,df)    
+    if (selected_var == "x") {
+      sum_type <- "sloupcové"
+    } else {
+      sum_type <- "řádkové"
+    }
+  } else {
+    xt <- xtabs(~y_categ + x_categ,df)
+    
+    if (selected_var == "x") {
+      sum_type <- "řádkové"
+    } else {
+      sum_type <- "sloupcové"
+    }
+  }
 
 ```
 
@@ -60,14 +96,14 @@ Získali jsme data o proměnných `r df_currvars$name[1]` a `r df_currvars$name[
 Data vypadají následovně:
 
 ```{r echo = FALSE}
-knitr::kable(df)
+knitr::kable(xt)
 ```
 
-Pokud bychom neměli brát ohled na rozdělení dle proměnné `r df_currvars$name[2]`, kolik je v datech pozorovaní, kde `r df_currvars$name[1]`="`r query_var`"?
+Pokud bychom neměli brát ohled na rozdělení dle proměnné "`r query_var`", kolik je v datech pozorovaní, kde `r group_var`="`r selected_level`"?
 
 Solution
 ========
-Stačí sečíst součty v řádcích v tabulce. Pro podkategorii "`r query_var`" je součet `r solution`.  
+Stačí sečíst `r sum_type` součty v tabulce. Pro podkategorii "`r selected_level`" je součet `r solution `.  
 
 Meta-information
 ================

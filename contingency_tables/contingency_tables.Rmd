@@ -10,6 +10,8 @@ output: html_document
 ```
 
 ```{r data generation, echo = FALSE, results = "hide"}
+
+
 df_assignmnent <- get_var_desc()
 df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
 text_question <- sample(df_assignmnent$question,1)
@@ -23,14 +25,32 @@ df_currvars <- df_vardesc %>%
   rowwise() %>% 
   mutate(n_levels = get_n_factor_levels(values))
 
+x_levels <- get_factor_levels(df_currvars$values[1])
+y_levels <- get_factor_levels(df_currvars$values[2])
 
-df <- generate_contingency_table(n,r, x_lev = df_currvars$n_levels[1],y_lev = df_currvars$n_levels[2])
+df <- generate_flat_ctable(n, r, x_levels, y_levels) %>% 
+  mutate(x_categ = sprintf("%s-%s", df_currvars$name[1], x_categ),
+         y_categ = sprintf("%s-%s", df_currvars$name[2], y_categ)) %>% 
+  mutate(!!sym(df_currvars$name[1]):=x_categ, !!sym(df_currvars$name[2]):=y_categ)
 
-colnames(df) <- get_factor_levels(df_currvars$values[1])
-rownames(df) <- get_factor_levels(df_currvars$values[2])
+xt <- xtabs(~y_categ+x_categ,df)
 
+cont_coef <- sample(3,1)
 
-
+if(cont_coef == 1) {
+  f <-   pearson_cont_coef
+  asoc_coef <- "Pearsonův"
+} else if(cont_coef == 2){
+  f <-   cramer_cont_coef
+  asoc_coef <- "Cramevův"
+} else if(cont_coef == 3) {
+  f <- cuporev_cont_coef
+  asoc_coef <- "Čuprovův"
+} else {
+  stop("incorrect contingency index")
+}
+  
+solution <- f(chi_sq = (chisq.test(xt, correct = F))$statistic, n, ncol(df), nrow(df))
 ```
 
 Question
@@ -40,23 +60,30 @@ Question
 cat(eval(parse(text=text_question)))
 ```
 
-Získali jsme data o proměnných `r df_currvars$name[1]` a `r df_currvars$name[2]` a zajímá nás, zda je mezi proměnnými vztah.
+Získali jsme data o proměnných '`r df_currvars$name[1]`' a '`r df_currvars$name[2]`' a zajímá nás, zda je mezi těmito proměnnými vztah.
 
 Data vypadají následovně:
 
 ```{r echo = FALSE}
-pander::pander(df)
+
+table(df[[df_currvars$name[1]]], df[[df_currvars$name[2]]])
+#knitr::kable(xtabs(~))
+#knitr::kable(ftable(df %>% select(-x_categ, -y_categ)), row.names = 1:2)
+#epitab::contingency_table(list(df_currvars$name[1],df_currvars$name[2]), df)
+#df %>% as.table()
+#summarytools::ctable(x = df[[df_currvars$name[1]]], y = df[[df_currvars$name[2]]],
+#      method = "render")
 ```
 
-Určete koeficient asociace (s přesností na 2 desetinná místa)
+Určete `r asoc_coef` koeficient kontingence (s přesností na 2 desetinná místa)
 
 Solution
 ========
-Pro danou kontingenční tabulku spočítáme vztah pomocí vzorce XXX, výsledek je `r fmt(cor(x,y),2)`.  
+Pro danou kontingenční tabulku je výsledek `r exams::fmt(solution,2)`.  
 
 Meta-information
 ================
 extype: num
-exsolution: `r fmt(cor(x,y),2)`
+exsolution: `r exams::fmt(solution,2)`
 exname: cont_table
 extol: 0.01

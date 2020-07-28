@@ -66,28 +66,34 @@ generate_correlated_data <- function(n,r) {
   MASS::mvrnorm(n=n, mu=c(0, 0), Sigma=matrix(c(1, r, r, 1), nrow=2), empirical=TRUE)
 }
 
-generate_contingency_table <- function(n, r, x_lev, y_lev) {
-  
+generate_flat_ctable <- function(n, r, x_fac, y_fac) { 
   df <- generate_correlated_data(n,r)
-  colnames(df) <- c("x","y")
   
   x <- df[,1]
   range_x <- range(x)
-  x_cutoffs <- runif(x_lev-1, min=range_x[1], max=range_x[2]) %>% sort()
-  x_categ <- rowSums(matrix(rep(x, x_lev-1), ncol = x_lev-1) >x_cutoffs)
+  cutoffs_x <- seq(range_x[1],range_x[2],length.out = length(x_fac)+1)
+  cutoffs_x <- cutoffs_x[2:(length(cutoffs_x)-1)]
+  x_categ <- rowSums(matrix(rep(x, length(x_fac)-1), ncol = length(x_fac)-1) >cutoffs_x)
   
-  m1 <- table(x_categ)
-  m_out <- matrix(NA, ncol = x_lev, nrow = y_lev)
-  df2 <- df %>% as_tibble() %>% mutate(x_categ = x_categ)
-  for (i in 1:length(m1)) {
-    y <- df2 %>% filter(x_categ == (i-1)) %>% pull(y)
-    range_y <- range(y)
-    y_cutoffs <- runif(y_lev-1, min=range_y[1], max=range_y[2]) %>% sort()
-    m2 <- table(rowSums(matrix(rep(y, y_lev-1), ncol = y_lev-1) >y_cutoffs))
-    m_out[,i] <- m2                    
-  }
-  m_out
   
+  y <- df[,2]
+  range_y <- range(y)
+  cutoffs_y <- seq(range_y[1],range_y[2],length.out = length(y_fac)+1)
+  cutoffs_y <- cutoffs_y[2:(length(cutoffs_y)-1)]
+  y_categ <- rowSums(matrix(rep(y, length(y_fac)-1), ncol = length(y_fac)-1) >cutoffs_y)
+  
+  x_lev <- seq(0,(length(x_fac)-1))
+  y_lev <- seq(0,(length(y_fac)-1))
+  
+  df <- tibble(x_categ = recode(x_categ, !!!setNames(x_fac, x_lev)),
+               y_categ = recode(y_categ, !!!setNames(y_fac, y_lev)))
+  
+  df
+}
+
+generate_contingency_table <- function(n, r, x_lev, y_lev) {
+  df <- generate_flat_ctable(n,r,x_lev,y_lev)
+  xtabs(~x_categ+y_categ,df)
 }
 
 compute_sd <- function(v,pdist) {
@@ -103,6 +109,16 @@ compute_sd <- function(v,pdist) {
   }
 }
 
+pearson_cont_coef <- function(chi_sq, n, r,s) {
+  return(sqrt(chi_sq/(chi_sq + n)))
+}
+
+cramer_cont_coef <- function(chi_sq, n, r,s) {
+  return(sqrt(chi_sq/(n*min(r-1,s-1))))
+}
+cuporev_cont_coef <- function(chi_sq, n, r,s) {
+  return(sqrt(chi_sq/(n*sqrt((r-1)*(s-1)))))
+}
 rescale_var <- function(x, m, sd) {
   as.numeric(scale(x)*sd+m)
 }
