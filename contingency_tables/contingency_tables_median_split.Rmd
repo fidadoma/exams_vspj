@@ -147,6 +147,14 @@ df_data %>%
   geom_hline(yintercept = Y_med, col = "red")+
   geom_vline(xintercept = X_med, col = "red")
 ```
+```{r}
+df_data %>% 
+  ggplot(aes(x=!!sym(colnames(df_data)[1]), y=!!sym(colnames(df_data)[2]))) +
+  geom_point() + 
+  theme(aspect.ratio = 1) + 
+  geom_hline(yintercept = Y_med, col = "red")+
+  geom_vline(xintercept = X_med, col = "red")
+```
 
 V každém kvadrantu sečteme body a dostaneme tedy odpověď `r questions[solutions]`
 
