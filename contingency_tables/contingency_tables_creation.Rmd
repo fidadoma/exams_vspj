@@ -1,0 +1,131 @@
+---
+title: "Contingency table - creation from vars"
+author: "Filip Děchtěrenko"
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+output: html_document
+---
+
+```{r setup, code = readLines("D:/Documents/git/exams_vspj/common_chunks.R")}
+
+```
+
+```{r data generation, echo = FALSE, results = "hide"}
+library(exams)
+df_assignmnent <- get_var_desc()
+df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
+text_question <- sample(df_assignmnent$question,1)
+
+n <- sample(5:15,1)
+r <- runif(1,-1,1)
+
+df_currvars <- df_vardesc %>% 
+  filter(type == "factor") %>% 
+  sample_n(2) %>% 
+  rowwise() %>% 
+  mutate(n_levels = get_n_factor_levels(values))
+
+x_levels <- get_factor_levels(df_currvars$values[1])
+y_levels <- get_factor_levels(df_currvars$values[2])
+
+df <- generate_flat_ctable(n, r, x_levels, y_levels) %>% 
+  mutate(x_categ = sprintf("%s-%s", df_currvars$name[1], x_categ),
+         y_categ = sprintf("%s-%s", df_currvars$name[2], y_categ)) %>% 
+  mutate(!!sym(df_currvars$name[1]):=x_categ, !!sym(df_currvars$name[2]):=y_categ)
+
+
+
+tb1 <- table(df[[df_currvars$name[1]]], df[[df_currvars$name[2]]])
+
+tb_rotated <- tb1
+tmp <- tb_rotated[1,1]
+tb_rotated[1,1] <- tb_rotated[1,2]
+tb_rotated[1,2] <- tb_rotated[2,2]
+tb_rotated[2,2] <- tb_rotated[2,1]
+tb_rotated[2,1] <- tmp
+
+tb_rotated_other <- tb1
+tmp <- tb_rotated_other[1,1]
+tb_rotated_other[1,1] <- tb_rotated_other[2,1]
+tb_rotated_other[2,1] <- tb_rotated_other[2,2]
+tb_rotated_other[2,2] <- tb_rotated_other[1,2]
+tb_rotated_other[1,2] <- tmp
+
+
+tb_smaller <- tb1 - sample(1:3,1) 
+tb_smaller <- apply(tb_smaller, c(1,2),max,0)
+
+
+tb_larger  <- tb1 + sample(1:3,1) 
+
+
+tb_noise <- tb1
+i_noise <- sample(c(0,sample(c(-1,1), length(tb1)-1, replace = T)))
+tb_noise <- tb1 + i_noise
+
+tb_noise <- apply(tb_noise, c(1,2),max,0)
+
+l_tbs <- list(tb1, tb_rotated, tb_rotated_other, tb_smaller,tb_larger,tb_noise)
+ix <- sample(1:length(l_tbs), 3)
+
+l_tbs <- l_tbs[ix]
+
+solutions <- rep(F, 3)
+solutions[ix == 1] <- T
+if(!any(solutions)) { # if only wrong tables are shown, it is fourth option
+  solutions <- c(solutions, T)
+} else {
+  solutions <- c(solutions, F)
+}
+
+questions <- c("Tabulka A", "Tabulka B", "Tabulka C", "žádná z tabulek")
+
+```
+
+Question
+========
+
+```{r, results='asis'}
+cat(eval(parse(text=text_question)))
+```
+
+Pokud se zaměříme na proměnné `r df_currvars$name[1]` a `r df_currvars$name[2]`, máme následující pozorování:
+Data vypadají následovně:
+
+```{r plot, fig.path = "", fig.cap = ""}
+df %>% 
+  select(-x_categ,-y_categ) %>% 
+  mutate(!!sym(df_currvars$name[1]):=str_remove(!!sym(df_currvars$name[1]), paste0(df_currvars$name[1],"-")),
+         !!sym(df_currvars$name[2]):=str_remove(!!sym(df_currvars$name[2]), paste0(df_currvars$name[2],"-"))) %>% 
+  knitr::kable()
+```
+
+Pokud bychom zapsali data kontingenční tabulkou, která z následujících tabulek je ta správná?
+
+```{r Tabulka 1 }
+l_tbs[[1]] %>% knitr::kable(caption = "Tabulka A")
+```
+
+```{r Tabulka 2 }
+l_tbs[[2]] %>% knitr::kable(caption = "Tabulka B")
+```
+
+```{r Tabulka 3}
+l_tbs[[3]] %>% knitr::kable(caption = "Tabulka C")
+
+tb_noise%>% knitr::kable(caption = "Tabulka C")
+```
+
+```{r questionlist, echo = FALSE, results = "asis"}
+answerlist(questions, markup = "markdown")
+```
+
+
+Solution
+========
+Stačí sečíst jednotlivé kombinace hodnot, v tomto případě je tedy správná odpověď `r questions[solutions]`
+
+Meta-information
+================
+extype: schoice
+exsolution: `r mchoice2string(solutions, single = TRUE)`
+exname: cont_table_creation

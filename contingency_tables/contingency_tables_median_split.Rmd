@@ -33,8 +33,8 @@ Y <- rescale_var(Y,df_currvars$mean[2],df_currvars$sd[2]) %>% round(df_currvars$
 
 should_continue <- T
 
-X_med <- median(X)
-Y_med <- median(Y)
+X_med <- mean(X)
+Y_med <- mean(Y)
 
 while (should_continue) {
   should_continue <- F
@@ -75,9 +75,7 @@ tb_rotated_other[1,2] <- tmp
 
 
 tb_smaller <- tb1 - sample(1:3,1) 
-tb_smaller <- matrix(sapply(tb_smaller, max, 0), ncol = dim(tb_smaller)[1], nrow = dim(tb_smaller)[2])
-colnames(tb_smaller) <- colnames(tb1)
-rownames(tb_smaller) <- rownames(tb1)
+tb_smaller <- apply(tb_smaller, c(1,2),max,0)
 
 tb_larger  <- tb1 + sample(1:3,1) 
 
@@ -85,6 +83,7 @@ tb_larger  <- tb1 + sample(1:3,1)
 tb_noise <- tb1
 i_noise <- sample(c(0,sample(c(-1,1), 3, replace = T)))
 tb_noise <- tb1 + i_noise
+tb_noise <- apply(tb_noise, c(1,2),max,0)
 
 l_tbs <- list(tb1, tb_rotated, tb_rotated_other, tb_smaller,tb_larger,tb_noise)
 ix <- sample(1:length(l_tbs), 3)
@@ -106,6 +105,11 @@ questions <- c("Tabulka A", "Tabulka B", "Tabulka C", "žádná z tabulek")
 Question
 ========
 
+```{r, results='asis'}
+cat(eval(parse(text=text_question)))
+```
+
+
 V následujícím grafu máme zachycený vztah proměnných `r df_currvars$name[1]` a `r df_currvars$name[2]`.
 Data vypadají následovně:
 
@@ -116,7 +120,7 @@ df_data %>%
   theme(aspect.ratio = 1)
 ```
 
-Rozhodli jsme se každou z těchto číselných proměnných rozdělit na dvě kategorie (méně a více) podle následujích hodnot: Pro proměnnou `r df_currvars$name[1]` je rozdělující hodnota medianu `r X_med` a pro proměnnou `r df_currvars$name[2]` je hodnota medianu `r Y_med`). Pokud bychom tyto kategorizovaná data zapsali kontingenční tabulkou, která z následujících tabulek by to byla?
+Rozhodli jsme se každou z těchto číselných proměnných rozdělit na dvě kategorie (méně a více) podle následujích hodnot: Pro proměnnou `r df_currvars$name[1]` je rozdělující hodnota průměru `r X_med` a pro proměnnou `r df_currvars$name[2]` je hodnota průměru `r Y_med`). Pokud bychom tyto kategorizovaná data zapsali kontingenční tabulkou, která z následujících tabulek by to byla?
 
 ```{r Tabulka 1 }
 l_tbs[[1]] %>% knitr::kable(caption = "Tabulka A")
