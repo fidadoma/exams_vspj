@@ -5,13 +5,17 @@ date: '`r format(Sys.time(), "%d %B, %Y")`'
 output: html_document
 ---
 
+```{r}
+curr_theme <- NULL
+```
+
 ```{r setup, code = readLines("D:/Documents/git/exams_vspj/common_chunks.R")}
 
 ```
 
 ```{r data generation, echo = FALSE, message=T}
 
-df_assignmnent <- get_prob_var(distr_type = "binomial")
+df_assignmnent <- get_prob_var(distr_type = "binomial",curr_theme)
 df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
 text_question <- sample(df_assignmnent$question,1)
 
@@ -89,6 +93,11 @@ explanation <- l$explanation
 
 Question
 ========
+
+```{r, results='asis'}
+cat(eval(parse(text=df_vardesc$text_settings)))
+```
+
 
 ```{r, results='asis'}
 cat(eval(parse(text=text_question)))

@@ -52,7 +52,7 @@ lambda_text_tmp <- case_when(
   lambda_param >= 10         ~ df_vardesc$lambda_10more
 )
 
-lambda_text <- sprintf("%d %s",lambda, lambda_text_tmp)
+lambda_text <- sprintf("%d %s",lambda_param, lambda_text_tmp)
 
 k_text_tmp <- case_when(
   k == 0 ~ df_vardesc$k_0,
@@ -81,6 +81,10 @@ explanation <- l$explanation
 
 Question
 ========
+
+```{r, results='asis'}
+cat(eval(parse(text=df_vardesc$text_settings)))
+```
 
 ```{r, results='asis'}
 cat(eval(parse(text=text_question)))
