@@ -15,7 +15,7 @@ curr_theme <- NULL
 
 ```{r data generation, echo = FALSE, message=T}
 
-df_assignmnent <- get_prob_var(distr_type = "normal", curr_theme = curr_theme)
+df_assignmnent <- get_prob_var(distr_type = "normal", curr_theme = curr_theme,norm_type = "mean")
 df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
 text_settings <- sample(df_assignmnent$settings,1)
 text_question <- sample(df_assignmnent$question_mean,1)

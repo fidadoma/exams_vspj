@@ -5,13 +5,17 @@ date: '`r format(Sys.time(), "%d %B, %Y")`'
 output: html_document
 ---
 
+```{r}
+curr_theme <- NULL
+```
+
 ```{r setup, code = readLines("D:/Documents/git/exams_vspj/common_chunks.R")}
 
 ```
 
 ```{r data generation, echo = FALSE, message=T}
 
-df_assignmnent <- get_prob_var(distr_type = "normal")
+df_assignmnent <- get_prob_var(distr_type = "normal", curr_theme = curr_theme, norm_type = "range")
 df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
 text_settings <- sample(df_assignmnent$settings,1)
 text_question_range <- sample(df_assignmnent$question_range,1)
@@ -130,3 +134,4 @@ extype: num
 exsolution: `r exams::fmt(solution,3)`
 exname: normal_prob_range
 extol: 0.001
+

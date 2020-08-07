@@ -34,7 +34,7 @@ if(is.na(df_vardesc$lambda_param)) {
 
 k <- sample(0:lambda_param, 1)
 
-if(k == n) {
+if(k == lambda_param) {
   quantifier <- sample(c("nejvýše", "méně než", "právě"),1)
   
 } else if(k == 0){

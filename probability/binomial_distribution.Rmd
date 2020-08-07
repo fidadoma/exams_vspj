@@ -32,7 +32,7 @@ if(is.na(df_vardesc$pi_range)) {
 if(is.na(df_vardesc$pi_param)) {
   pi_param <- runif(1,pi_lower,pi_upper) %>% round(2)  
 } else {
-  pi_param <- df_vardesc$pi_param
+  pi_param <- eval(parse(text=df_vardesc$pi_param))
 }
 
 if(is.na(df_vardesc$n_range)) {

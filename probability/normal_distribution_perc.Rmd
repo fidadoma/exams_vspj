@@ -1,9 +1,14 @@
 ---
-title: "Normal distribution - range"
+title: "Normal distribution - perc"
 author: "Filip Děchtěrenko"
 date: '`r format(Sys.time(), "%d %B, %Y")`'
 output: html_document
 ---
+
+```{r parameters modyfiable using expar}
+curr_theme <- NULL
+```
+
 
 ```{r setup, code = readLines("D:/Documents/git/exams_vspj/common_chunks.R")}
 
@@ -11,7 +16,7 @@ output: html_document
 
 ```{r data generation, echo = FALSE, message=T}
 
-df_assignmnent <- get_prob_var(distr_type = "normal")
+df_assignmnent <- get_prob_var(distr_type = "normal", curr_theme = curr_theme, norm_type = "perc")
 df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
 text_settings <- sample(df_assignmnent$settings,1)
 text_question_perc <- sample(df_assignmnent$question_perc,1)
@@ -51,6 +56,12 @@ if(is.na(df_vardesc$sigma_param)) {
 
 perc <- sample(1:99, 1)
 
+if(is.na(df_vardesc$perc_direction)) {
+  direction <- "lower"
+} else {
+  direction <- df_vardesc$perc_direction
+}
+
 
 mu_text_tmp <- case_when(
   mu_param == 0 ~ df_vardesc$mu_0,
@@ -82,7 +93,7 @@ sigma_text <- sprintf("%d %s",sigma_param, sigma_text_tmp)
 
 
 
-l <- probability_normal_setting_perc(perc/100, mu_param, sigma_param)
+l <- probability_normal_setting_perc(perc/100, mu_param, sigma_param,direction = direction)
 solution <- l$solution
 explanation <- l$explanation
 ```

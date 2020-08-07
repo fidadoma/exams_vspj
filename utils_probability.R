@@ -1,5 +1,5 @@
 probability_binomial_setting <- function(n, k, pi_param, quantifier) {
-  
+  pi_param <- round(pi_param,2)
     if (quantifier == "právě") {
       solution <- dbinom(k, n, pi_param)
       explanation <- sprintf("V tomto případě nás zajímá P(X=%d). Dosadíme do vzorce pro binomické rozdělení s parametry $\\pi$=%s, k=%d, n=%d. Pravděpodobnost je %.3f", k, pi_param, k, n, solution)
@@ -27,7 +27,7 @@ probability_binomial_setting <- function(n, k, pi_param, quantifier) {
 probability_poisson_setting <- function(lambda, k, quantifier) {
   
   if (quantifier == "právě") {
-    solution <- dpois(k, n)
+    solution <- dpois(k, lambda)
     explanation <- sprintf("V tomto případě nás zajímá P(X=%d). Dosadíme do vzorce pro Poissonovo rozdělení s parametry $\\lambda$=%d, k=%d. Pravděpodobnost je %.3f", k, lambda, k, solution)
   } else if (quantifier == "alespoň") {
     solution <- 1 - (ppois(k, lambda) - dpois(k, lambda))
@@ -84,11 +84,20 @@ probability_normal_setting_range <- function(k_lower, k_upper, mu_param, sigma_p
   l
 }
 
-probability_normal_setting_perc <- function(perc, mu_param, sigma_param) {
+probability_normal_setting_perc <- function(perc, mu_param, sigma_param, direction) {
   
+  if(direction == "lower") {
+    solution <- qnorm(perc, mu_param, sigma_param)
+    explanation <- sprintf("V této inverzní úloze máme zadanou pravděpodobnost p a zajímá nás hodnota k, pro kterou platí P(X < k) = p. K tomuto se dá použít funkce NORM.INV. V tomto případě pro parametery $\\mu$=%d, $\\sigma$=%d,  p=%.2f. Daná hodnota je %.3f", mu_param, sigma_param, perc, solution)
+    
+  } else if(direction == "higher"){ 
+    solution <- qnorm(1-perc, mu_param, sigma_param)
+    explanation <- sprintf("V této inverzní úloze máme zadanou pravděpodobnost p a zajímá nás hodnota k, pro kterou platí P(X > k) = 1 - P(X <= k) = p. K tomuto se dá použít funkce NORM.INV. V tomto případě pro parametery $\\mu$=%d, $\\sigma$=%d,  p=%.2f. Daná hodnota je %.3f", mu_param, sigma_param, perc, solution)
+    
+  } else {
+    stop(sprintf("incorrect settings: direction = '%s'",direction))
+  }
   
-  solution <- qnorm(perc, mu_param, sigma_param)
-  explanation <- sprintf("V této inverzní úloze máme zadanou pravděpodobnost p a zajímá nás hodnota k, pro kterou platí P(X < k) = p. K tomuto se dá použít funkce NORM.INV. V tomto případě pro parametery \\mu=%d, \\sigma=%d,  p=%.2f. Daná hodnota je %.3f", mu_param, sigma_param, perc, solution)
   
   l <- list(solution = solution, explanation=explanation)
   l
@@ -164,7 +173,7 @@ probability_normal_setting_mean <- function(k, n, mu_param, sigma_param, quantif
   l
 }
 
-get_prob_var <- function(distr_type, curr_theme = NULL){
+get_prob_var <- function(distr_type, curr_theme = NULL, norm_type = NULL){
   if(distr_type== "binomial") {
     df1_vars <- readxl::read_excel("D:/Documents/git/exams_vspj/data/input_data.xlsx",sheet = "probability_theme_binomial",na="NA")  
   } else if(distr_type== "poisson") {
@@ -176,15 +185,30 @@ get_prob_var <- function(distr_type, curr_theme = NULL){
   
   #df1_questions <- readxl::read_excel("data/input_data.xlsx",sheet = "questions")
   
-  themes <- df1_vars %>% pull(group_theme) %>% unique()
-  if(is.null(curr_theme)) {
-    curr_theme <- sample(themes,1)  
+  
+  if(is.null(norm_type)) {
+    norm_type <- "all"
+  } else {
+    norm_type <- c("all", norm_type)
+  }
+  
+  if (distr_type == "normal") {
+    themes <- df1_vars %>% filter(question_type %in% norm_type) %>% pull(group_theme) %>% unique()
+    if(is.null(curr_theme)) {
+      curr_theme <- sample(themes,1)  
+    }
+    
+  } else {
+    themes <- df1_vars %>% pull(group_theme) %>% unique()
+    if(is.null(curr_theme)) {
+      curr_theme <- sample(themes,1)  
+    }
+    
   }
   
   
-  df_vars <- df1_vars %>% filter(group_theme == curr_theme)
   if (distr_type == "normal") {
-    
+    df_vars <- df1_vars %>% filter(group_theme == curr_theme)  
     df_all <- tibble(settings = df_vars$text_settings, 
                      question = df_vars$text_question,
                      question_range = df_vars$text_question_range,
@@ -193,6 +217,7 @@ get_prob_var <- function(distr_type, curr_theme = NULL){
                      question_mean = df_vars$text_question_mean,
                      var_desc = nest(df_vars, data = everything()))
   } else {
+    df_vars <- df1_vars %>% filter(group_theme == curr_theme)
     df_all <- tibble(settings = df_vars$text_settings, 
                      question = df_vars$text_question,
                      var_desc = nest(df_vars, data = everything()))

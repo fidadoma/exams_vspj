@@ -37,12 +37,12 @@ x1 <- rnorm(n, 0, sd1)
 x2 <- rnorm(n, 0, sd2)
 
 #x1 <- standardize_value(x1) %>% 
-  rescale_var_range(old_min = -4, old_max = 4, new_min = x_lower, new_max = x_upper) %>%
-  round(df_currvars$round_val)
+#  rescale_var_range(old_min = -4, old_max = 4, new_min = x_lower, new_max = x_upper) %>%
+#  round(df_currvars$round_val)
 
 #x2 <- standardize_value(x2) %>% 
-  rescale_var_range(old_min = -4, old_max = 4, new_min = x_lower, new_max = x_upper) %>%
-  round(df_currvars$round_val)
+#  rescale_var_range(old_min = -4, old_max = 4, new_min = x_lower, new_max = x_upper) %>%
+#  round(df_currvars$round_val)
 
 
 df_data1 <- tibble(`proměnná`:=x1)
@@ -113,16 +113,16 @@ if (plot_type == "histogram") {
 ```
 
 ```{r questionlist, echo = FALSE, results = "asis"}
-answerlist(questions, markup = "markdown")
+exams::answerlist(questions, markup = "markdown")
 ```
 
 Solution
 ========
 
-Graf vlevo má v tomto případě `r sdvar` roven `r if_else(sdvar == "rozptyl", round(var(df_left[["proměnná"]]),3), round(var(df_left[["proměnná"]]),3))` a graf vpravo má `r sdvar` `r if_else(sdvar == "rozptyl", round(var(df_right[["proměnná"]]),3), round(sd(df_right[["proměnná"]]),3))`. V tomto případě má tedy `r query_question` `r sdvar` `r if_else(plot_type == "histogram", "graf", "podmínka")` `r if_else(where_target == "right", if_else(plot_type == "histogram", "vpravo", "2"), if_else(plot_type == "histogram", "vlevo", "2"))`.
+Graf vlevo má v tomto případě `r sdvar` roven `r if_else(sdvar == "rozptyl", round(var(df_left[["proměnná"]]),3), round(var(df_left[["proměnná"]]),3))` a graf vpravo má `r sdvar` `r if_else(sdvar == "rozptyl", round(var(df_right[["proměnná"]]),3), round(sd(df_right[["proměnná"]]),3))`. V tomto případě má tedy `r query_question` `r sdvar` `r if_else(plot_type == "histogram", "graf", "podmínka")` `r if_else(where_target == "right", if_else(plot_type == "histogram", "vpravo", "2"), if_else(plot_type == "histogram", "vlevo", "1"))`.
 
 Meta-information
 ================
 extype: schoice
-exsolution: `r mchoice2string(solutions, single = TRUE)`
+exsolution: `r exams::mchoice2string(solutions, single = TRUE)`
 exname: desc_plot

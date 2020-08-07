@@ -101,18 +101,24 @@ df %>%
 
 Pokud bychom zapsali data kontingenční tabulkou, která z následujících tabulek je ta správná?
 
-```{r Tabulka 1 }
+
+Tabulka A
+
+```{r Tabulka A }
 l_tbs[[1]] %>% knitr::kable(caption = "Tabulka A")
 ```
 
-```{r Tabulka 2 }
+Tabulka B
+
+```{r Tabulka B }
 l_tbs[[2]] %>% knitr::kable(caption = "Tabulka B")
 ```
 
-```{r Tabulka 3}
+Tabulka C
+
+```{r Tabulka C}
 l_tbs[[3]] %>% knitr::kable(caption = "Tabulka C")
 
-tb_noise%>% knitr::kable(caption = "Tabulka C")
 ```
 
 ```{r questionlist, echo = FALSE, results = "asis"}
