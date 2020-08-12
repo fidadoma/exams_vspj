@@ -1,0 +1,96 @@
+---
+title: "Point estimation"
+author: "Filip Děchtěrenko"
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+output: html_document
+---
+
+```{r setup, code = readLines("D:/Documents/git/exams_vspj/common_chunks.R")}
+
+```
+
+
+```{r data generation, echo = FALSE}
+
+df_assignmnent <- get_var_desc()
+df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
+text_question <- sample(df_assignmnent$question,1)
+
+n <- sample(c(36,42,48),1)
+r <- runif(1,-1,1)
+
+df_currvars <- sample_vars(df_vardesc, nvar = 2)
+
+# generate X,Y data
+df_data <- safe_generate_correlated_data(n,r,df_currvars)
+m <- df_data[[df_currvars$name[1]]] 
+m <- m %>% matrix(nrow = sqrt(length(m)) %>% round())
+
+interval_range <- sample(c(95,90,99),1)
+
+u <- qnorm(1-(1-interval_range/100)/2)
+s <- sd(m)
+m <- mean(m)
+LB <- m-u*s/sqrt(n)
+UB <- m+u*s/sqrt(n)
+if (runif(1) < 0.5) {
+  estim_type <- "průměr"
+  solution_text <- "stačí spočítat výběrový průměr"
+  solution <- mean(m)
+} else {
+  estim_type <- "směrodatnou odchylku"
+  solution_text <- "stačí spočítat sm2rodatnou odchylku výběru. V Excelu jde o funkci SMODCH.VÝBĚR.S."
+  solution <- sd(m)
+}
+
+```
+
+
+
+Question
+========
+```{r, results='asis'}
+cat(eval(parse(text=text_question)))
+```
+
+Když se zaměříme pouze na proměnnou `r df_currvars$name[1]`, vypadají data pro tento výběr data následovně:
+
+```{r graf,echo = FALSE, warning =F,message=F}
+m %>% knitr::kable()
+```
+
+Spočítejte interval, ve kterém se nachází s pravděpodobností `r interval_range`% průměr celé populace (konfidenční interval). Horní i dolní hranici intervalu zaokrouhlete na 1 desetinné místo.
+
+Answerlist
+----------
+* Jaký je dolní limit pro konfidenční interval? 
+* Jaký je horní limit pro konfidenční interval? 
+
+Solution
+========
+Pro výpočet `r interval_range`% intervalu spolehlivosti pro průměr využijeme vzorce 
+given by:
+$$
+\begin{aligned}
+&   & \left[\bar{y} \, - \, u_{1-\frac{\alpha}{2}}\sqrt{\frac{s^2}{n}}, \; 
+  \bar{y} \, + \, u_{1-\frac{\alpha}{2}}\sqrt{\frac{s^2}{n}}\right] \\
+& = & \left[ `r Mean` \, - \, u_{1-\frac{\alpha}{2}}\sqrt{\frac{`r Var`}{`r n`}}, \;
+             `r Mean` \, + \, u_{1-\frac{\alpha}{2}}\sqrt{\frac{`r Var`}{`r n`}}\right] \\
+& = & \left[`r LB`, \, `r UB`\right].
+\end{aligned}
+$$
+
+kde v tomto případě je $u_{1-\frac{\alpha}{2}}$=`r u`, n = `r n` a s = `r s`. Interval tedy je ve tvaru `r sprintf("[%.1f,%.1f]", LB, UB)`
+
+Answerlist
+----------
+* Dolní limit je $`r LB`$.
+* Horní limit je $`r LB`$.
+
+Meta-information
+================
+extype: cloze
+exclozetype: num|num
+exsolution: `r LB`|`r UB`
+exname: confidence_interval
+extol: 0.1
