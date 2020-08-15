@@ -33,7 +33,8 @@ s <- sd(mm) %>% round(2)
 m <- mean(mm) %>% round(2)
 LB <- m-u*s/sqrt(n) %>% round(1)
 UB <- m+u*s/sqrt(n) %>% round(1)
-
+delta <- (0.5*runif(1, (UB-LB)/4, 0.8*(UB-LB))) %>% round(2)
+n_estim <- ceiling(((u^2)*(s^2))/(delta^2))
 ```
 
 
@@ -50,16 +51,12 @@ Když se zaměříme pouze na proměnnou `r df_currvars$name[1]`, vypadají data
 mm %>% knitr::kable()
 ```
 
-Spočítejte interval, ve kterém se nachází s pravděpodobností `r interval_range`% průměr celé populace (konfidenční interval). Horní i dolní hranici intervalu zaokrouhlete na 1 desetinné místo.
+Na základě těchto dat můžeme spočítat, že `r interval_range`% interval spolehlivosti je `r sprintf("[%.1f,%.1f]", LB, UB)`. Pokud bychom měli data se stejnou směrodatnou odchylkou jako v tomto vzorku, jaká by musela být velikost nového vzorku, aby přípustná chyba výběrového souboru při `r 100-interval_range`% hladině významnosti nepřesáhla `r delta`? Přípustnou chybou rozumíme vzdálenost měření od skutečného průměru.
 
-Answerlist
-----------
-* Jaký je dolní limit pro konfidenční interval? 
-* Jaký je horní limit pro konfidenční interval? 
 
 Solution
 ========
-Pro výpočet `r interval_range`% intervalu spolehlivosti pro průměr využijeme vzorce :
+Pro výpočet šíře intervalu stačí vyjít z původního vzorec 
 $$ 
 \begin{aligned}
 \left[\bar{y} \, - \, u_{1-\frac{\alpha}{2}}\sqrt{\frac{s^2}{n}}, \; 
@@ -67,17 +64,19 @@ $$
 \end{aligned}
 $$
 
-kde v tomto případě je $\bar{y}$=`r m`, $u_{1-\frac{\alpha}{2}}$=`r u`, n = `r n` a s = `r s`. Interval tedy je ve tvaru `r sprintf("[%.1f,%.1f]", LB, UB)`
+ a spočítat rozdíl krajních limit intervalu. Pokud si označíme přípustnou chybu jako $\Delta$, platí následující vztah:
+$$ 
+\begin{aligned}
+ n \geq \frac{u_{1-\frac{\alpha}{2}}^2 \cdot s^2} {\Delta^2}
+\end{aligned}
+$$
 
-Answerlist
-----------
-* Dolní limit je $`r LB %>% exams::fmt(digits = 1)   `$.
-* Horní limit je $`r UB %>% exams::fmt(digits = 1)   `$.
+V tomto případě je $u_{1-\frac{\alpha}{2}}$=`r u`, s = `r s`, a $\Delta$=`r delta`. Výběr by tedy měl obsahovat alespoň `r n_estim` pozorování.
+
 
 Meta-information
 ================
-extype: cloze
-exclozetype: num|num
-exsolution: `r exams::fmt(LB,digits = 1)`|`r exams::fmt(UB,digits = 1)`
-exname: confidence_interval
-extol: 0.1
+extype: num
+exsolution: `r exams::fmt(n_estim,digits = 1)`
+exname: confidence_interval_size
+extol: 0

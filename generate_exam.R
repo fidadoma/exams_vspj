@@ -65,3 +65,15 @@ exams2html(list(expar("probability/normal_distribution_mean.Rmd",curr_theme = "l
            question = question_txt, 
            solution = solution_txt 
 )
+
+
+set.seed(193)
+exams2pdf(list("intervals_estimation/point_estimate.Rmd",
+               "intervals_estimation/range_estimate.Rmd",
+               "intervals_estimation/range_estimate_size.Rmd"),  
+          n = 5,  
+          question = question_txt, 
+          solution = solution_txt 
+)
+
+

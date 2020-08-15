@@ -7,6 +7,7 @@ I plan to do following topics
 - correlation - DONE
 - regression - DONE (one task missing)
 - contingency tables - DONE
-- probability - partially done
-- hypothesis testing
+- probability - DONE
+- estimation - DONE
+- hypothesis testing - partially done
 - time series

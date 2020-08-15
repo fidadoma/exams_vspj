@@ -24,14 +24,15 @@ df_currvars <- sample_vars(df_vardesc, nvar = 2)
 # generate X,Y data
 df_data <- safe_generate_correlated_data(n,r,df_currvars)
 m <- df_data[[df_currvars$name[1]]] 
-m %>% matrix(nrow = sqrt(length(m)) %>% round())
+m <- m %>% matrix(nrow = n/6) %>% round()
+
 if (runif(1) < 0.5) {
   estim_type <- "průměr"
   solution_text <- "stačí spočítat výběrový průměr"
   solution <- mean(m)
 } else {
   estim_type <- "směrodatnou odchylku"
-  solution_text <- "stačí spočítat sm2rodatnou odchylku výběru. V Excelu jde o funkci SMODCH.VÝBĚR.S."
+  solution_text <- "stačí spočítat směrodatnou odchylku výběru. V Excelu jde o funkci SMODCH.VÝBĚR.S."
   solution <- sd(m)
 }
 
@@ -51,6 +52,7 @@ Když se zaměříme pouze na proměnnou `r df_currvars$name[1]`, vypadají data
 
 ```{r graf,echo = FALSE, warning =F,message=F}
 m %>% knitr::kable()
+
 ```
 
 Spočítejte bodový odhad pro `r estim_type` pro celou populaci. Zaokrouhlete na dvě desetinná místa.
