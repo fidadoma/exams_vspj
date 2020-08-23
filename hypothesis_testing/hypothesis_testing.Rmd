@@ -28,16 +28,21 @@ mm <- mm %>% matrix(nrow = n/6) %>% round()
 
 sigma <- runif(1,df_currvars$sd[1]*0.8, df_currvars$sd[1]*1.2)
 is_signif <- sample(0:1,1)
+
+alpha <- sample(c(0.001, 0.01, 0.05),1)
+alpha_param <- round(alpha*100)
 if(is_signif) {
-  p_val <- runif(1,0, 0.05)
+  p_val <- runif(1,0, alpha)
 } else {
-  p_val <- runif(1,0.51, 1)
+  p_val <- runif(1,alpha+alpha/10, 1)
 }
 
 
 
+possible_test_types <- c("one-sample","two-sample","paired")
 
-test_type <- sample(c("one-sample","two-sample","paired"),1)
+test_type <- sample(possible_test_types, 1)
+
 if(test_type == "one-sample") {
   test_type_text <- "od teoretické hodnoty"
 } else if (test_type == "two-sample") {
@@ -47,40 +52,58 @@ if(test_type == "one-sample") {
 }
 
 
+
 questions <- character()
 solutions <- logical()
 
 if(runif(1) < 0.5) {# correct 
   if(is_signif) {
     questions[1] <- "Zamítáme nulovou hypotézu"
-    solution[1] <- T
+    solutions[1] <- T
   } else {
     questions[1] <- "Nezamítáme nulovou hypotézu"
-    solution[1] <- F
+    solutions[1] <- F
   }
-} else {
+} else { # incorrect
   if(is_signif) {
-    questions[1] <- "Nezamítáme nulovou hypotézu"
-    solution[1] <- F
+    questions[1] <- sample(c("Nezamítáme nulovou hypotézu", "Platí nulová hypotéza", "Platí alternativní hypotéza"),1)
+    solutions[1] <- F
   } else {
     questions[1] <- "Zamítáme nulovou hypotézu"
-    solution[1] <- F
+    solutions[1] <- F
   }
 }
 
-test_query
 
-qnorm(p_val, )
-mean_0 <- rnorm()
-interval_range <- sample(c(95,90,99),1)
+test_query <- sample(possible_test_types,2)
+questions[1] <- case_when(
+  test_query[1] == "one-sample" ~ "Použijeme jednovýběrový test",
+  test_query[1] == "two-sample" ~ sample(c("Použijeme dvouvýběrový test", "Nepárový dvouvýběrový test", "Nepárový test s dvěma skupinami"),1),
+  test_query[1] == "paired" ~ sample(c("Použijeme párový test", "Párový dvouvýběrový test", "Párový test s dvěma skupinami"),1)
+)
+questions[2] <- case_when(
+  test_query[2] == "one-sample" ~ "Použijeme jednovýběrový test",
+  test_query[2] == "two-sample" ~ sample(c("Použijeme dvouvýběrový test", "Nepárový dvouvýběrový test", "Nepárový test s dvěma skupinami"),1),
+  test_query[2] == "paired" ~ sample(c("Použijeme párový test", "Párový dvouvýběrový test", "Párový test s dvěma skupinami"),1)
+)
+solutions[1] <- test_query[1] == test_type
+solutions[2] <- test_query[2] == test_type
 
-u <- qnorm(1-(1-interval_range/100)/2) %>% round(2)
-s <- sd(mm) %>% round(2)
-m <- mean(mm) %>% round(2)
-LB <- m-u*s/sqrt(n) %>% round(1)
-UB <- m+u*s/sqrt(n) %>% round(1)
+o <- sample(1:length(questions))
+questions <- questions[o]
+solutions <- solutions[o]
 
 
+explanation_text_tmp1 <- case_when(
+  test_type == "one-sample" ~ "Protože nás zajímá rozdíl vzorku od teoretické hodnoty, použijeme jednovýběrový test.",
+  test_type == "two-sample" ~ "V případě rozdílu mezi dvěma vzorky, které jsou nezávislé, použijeme dvouvýběrový test.",
+  test_type == "paired" ~ "V případě rozdílu mezi dvěma vzorky, které jsou závislé (třeba měření před a po intervenci), použijeme párový test."
+)
+
+explanation_text_tmp2 <- if_else(is_signif, "Jelikož je p-hodnota menší než hladina významnosti, můžeme zamítnou nulovou hypotézu ve prospěch alternativní.", "Jelikož je p-hodnota větší než hladina významnosti, nemůžeme zamítnou nulovou hypotézu ve prospěch alternativní. Pozor, neznamená to, že platí nulová hypotéza, pouze ji nemůžeme vyvrátit."
+)
+
+explanation_text <- spritnf("%s%s", explanation_text_tmp1, explanation_text_tmp2)
 ```
 
 
@@ -91,35 +114,17 @@ Question
 cat(eval(parse(text=text_question)))
 ```
 
-Byli jsme požádáni o zpracování analýzy, zda se hodnoty proměnné '`r df_currvars$name[1]`' na nasbíraném vzorku liší `r test_type_text` . Získali jsme p-hodnotu rovnou `r p_value`. Které z následujících tvrzení platí?
+Byli jsme požádáni o zpracování analýzy, zda se hodnoty proměnné '`r df_currvars$name[1]`' na nasbíraném vzorku liší `r test_type_text`. Pracujeme s hladinou významnosti `r alpha_param`%. Získali jsme p-hodnotu rovnou `r p_value`. Které z následujících tvrzení platí?
 
-```{r graf,echo = FALSE, warning =F,message=F}
-mm %>% knitr::kable()
+
+```{r questionlist, echo = FALSE, results = "asis"}
+answerlist(questions, markup = "markdown")
 ```
-
-OtestujteSpočítejte interval, ve kterém se nachází s pravděpodobností `r interval_range`% průměr celé populace (konfidenční interval). Horní i dolní hranici intervalu zaokrouhlete na 1 desetinné místo.
-
-Answerlist
-----------
-* Jaký je dolní limit pro konfidenční interval? 
-* Jaký je horní limit pro konfidenční interval? 
 
 Solution
 ========
-Pro výpočet `r interval_range`% intervalu spolehlivosti pro průměr využijeme vzorce :
-$$ 
-\begin{aligned}
-\left[\bar{y} \, - \, u_{1-\frac{\alpha}{2}}\sqrt{\frac{s^2}{n}}, \; 
-  \bar{y} \, + \, u_{1-\frac{\alpha}{2}}\sqrt{\frac{s^2}{n}}\right] 
-\end{aligned}
-$$
 
-kde v tomto případě je $\bar{y}$=`r m`, $u_{1-\frac{\alpha}{2}}$=`r u`, n = `r n` a s = `r s`. Interval tedy je ve tvaru `r sprintf("[%.1f,%.1f]", LB, UB)`
-
-Answerlist
-----------
-* Dolní limit je $`r LB %>% exams::fmt(digits = 1)   `$.
-* Horní limit je $`r UB %>% exams::fmt(digits = 1)   `$.
+`r explanation_text`
 
 Meta-information
 ================
