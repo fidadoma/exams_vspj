@@ -128,8 +128,6 @@ Solution
 
 Meta-information
 ================
-extype: cloze
-exclozetype: num|num
-exsolution: `r exams::fmt(LB,digits = 1)`|`r exams::fmt(UB,digits = 1)`
-exname: confidence_interval
-extol: 0.1
+extype: mchoice
+exsolution: `r mchoice2string(solutions)`
+exname: hypothesis testing
