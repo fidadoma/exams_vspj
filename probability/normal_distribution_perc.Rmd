@@ -1,0 +1,121 @@
+---
+title: "Normal distribution - perc"
+author: "Filip Děchtěrenko"
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+output: html_document
+---
+
+```{r parameters modyfiable using expar}
+curr_theme <- NULL
+```
+
+
+```{r setup, code = readLines("D:/Documents/git/exams_vspj/common_chunks.R")}
+
+```
+
+```{r data generation, echo = FALSE, message=T}
+
+df_assignmnent <- get_prob_var(distr_type = "normal", curr_theme = curr_theme, norm_type = "perc")
+df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
+text_settings <- sample(df_assignmnent$settings,1)
+text_question_perc <- sample(df_assignmnent$question_perc,1)
+
+if(is.na(df_vardesc$mu_range)) {
+  mu_lower <- 1
+  mu_upper <- 10 
+} else {
+  mu_ranges <- str_split(df_vardesc$mu_range, "_", simplify = T)
+  mu_lower <- as.numeric(mu_ranges[1])
+  mu_upper <- as.numeric(mu_ranges[2])
+}
+
+
+if(is.na(df_vardesc$mu_param)) {
+  mu_param <- sample(mu_lower:mu_upper,1)  
+} else {
+  mu_param <- df_vardesc$mu_param
+}
+
+
+if(is.na(df_vardesc$sigma_range)) {
+  sigma_lower <- 1
+  sigma_upper <- 10 
+} else {
+  sigma_ranges <- str_split(df_vardesc$sigma_range, "_", simplify = T)
+  sigma_lower <- as.numeric(sigma_ranges[1])
+  sigma_upper <- as.numeric(sigma_ranges[2])
+}
+
+
+if(is.na(df_vardesc$sigma_param)) {
+  sigma_param <- sample(sigma_lower:sigma_upper,1)  
+} else {
+  sigma_param <- df_vardesc$sigma_param
+}
+
+perc <- sample(1:99, 1)
+
+if(is.na(df_vardesc$perc_direction)) {
+  direction <- "lower"
+} else {
+  direction <- df_vardesc$perc_direction
+}
+
+
+mu_text_tmp <- case_when(
+  mu_param == 0 ~ df_vardesc$mu_0,
+  mu_param == 1 ~ df_vardesc$mu_1,
+  mu_param >= 2 & mu_param <= 4 ~ df_vardesc$mu_2_4,
+  mu_param >= 5 & mu_param <= 9 ~ df_vardesc$mu_5_9,
+  mu_param >= 10         ~ df_vardesc$mu_10more
+)
+
+mu_text <- sprintf("%d %s",mu_param, mu_text_tmp)
+
+sigma_text_tmp <- case_when(
+  sigma_param == 0 ~ df_vardesc$sigma_0,
+  sigma_param == 1 ~ df_vardesc$sigma_1,
+  sigma_param >= 2 & sigma_param <= 4 ~ df_vardesc$sigma_2_4,
+  sigma_param >= 5 & sigma_param <= 9 ~ df_vardesc$sigma_5_9,
+  sigma_param >= 10         ~ df_vardesc$sigma_10more
+)
+
+sigma_text <- sprintf("%d %s",sigma_param, sigma_text_tmp)
+
+
+
+
+
+#if (k == n/2& runif(1) < 0.5) {
+#  k_text <- sprintf("%s polovinu ", quantifier, n, k_text_tmp)
+#}
+
+
+
+l <- probability_normal_setting_perc(perc/100, mu_param, sigma_param,direction = direction)
+solution <- l$solution
+explanation <- l$explanation
+```
+
+Question
+========
+
+```{r, results='asis'}
+cat(eval(parse(text=text_settings)))
+cat(eval(parse(text=text_question_perc)))
+```
+
+Solution
+========
+
+```{r echo = FALSE, results='asis'}
+cat(explanation)
+```
+
+Meta-information
+================
+extype: num
+exsolution: `r exams::fmt(solution,3)`
+exname: normal_prob_perc
+extol: 0.001

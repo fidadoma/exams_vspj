@@ -1,5 +1,5 @@
 ---
-title: "Korelace - vetsi mensi"
+title: "Korelace - kladna zaporna"
 author: "Filip Děchtěrenko"
 date: '`r format(Sys.time(), "%d %B, %Y")`'
 output: html_document
@@ -22,7 +22,7 @@ r2 <- runif(1,0.4,0.6)*sample(c(-1,1),1)
 df_currvars <- sample_vars(df_vardesc, nvar = 2)
 
 df_data1 <- safe_generate_correlated_data(n,r1,df_currvars)
-df_data1 <- safe_generate_correlated_data(n,r2,df_currvars)
+df_data2 <- safe_generate_correlated_data(n,r2,df_currvars)
 
 plot_titles <- c("Z vesnice","Z města")
 plot_left_title <- sample(plot_titles,1)

@@ -1,0 +1,82 @@
+---
+title: "Deskriptivní statistika"
+author: "Filip Děchtěrenko"
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+output: html_document
+---
+
+```{r}
+questions <- c("průměr", "median", "směrodatnou odchylku", "rozptyl", "dolní kvartil", "horní kvartil")
+ix <- sample(1:length(questions),1)
+
+```
+
+```{r setup, code = readLines("D:/Documents/git/exams_vspj/common_chunks.R")}
+
+```
+
+```{r data generation, echo = FALSE, results = "hide"}
+df_assignmnent <- get_var_desc()
+df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
+text_question <- sample(df_assignmnent$question,1)
+
+n <- sample(5:15,1)
+r <- runif(1,-1,1)
+
+df_currvars <- df_vardesc %>% 
+  filter(type == "numeric") %>% 
+  sample_n(2) %>% 
+  rowwise() %>% 
+  mutate(mean = compute_mean(values, pdist), sd = compute_sd(values,pdist))
+
+df <- safe_generate_correlated_data(n,r,df_currvars)
+
+X <- df[[1]]  # standard normal (mu=0, sd=1)
+Y <- df[[2]]  # standard normal (mu=0, sd=1)
+
+df_data <- tibble(!!df_currvars$name[1]:=X)
+questions <- c("průměr", "median", "směrodatnou odchylku", "rozptyl", "dolní kvartil", "horní kvartil")
+functions <- c(mean, median, sd, var, lower_quartile, upper_quartile)
+solutions_text <- c(
+  "Průměr spočítáme pomocí funkce PRŮMĚR. Vzorec pro průměr je $m_x = \\frac{1}{n}\\sum_{i=1}^{n}{x_i}$",
+  "Median spočítáme pomocí funkce MEDIAN. Můžeme také seřadit data a použít prostřední hodnotu (v případě sudého počtu bereme průměr z dvou prostředních čísel",
+  "Směrodatnou odchylku spočítáme pomocí vzorce SMODCH.VÝBĚR.S. Vzorec pro výpočet je $sd_x = \\sqrt{\\frac{1}{n-1}\\sum_{i=1}^{n}{(x_i-\\bar{x}})^2}$",
+  "Rozptyl spočítáme pomocí vzorce VAR.S",
+  "Dolní kvartil spočítáme pomocí vzorce QUARTIL.INC, kde za druhý parametr dosadíme hodnotu 1",
+  "Horní kvartil kvartil spočítáme pomocí vzorce QUARTIL.INC, kde za druhý parametr dosadíme hodnotu 2"
+)
+stopifnot(length(questions) == length(functions))
+#ix <- sample(1:length(questions),1)
+
+f <- functions[[ix]]
+
+
+solutions <- exams::fmt(f(X),2)
+
+```
+
+Question
+========
+```{r, results='asis'}
+cat(eval(parse(text=text_question)))
+```
+
+Spočítejte `r questions[ix]` pro následující data.
+
+```{r plot, fig.path = "", fig.cap = ""}
+df_data %>% knitr::kable()
+```
+
+Solution
+========
+
+`r solutions_text[ix]`
+
+
+V tomto případě je výsledek `r solutions`
+
+Meta-information
+================
+extype: num
+exsolution: `r solutions`
+exname: desc_var

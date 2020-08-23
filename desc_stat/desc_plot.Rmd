@@ -1,0 +1,128 @@
+---
+title: "Deskriptivní statistika"
+author: "Filip Děchtěrenko"
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+output: html_document
+---
+
+```{r}
+if(runif(1) < 0.5) {
+  plot_type <- "histogram"  
+} else {
+  plot_type <- "boxplot"  
+}
+
+```
+
+```{r setup, code = readLines("D:/Documents/git/exams_vspj/common_chunks.R")}
+
+```
+
+```{r data generation, echo = FALSE, results = "hide"}
+df_assignmnent <- get_var_desc()
+df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
+text_question <- sample(df_assignmnent$question,1)
+
+df_currvars <- sample_vars(df_vardesc, nvar = 1)
+
+var_ranges <- extract_ranges(df_currvars)
+x_lower <- var_ranges[1,1]
+x_upper <- var_ranges[1,2]
+  
+n  <- sample(50:100,1)
+sd1 <- runif(1,0.5, 1.5)
+sd2 <- runif(1,3, 6)
+
+x1 <- rnorm(n, 0, sd1)
+x2 <- rnorm(n, 0, sd2)
+
+#x1 <- standardize_value(x1) %>% 
+#  rescale_var_range(old_min = -4, old_max = 4, new_min = x_lower, new_max = x_upper) %>%
+#  round(df_currvars$round_val)
+
+#x2 <- standardize_value(x2) %>% 
+#  rescale_var_range(old_min = -4, old_max = 4, new_min = x_lower, new_max = x_upper) %>%
+#  round(df_currvars$round_val)
+
+
+df_data1 <- tibble(`proměnná`:=x1)
+df_data2 <- tibble(`proměnná`:=x2)
+
+if(runif(1) < 0.5) {
+  query_question <- "větší"
+} else {
+  query_question <- "menší"
+}
+
+if(runif(1) < 0.5) {
+  where_target <- "left"
+  if(query_question == "větší") {
+    df_left <- df_data2
+    df_right <- df_data1
+  } else {
+    df_left <- df_data1
+    df_right <- df_data2  
+  }
+  
+} else {
+  where_target <- "right"
+  if(query_question == "větší") {
+    df_right <- df_data2
+    df_left <- df_data1
+  } else {
+    df_left <- df_data2
+    df_right <- df_data1
+  }
+}
+
+if(plot_type=="histogram") {
+  questions <- c("levý graf","pravý graf")  
+} else {
+  questions <- c("podmínka 1","podmínka 2")  
+}
+if(where_target == "right") {
+  solutions <- c(F,T)
+} else {
+  solutions <- c(T,F)
+}
+
+sdvar <- sample(c("rozptyl", "směrodatnou odchylku"),1)
+```
+
+Question
+========
+
+Následující `r if_else(plot_type=="histogram", "dva grafy zobrazují", "graf zobrazuje")` náhodnou proměnnou. `r if_else(plot_type=="histogram", "V kterém z grafů má", "V které podmínce má")` proměnná `r query_question` `r sdvar`?
+
+```{r plot, fig.path = "", fig.cap = "", warning=F}
+if (plot_type == "histogram") {
+  p1 <- df_left %>% ggplot(aes(x = `proměnná`)) + geom_histogram()
+  p2 <- df_right %>% ggplot(aes(x = `proměnná`)) + geom_histogram()  
+  p1+p2
+} else if (plot_type == "boxplot"){
+  df_data <- rbind(df_left %>% mutate(`podmínka` = "podmínka 1"), df_right %>% mutate(`podmínka` = "podmínka 2"))
+  p <- df_data %>% ggplot(aes(x = `podmínka`, y = `proměnná`)) + geom_boxplot()
+  p
+} else {
+  df_data <- rbind(df_left %>% mutate(`podmínka` = "podmínka 1"), df_right %>% mutate(`podmínka` = "podmínka 2"))
+  p <- df_data %>% ggplot(aes(x = `podmínka`, y = `proměnná`)) + geom_point(position = position_jitter(0.2))
+  p
+}
+
+
+```
+
+```{r questionlist, echo = FALSE, results = "asis"}
+exams::answerlist(questions, markup = "markdown")
+```
+
+Solution
+========
+
+Graf vlevo má v tomto případě `r sdvar` roven `r if_else(sdvar == "rozptyl", round(var(df_left[["proměnná"]]),3), round(var(df_left[["proměnná"]]),3))` a graf vpravo má `r sdvar` `r if_else(sdvar == "rozptyl", round(var(df_right[["proměnná"]]),3), round(sd(df_right[["proměnná"]]),3))`. V tomto případě má tedy `r query_question` `r sdvar` `r if_else(plot_type == "histogram", "graf", "podmínka")` `r if_else(where_target == "right", if_else(plot_type == "histogram", "vpravo", "2"), if_else(plot_type == "histogram", "vlevo", "1"))`.
+
+Meta-information
+================
+extype: schoice
+exsolution: `r exams::mchoice2string(solutions, single = TRUE)`
+exname: desc_plot

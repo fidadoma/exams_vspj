@@ -1,0 +1,203 @@
+---
+title: "Kontignenční tabulka"
+author: "Filip Děchtěrenko"
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+output: html_document
+---
+
+```{r }
+
+## DATA GENERATION
+create_table <- function() {
+  city <- rmultinom(1, 100, prob=c(0.2, 0.4, 0.3, 0.1))
+  suburb <- rmultinom(1, 150, prob=c(0.1, 0.2, 0.4, 0.3))
+  matrix(c(city, suburb), nrow = 4,
+         dimnames = list(Evaluation = c("velmi dobré", "dobré", "špatné", "velmi špatné"),
+           Location = c("střed města", "předměstí")))
+}
+public <- create_table()
+variant <- sample(1:3, 1)
+margins <- list(1, 2, NULL)
+prop_public <- round(100*prop.table(public, margins[[variant]]), digits = 1) 
+
+while (length(prop_public) != length(unique(prop_public))) {
+  public <- create_table()
+  prop_public <- round(100*prop.table(public, margins[[variant]]), digits = 1) 
+}
+
+## QUESTION/ANSWER GENERATION
+questions <- character(5)
+solutions <- logical(5)
+explanations <- character(5)
+
+## 1. total/rows/columns percentage
+percentage <- c("řádky", "sloupce", "celkem")
+rowsums <- c("Součty řádků jsou", "Součty sloupců jsou", "Celková suma je")
+variant1 <- sample(1:3, 1)
+questions[1] <- paste("Tabulka s procenty obsahuje ", percentage[variant1], "procent.")
+solutions[1] <- variant1 == variant
+explanations[1] <- if (variant1 == variant) paste(rowsums[variant1], 
+                         " celkem 100 (až na možné chyby zaokrouhlení).") else 
+paste("The ", rowsums[variant1], "nevychází do 100%")
+
+## 2. interprete total/row/column percentage
+if (runif(1) > 0.5) {
+  questions[2] <- "Tabulka s procenty nám dává distribuci místa participanta pro každou úroveň spokojenosti."
+  solutions[2] <- variant == 1
+  explanations[2] <- if (solutions[2]) "Součet řádků nám dává 100% (až na možné chyby v zaokrouhlední)." else 
+                     "Součet řádků nám nedává 100%."
+} else {
+  questions[2] <- "Tabulka s procenty nám dává distribuci spokojenosti pro každé místo "
+  solutions[2] <- variant == 2
+  explanations[2] <- if (solutions[2]) "součet sloupců nám dává 100% (až na možné chyby v zaokrouhlední)." else 
+                     "Součet sloupců nám nedává 100%."
+}
+
+## 3. Interpretation row percentage
+question <- sample(1:3, 1)
+if (question == 1) {
+  questions[3] <- if (runif(1) > 0.5) paste("Hodnota v prvním řádku a prvním sloupci v tabulce s procenty značí:", prop_public[1,1], 
+  "procento těch, kdo ohodnotili městskou hromadnou dopravu jako velmi dobrou,",
+  "žijí v centru města") else paste("Hodnota ve čtvrtém řádku a druhém sloupci v tabulce s procenty značí:", prop_public[4,2], 
+  "procento těch, kdo ohodnotili městskou hromadnou dopravu jako velmi špatnou,",
+  "žijí v předměstí.")
+  solutions[3] <- variant == 1
+  explanations[3] <- if (solutions[3]) "Toto je správná interpretace procent v řádcích." else 
+  paste("Toto je interpretace procent v řádcích, akorát tabulka nám dává ", 
+        percentage[variant], "procent.")
+} else if (question == 2) {
+  questions[3] <- paste("Hodnota v prvním řádku a druhém sloupci v tabulce procent značí:", prop_public[1,2], 
+                        "procento těch, kdo žijí v předměstí a ohodnotili městskou dopravu",
+                        "jako velmi dobrou.")
+  solutions[3] <- variant == 2
+  explanations[3] <- if (solutions[3]) "Toto je správná interpretace procent ve sloupcích." else 
+  paste("Toto je interpretace procent ve sloupcích, akorát tabulka nám dává ",  
+        percentage[variant], "procent.")
+} else {
+  questions[3] <- paste("Hodnota ve čtvrtém řádku a prvním sloupci v tabulce procent značí:", prop_public[4,1], 
+                         "procento respondentů, kteří žijí v centru a ohodnotili ",
+                        "městskou hromadnou dopravu jako velmi špatnou.")
+  solutions[3] <- variant == 3
+  explanations[3] <- if (solutions[3]) "Toto je správná interpretace celkových procent." else 
+  paste("Toto je interpretace celkových procent, akorát tabulka nám dává ", 
+        percentage[variant], "procent.")
+} 
+
+## 4. Interpretation column percentages
+question <- sample(1:3, 1)
+if (question == 1) {
+  if (runif(1) > 0.5) {
+    questions[4] <- paste("Hodnota ve druhém řádku a prvním sloupci v tabulce procent značí:", prop_public[2,1], 
+                          "procent respondentů žijící v centru ohodnotilo městskou hromadnou dopravu jako dobrou.")
+  } else {
+    questions[4] <- paste("Hodnota ve třetím řádku a sloupci 2 v tabulce procent značí:", prop_public[3,2], 
+                          "procent respondentů žijící na předměstí ohodnotilo městskou hromadnou dopravu jako ",
+                          "jako špatnou.")
+  } 
+  solutions[4] <- variant == 2
+  explanations[4] <- if (solutions[4]) "Toto je správná interpretace procent ve sloupcích." 
+  else paste("Toto je interpretace procent ve sloupcích, akorát tabulka dává ", percentage[variant], 
+             "procent.")
+
+} else if (question == 2) {
+  questions[4] <- paste("Hodnota ve druhém řádku a druhém sloupci v tabulce procent značí:", prop_public[2,2], 
+                        "procenta těch, kdo ohodnotili městskou hromadnou dopravu jako dobrou ",
+                        "a žijí v předměstí.")
+  solutions[4] <- variant == 1
+  explanations[4] <- if (solutions[4]) "Toto je správná interpretace procent v řádcích."
+  else paste("Toto je interpretace procent ve řádcích, akorát tabulka dává ", 
+             percentage[variant], "procent.")
+} else {
+  questions[4] <- paste("The value in row 3 and column 1 in the percentage table indicates:", prop_public[3,1], 
+                        "percent of the respondents lived in the city centre and evaluated",
+                        "the public transportation as bad.")
+  solutions[4] <- variant == 3
+  explanations[4] <- if (solutions[4]) "This is the correct interpretation of total percentages." else 
+  paste("This is an interpretation of total percentages, but the table gives ", percentage[variant], "percentages.")
+} 
+
+## 5. Calculation row/column percentages
+question <- sample(1:3, 1)
+if (question == 1) {
+  questions[5] <- paste("Tabulka procent může být snadno zkonstruována pomocí originální kontingenční tabulky:",
+                        "procenta jsou počítány pro každý řádek.")
+  solutions[5] <- variant == 1
+  explanations[5] <- paste("Tento výpočet nám dává řádková procenta.", ifelse(!solutions[5], paste(" Ale tabulka nám dává ", 
+                     percentage[variant], "procent."), ""))
+} else if (question == 2) {
+  questions[5] <- paste("Tabulka procent může být snadno zkonstruována pomocí originální kontingenční tabulky:",
+                        "procenta jsou počítány pro každý sloupec.")
+  solutions[5] <- variant == 2
+  explanations[5] <- paste("Tento výpočet nám dává sloupcová procenta.", 
+                           ifelse(!solutions[5], paste("Ale tabulka nám dává  ", 
+                     percentage[variant], "procent."), ""))
+} else {
+  questions[5] <- paste("Tabulka procent může být snadno zkonstruována pomocí originální kontingenční tabulky:",
+                        "Každá z hodnot se vztahuje k celkovému počtu dat.")
+  solutions[5] <- variant == 3
+  explanations[5] <- paste("Tento výpočet nám dává celková procenta.", 
+                           ifelse(!solutions[5], paste("Ale tabulka nám dává ", 
+                     percentage[variant], "procent."), ""))
+} 
+
+## permute order of solutions/questions
+o <- sample(1:5)
+questions <- questions[o]
+solutions <- solutions[o]
+explanations <- explanations[o]
+```
+
+Question
+========
+
+V maleměste se prováděl průzkum spokojenosti s městskou
+hromadnou dopravou. Jedna z otázek byla, zda lidé žijící v centru
+města jsou více spokojeni s hromadnou dopravou, než lidé žijící
+na předměstí.
+
+Průzkumu se zúčastnilo 250 respondentů. Mějme následující kontingenční tabulku:
+
+```{r, echo = FALSE, comment = NA}
+public
+```
+
+Z této tabulky byla sestroje následující tabulka s procenty:
+
+```{r, echo = FALSE, comment = NA}
+print(format(prop_public, nsmall = 1, justify = "right", 
+             width = max(nchar(colnames(prop_public)))), quote = FALSE)
+```
+
+Které z následujícíc tvrzení jsou pravdivé?
+
+```{r questionlist, echo = FALSE, results = "asis"}
+answerlist(questions, markup = "markdown")
+```
+
+
+Solution
+========
+
+```{r, echo = FALSE}
+interpretation <- c("podmíněné proporce pro jednotlivá místa bydliště vzhledem k úrovni spokojenosti.",
+                    "podmíněné proporce pro pro jednotlivé úrovně spokojenosti vzhledem k místu bydliště.",
+                    "proporce pro každou úrověň spokojenosti a místo bydliště.")
+```
+
+V tabulce procent,  `r rowsums[variant]` je přibližně 100
+(až na možné chyby v zaokrouhlení). Tato tabulka tedy ukazuje 
+`r percentage[variant]` procenta, neboli
+`r interpretation[variant]`
+
+```{r solutionlist, echo = FALSE, results = "asis"}
+answerlist(
+  ifelse(solutions, "Pravda", "Nepravda"),
+  explanations, markup = "markdown")
+```
+
+Meta-information
+================
+extype: mchoice
+exsolution: `r mchoice2string(solutions)`
+exname: Relative frequencies
+```

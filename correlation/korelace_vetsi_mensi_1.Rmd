@@ -22,9 +22,9 @@ r2 <- runif(1,0.1,0.4)
 df_currvars <- sample_vars(df_vardesc, nvar = 2)
 
 df_data1 <- safe_generate_correlated_data(n,r1,df_currvars)
-df_data2 <- safe_generate_correlated_data(n,r1,df_currvars)
+df_data2 <- safe_generate_correlated_data(n,r2,df_currvars)
 
-plot_titles <- c("Muži","Ženy")
+plot_titles <- c("Smutní lidé","Veselí lidé")
 plot_left_title <- sample(plot_titles,1)
 plot_right_title <- setdiff(plot_titles,plot_left_title)
 
@@ -64,7 +64,7 @@ Question
 cat(eval(parse(text=text_question)))
 ```
 
-V následujících grafech vidíme vztahy mezi proměnnými `r  df_currvars$name[1]` a `r df_currvars$name[2]` zvlášť pro muže a ženy. Rozhodněte, zda je větší korelace pro podskupinu mužů nebo žen.
+V následujících grafech vidíme vztahy mezi proměnnými `r  df_currvars$name[1]` a `r df_currvars$name[2]` zvlášť pro smutné a spokojené lidí. Rozhodněte, zda je větší korelace pro podskupinu smutných nebo veselých lidí.
 
 Data vypadají následovně:
 

@@ -1,0 +1,82 @@
+---
+title: "Point estimation"
+author: "Filip Děchtěrenko"
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+output: html_document
+---
+
+```{r setup, code = readLines("D:/Documents/git/exams_vspj/common_chunks.R")}
+
+```
+
+
+```{r data generation, echo = FALSE}
+
+df_assignmnent <- get_var_desc()
+df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
+text_question <- sample(df_assignmnent$question,1)
+
+n <- sample(c(36,42,48),1)
+r <- runif(1,-1,1)
+
+df_currvars <- sample_vars(df_vardesc, nvar = 2)
+
+# generate X,Y data
+df_data <- safe_generate_correlated_data(n,r,df_currvars)
+mm <- df_data[[df_currvars$name[1]]] 
+mm <- mm %>% matrix(nrow = n/6) %>% round()
+
+interval_range <- sample(c(95,90,99),1)
+
+u <- qnorm(1-(1-interval_range/100)/2) %>% round(2)
+s <- sd(mm) %>% round(2)
+m <- mean(mm) %>% round(2)
+LB <- m-u*s/sqrt(n) %>% round(1)
+UB <- m+u*s/sqrt(n) %>% round(1)
+delta <- (0.5*runif(1, (UB-LB)/4, 0.8*(UB-LB))) %>% round(2)
+n_estim <- ceiling(((u^2)*(s^2))/(delta^2))
+```
+
+
+
+Question
+========
+```{r, results='asis'}
+cat(eval(parse(text=text_question)))
+```
+
+Když se zaměříme pouze na proměnnou `r df_currvars$name[1]`, vypadají data pro tento výběr data následovně:
+
+```{r graf,echo = FALSE, warning =F,message=F}
+mm %>% knitr::kable()
+```
+
+Na základě těchto dat můžeme spočítat, že `r interval_range`% interval spolehlivosti je `r sprintf("[%.1f,%.1f]", LB, UB)`. Pokud bychom měli data se stejnou směrodatnou odchylkou jako v tomto vzorku, jaká by musela být velikost nového vzorku, aby přípustná chyba výběrového souboru při `r 100-interval_range`% hladině významnosti nepřesáhla `r delta`? Přípustnou chybou rozumíme vzdálenost měření od skutečného průměru.
+
+
+Solution
+========
+Pro výpočet šíře intervalu stačí vyjít z původního vzorec 
+$$ 
+\begin{aligned}
+\left[\bar{y} \, - \, u_{1-\frac{\alpha}{2}}\sqrt{\frac{s^2}{n}}, \; 
+  \bar{y} \, + \, u_{1-\frac{\alpha}{2}}\sqrt{\frac{s^2}{n}}\right] 
+\end{aligned}
+$$
+
+ a spočítat rozdíl krajních limit intervalu. Pokud si označíme přípustnou chybu jako $\Delta$, platí následující vztah:
+$$ 
+\begin{aligned}
+ n \geq \frac{u_{1-\frac{\alpha}{2}}^2 \cdot s^2} {\Delta^2}
+\end{aligned}
+$$
+
+V tomto případě je $u_{1-\frac{\alpha}{2}}$=`r u`, s = `r s`, a $\Delta$=`r delta`. Výběr by tedy měl obsahovat alespoň `r n_estim` pozorování.
+
+
+Meta-information
+================
+extype: num
+exsolution: `r exams::fmt(n_estim,digits = 1)`
+exname: confidence_interval_size
+extol: 0
