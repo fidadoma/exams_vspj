@@ -1,0 +1,99 @@
+---
+title: "Chi square independence"
+author: "Filip Děchtěrenko"
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+output: html_document
+---
+
+```{r setup, code = readLines("D:/Documents/git/exams_vspj/common_chunks.R")}
+
+```
+
+```{r data generation, echo = FALSE, results = "hide"}
+library(exams)
+
+df_assignmnent <- get_var_desc()
+df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
+text_question <- sample(df_assignmnent$question,1)
+
+n <- sample(100:500,1)
+r <- runif(1,-1,1)
+
+df_currvars <- df_vardesc %>% 
+  filter(type == "factor") %>% 
+  sample_n(2) %>% 
+  rowwise() %>% 
+  mutate(n_levels = get_n_factor_levels(values))
+
+x_levels <- get_factor_levels(df_currvars$values[1])
+y_levels <- get_factor_levels(df_currvars$values[2])
+
+df <- generate_flat_ctable(n, r, x_levels, y_levels) %>% 
+  mutate(x_categ = sprintf("%s-%s", df_currvars$name[1], x_categ),
+         y_categ = sprintf("%s-%s", df_currvars$name[2], y_categ)) %>% 
+  mutate(!!sym(df_currvars$name[1]):=x_categ, !!sym(df_currvars$name[2]):=y_categ)
+
+xt <- xtabs(~y_categ+x_categ,df)
+
+chisq <- chisq.test(xt, correct = F)
+
+
+
+
+question_type <- sample(2,1)
+
+if(runif(1) < 0.5) {
+  query_type <- "p_val"
+  query_text <- "p-hodnotu"
+  solution <- chisq$p.value
+  solution_text <- "p-hodnota rovna "
+  questions[[2]] <- c("Jaká je p-hodnota testu?")
+  
+
+} else {
+  query_type <- "chi_sq"
+  query_text <- "testovou statistiku $\\chi^2$"
+  solution_text <- "$\\chi^2 roven$"
+  solution <- chisq$statistic
+  questions[[2]] <- c("Jaká je hodnota testové statistiky $\\chi^2$?")
+
+}
+
+
+
+```
+
+Question
+========
+
+```{r, results='asis'}
+cat(eval(parse(text=text_question)))
+```
+
+Získali jsme data o proměnných '`r df_currvars$name[1]`' a '`r df_currvars$name[2]`' a zajímá nás, zda je mezi těmito proměnnými vztah.
+
+Data vypadají následovně:
+
+```{r echo = FALSE}
+
+table(df[[df_currvars$name[1]]], df[[df_currvars$name[2]]])
+#knitr::kable(xtabs(~))
+#knitr::kable(ftable(df %>% select(-x_categ, -y_categ)), row.names = 1:2)
+#epitab::contingency_table(list(df_currvars$name[1],df_currvars$name[2]), df)
+#df %>% as.table()
+#summarytools::ctable(x = df[[df_currvars$name[1]]], y = df[[df_currvars$name[2]]],
+#      method = "render")
+```
+
+Použijte test nezávislosti proměnných a spočítejte `r query_text`. Výsledek zadejte na 3 desetinná místa. 
+
+Solution
+========
+Pro danou kontingenční tabulku je `r  solution_text` `r exams::fmt(solution,3)`.
+
+Meta-information
+================
+extype: schoice
+exsolution: `r exams::fmt(solution,3)`
+exname: chi_square_independence_compute
+extol: 0.001
