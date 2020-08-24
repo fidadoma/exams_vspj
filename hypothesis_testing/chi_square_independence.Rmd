@@ -10,7 +10,7 @@ output: html_document
 ```
 
 ```{r data generation, echo = FALSE, results = "hide"}
-
+library(exams)
 
 df_assignmnent <- get_var_desc()
 df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
@@ -35,22 +35,45 @@ df <- generate_flat_ctable(n, r, x_levels, y_levels) %>%
 
 xt <- xtabs(~y_categ+x_categ,df)
 
-cont_coef <- sample(3,1)
+chisq <- chisq.test(xt, correct = F)
 
-if(cont_coef == 1) {
-  f <-   pearson_cont_coef
-  asoc_coef <- "Pearsonův"
-} else if(cont_coef == 2){
-  f <-   cramer_cont_coef
-  asoc_coef <- "Cramevův"
-} else if(cont_coef == 3) {
-  f <- cuporev_cont_coef
-  asoc_coef <- "Čuprovův"
-} else {
-  stop("incorrect contingency index")
-}
+
+questions <- c("Proměnné jsou nezávislé", "Proměnné jsou závislé")
+
+#question_type <- sample(2,1)
+
+#if(runif(1) < 0.5) {
+#  query_type <- "p_val"
+#  query_text <- "p hodnotu"
+#  solution <- chisq$p.value
+#  questions[[2]] <- c("Jaká je p-hodnota testu?")
   
-solution <- f(chi_sq = (chisq.test(xt, correct = F))$statistic, n, ncol(df), nrow(df))
+if(chisq$p.value < 0.05) {
+    solutions <- c(F,T)
+    
+    solution_text <- "Protože p hodnota je menší než 0.05, zamítáme nulovou hypotézu o nezávislosti proměnných. Proměnné jsou tedy na sobě závislé."
+  } else {
+    solutions <- c(T,F)
+    solution_text <- "Protože p hodnota je větší než 0.05, nemůžeme zamítnout nulovou hypotézu o nezávislosti proměnných."
+  }
+  
+#} else {
+#  query_type <- "chi_sq"
+#  query_text <- "testovou statistiku $\\chi^2$"
+#  solution <- chisq$statistic
+#  questions[[2]] <- c("Jaká je hodnota testové statistiky $\\chi^2$?")
+#  if(chisq$p.value < 0.05) {
+#    solution_text <- "Protože je p hodnota menší než 0.05, zamítáme nulovou hypotézu o nezávislosti proměnných. Proměnné jsou tedy na sobě závislé."
+#    solutions[[2]] <- c(F,T)
+#  } else {
+#    solution_text <- "Protože je p hodnota větší než 0.05, nemůžeme zamítnout nulovou hypotézu o nezávislosti proměnných."
+#    solutions[[2]] <- c(T,F)
+#  }
+  
+#}
+
+
+
 ```
 
 Question
@@ -75,15 +98,19 @@ table(df[[df_currvars$name[1]]], df[[df_currvars$name[2]]])
 #      method = "render")
 ```
 
-Určete `r asoc_coef` koeficient kontingence (s přesností na 2 desetinná místa)
+Rozhodněte: zda jsou proměnné na sobě nezávislé či závislé. Pro test použijte hladinu významnosti $\alpha$=5%.
+
+```{r questionlist, echo = FALSE, results = "asis"}
+answerlist(unlist(questions), markup = "markdown")
+```
 
 Solution
 ========
-Pro danou kontingenční tabulku je výsledek `r exams::fmt(solution,2)`.  
+Pro danou kontingenční tabulku je p-hodnota testu nezávislosti rovna `r exams::fmt(chisq$p.value,3)`. `r solution_text` 
 
 Meta-information
 ================
-extype: num
-exsolution: `r exams::fmt(solution,2)`
+extype: schoice
+exsolution: `r mchoice2string(solutions, single = TRUE)`
 exname: chi_square_independence
-extol: 0.01
+extol: 0.001
