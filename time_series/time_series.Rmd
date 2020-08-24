@@ -1,0 +1,116 @@
+---
+title: "Hypothesis testing"
+author: "Filip Děchtěrenko"
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+output: html_document
+---
+
+```{r setup, code = readLines("D:/Documents/git/exams_vspj/common_chunks.R")}
+
+```
+
+
+```{r data generation, echo = FALSE}
+
+df_assignmnent <- get_var_desc()
+df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
+text_question <- sample(df_assignmnent$question,1)
+
+n <- sample(c(7,14,21,28,35,42),1)
+r <- runif(1,-1,1)
+
+df_currvars <- sample_vars(df_vardesc, nvar = 2)
+
+# generate X,Y data
+df_data <- safe_generate_correlated_data(n,r,df_currvars)
+mm <- df_data[[df_currvars$name[1]]] 
+mm <- mm %>% matrix(nrow = n/6) %>% round()
+
+sigma <- runif(1,df_currvars$sd[1]*0.8, df_currvars$sd[1]*1.2)
+is_signif <- sample(0:1,1)
+
+alpha <- sample(c(0.001, 0.01, 0.05),1)
+alpha_param <- round(alpha*100)
+if(is_signif) {
+  p_val <- runif(1,0, alpha)
+} else {
+  p_val <- runif(1,alpha+alpha/10, 1)
+}
+
+
+
+possible_test_types <- c("one-sample","two-sample","paired")
+
+test_type <- sample(possible_test_types, 1)
+
+if(test_type == "one-sample") {
+  test_type_text <- "od teoretické hodnoty"
+} else if (test_type == "two-sample") {
+  test_type_text <- "mezi dvěma skupinami"
+} else {
+  test_type_text <- "mezi dvěma opakovanými měřeními téže skupiny."
+}
+
+if(runif(1) < 0.5) {
+  population_true_text <- "platila nulová hypotéza"
+  population_true <- "H0"
+} else {
+  population_true_text <- "platila alternativní hypotéza"
+  population_true <- "HA"
+}
+
+
+
+questions <- c("Chyba I. druhu", "Chyba II. druhu", "správný závěr")
+solutions <- rep(F,3)
+if(is_signif& population_true == "H0") {
+  explanation_text <- "Jelikož v populaci platí nulová hypotéza, ale my jsme nulovou zamítli, učinili jsme chybu I. druhu."
+  questions[1] <- T
+} else if(!is_signif& population_true == "HA") {
+  explanation_text <- "Jelikož v populaci platí alternativní hypotéza, ale my jsme nulovou nezamítli, učinili jsme chybu II. druhu."
+  questions[2] <- T
+} else {
+  if(is_signif) {
+    explanation_text <- "Učinili jsme správný závěr, jelikož v populaci platí alternativní hypotéza a my jsme nulovou zamítli ve prospěch alternativní."
+  } else {
+    explanation_text <- "Učinili jsme správný závěr, jelikož v populaci platí nulová hypotéza a my jsme nulovou nezamítli."
+  }
+  
+  questions[3] <- T
+}
+  
+o <- sample(1:length(questions))
+questions <- questions[o]
+solutions <- solutions[o]
+
+
+
+
+
+```
+
+
+
+Question
+========
+```{r, results='asis'}
+cat(eval(parse(text=text_question)))
+```
+
+Byli jsme požádáni o zpracování analýzy, zda se hodnoty proměnné '`r df_currvars$name[1]`' na nasbíraném vzorku liší `r test_type_text`. Pracujeme s hladinou významnosti `r alpha_param`%. Získali jsme p-hodnotu rovnou `r p_value`. Pokud by ve skutečnosti `r population_true_text` a my správně interpretovali výsledky testy, které z následujících tvrzení platí?
+
+
+```{r questionlist, echo = FALSE, results = "asis"}
+answerlist(questions, markup = "markdown")
+```
+
+Solution
+========
+
+`r explanation_text`
+
+Meta-information
+================
+extype: mchoice
+exsolution: `r mchoice2string(solutions)`
+exname: error_type
