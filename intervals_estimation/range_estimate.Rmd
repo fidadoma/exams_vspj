@@ -79,5 +79,5 @@ Meta-information
 extype: cloze
 exclozetype: num|num
 exsolution: `r exams::fmt(LB,digits = 1)`|`r exams::fmt(UB,digits = 1)`
-exname: confidence_interval
+exname: range
 extol: 0.1
