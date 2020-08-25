@@ -1,0 +1,77 @@
+---
+title: "one sample T-test"
+author: "Filip Děchtěrenko"
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+output: html_document
+---
+
+```{r setup, code = readLines("D:/Documents/git/exams_vspj/common_chunks.R")}
+
+```
+
+
+```{r data generation, echo = FALSE}
+
+df_assignmnent <- get_var_desc()
+df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
+text_question <- sample(df_assignmnent$question,1)
+
+n <- sample(c(7,14,21,28,35,42),1)
+r <- runif(1,-1,1)
+
+df_currvars <- sample_vars(df_vardesc, nvar = 2)
+
+# generate X,Y data
+df_data <- safe_generate_correlated_data(n,r,df_currvars)
+mm <- df_data[[df_currvars$name[1]]] 
+mm <- mm %>% matrix(nrow = n/6) 
+
+x_bar <- mean(mm) %>% round(df_currvars$round_val[1])
+sx  <- sd(mm) %>% round(df_currvars$round_val[1])
+
+
+popul_mean <- rnorm(1, x_bar, df_currvars$sd[1]/4) %>% round(df_currvars$round_val[1])
+
+t <- sqrt(n)*(x_bar - popul_mean)/sx
+p_val <- 2*pnorm(abs(t), lower.tail = F)
+
+```
+
+
+
+Question
+========
+```{r, results='asis'}
+cat(eval(parse(text=text_question)))
+```
+
+Byli jsme požádáni o zpracování analýzy, zda se hodnoty proměnné '`r df_currvars$name[1]`' liší (oboustranně) od teoretické hodnoty, `r popul_mean`. Jaká je p-hodnota příslušného testu? Data vypadají následovně
+
+
+
+```{r graf,echo = FALSE, warning =F,message=F}
+mm %>% knitr::kable()
+```
+
+
+
+Solution
+========
+
+Protože neznáme směrodatnou odchylku populace, musíme použít t-test. Nejprve spočítáme t-skór pomocí vzorce
+
+$$ 
+\begin{aligned}
+t = \frac{\bar{x}-\mu_0}{s_x/\sqrt{n}}
+\end{aligned}
+$$
+
+V daném případě jsou parametry n=`r n`, $\bar{x}$=`r x_bar`, $s_x$ = `r sx` a $\mu_0$ = `r popul_mean`. Dostaneme tedy hodnotu `r t`. 
+Pro výpočet p-hodnoty oboustranného testu použijeme vzorec $2\cdot P(X>|t|)$. V tomto případě je tedy p-hodnota=`r p_val`.
+
+Meta-information
+================
+extype: num
+exsolution: `r fmt(p_val,3)`
+exname: one sample t-test
+extol: 0.001
