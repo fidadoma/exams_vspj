@@ -1,0 +1,105 @@
+---
+title: "Hypothesis testing"
+author: "Filip Děchtěrenko"
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+output: html_document
+---
+
+```{r setup, code = readLines("D:/Documents/git/exams_vspj/common_chunks.R")}
+
+```
+
+
+```{r data generation, echo = FALSE}
+
+df_assignmnent <- get_var_desc()
+df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
+text_question <- sample(df_assignmnent$question,1)
+
+n <- sample(c(7,14,21,28,35,42),1)
+r <- runif(1,-1,1)
+
+df_currvars <- sample_vars(df_vardesc, nvar = 2)
+
+# generate X,Y data
+df_data <- safe_generate_correlated_data(n,r,df_currvars)
+mm <- df_data[[df_currvars$name[1]]] 
+mm <- mm %>% matrix(nrow = n/6) %>% round()
+
+test_type <- sample(1:5,1)
+
+operator <- case_when(
+  test_type == 1 ~ "less",
+  test_type == 2 ~ "more",
+  test_type == 3 ~ "neq",
+  test_type == 4 ~ "leq",
+  test_type == 5 ~ "geq"
+)
+
+operator_text <- case_when(
+  test_type == 1 ~ "<",
+  test_type == 2 ~ ">",
+  test_type == 3 ~ "\\neq",
+  test_type == 4 ~ "\\leq",
+  test_type == 5 ~ "\\geq"
+)
+
+HA <- sprintf("$ H_A: \mu %s \mu_0$", operator_text) 
+
+mu_0 <- sample(10:70,1)
+
+
+questions <- c("Chyba I. druhu", "Chyba II. druhu", "správný závěr")
+solutions <- rep(F,3)
+if(is_signif& population_true == "H0") {
+  explanation_text <- "Jelikož v populaci platí nulová hypotéza, ale my jsme nulovou zamítli, učinili jsme chybu I. druhu."
+  questions[1] <- T
+} else if(!is_signif& population_true == "HA") {
+  explanation_text <- "Jelikož v populaci platí alternativní hypotéza, ale my jsme nulovou nezamítli, učinili jsme chybu II. druhu."
+  questions[2] <- T
+} else {
+  if(is_signif) {
+    explanation_text <- "Učinili jsme správný závěr, jelikož v populaci platí alternativní hypotéza a my jsme nulovou zamítli ve prospěch alternativní."
+  } else {
+    explanation_text <- "Učinili jsme správný závěr, jelikož v populaci platí nulová hypotéza a my jsme nulovou nezamítli."
+  }
+  
+  questions[3] <- T
+}
+  
+o <- sample(1:length(questions))
+questions <- questions[o]
+solutions <- solutions[o]
+
+
+
+
+
+```
+
+
+
+Question
+========
+
+Při čtení metodické části bakalářské práce jste narazili na následující část:
+* $ H_0: \mu = \mu_0$
+* `r HA`
+Dále je v textu napsáno, že $\m_0=$`mu0`.
+Které z následujících tvrzení platí?
+
+
+```{r questionlist, echo = FALSE, results = "asis"}
+answerlist(questions, markup = "markdown")
+```
+
+Solution
+========
+
+`r explanation_text`
+
+Meta-information
+================
+extype: mchoice
+exsolution: `r mchoice2string(solutions)`
+exname: error_type
