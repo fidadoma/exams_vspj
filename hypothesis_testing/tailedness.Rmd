@@ -12,20 +12,6 @@ output: html_document
 
 ```{r data generation, echo = FALSE}
 
-df_assignmnent <- get_var_desc()
-df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
-text_question <- sample(df_assignmnent$question,1)
-
-n <- sample(c(7,14,21,28,35,42),1)
-r <- runif(1,-1,1)
-
-df_currvars <- sample_vars(df_vardesc, nvar = 2)
-
-# generate X,Y data
-df_data <- safe_generate_correlated_data(n,r,df_currvars)
-mm <- df_data[[df_currvars$name[1]]] 
-mm <- mm %>% matrix(nrow = n/6) %>% round()
-
 test_type <- sample(1:5,1)
 
 operator <- case_when(
@@ -44,30 +30,38 @@ operator_text <- case_when(
   test_type == 5 ~ "\\geq"
 )
 
-HA <- sprintf("$ H_A: \mu %s \mu_0$", operator_text) 
+HA <- sprintf("$ H_A: \\mu %s \\mu_0$", operator_text) 
 
 mu_0 <- sample(10:70,1)
 
 
-questions <- c("Chyba I. druhu", "Chyba II. druhu", "správný závěr")
-solutions <- rep(F,3)
-if(is_signif& population_true == "H0") {
-  explanation_text <- "Jelikož v populaci platí nulová hypotéza, ale my jsme nulovou zamítli, učinili jsme chybu I. druhu."
-  questions[1] <- T
-} else if(!is_signif& population_true == "HA") {
-  explanation_text <- "Jelikož v populaci platí alternativní hypotéza, ale my jsme nulovou nezamítli, učinili jsme chybu II. druhu."
-  questions[2] <- T
-} else {
-  if(is_signif) {
-    explanation_text <- "Učinili jsme správný závěr, jelikož v populaci platí alternativní hypotéza a my jsme nulovou zamítli ve prospěch alternativní."
-  } else {
-    explanation_text <- "Učinili jsme správný závěr, jelikož v populaci platí nulová hypotéza a my jsme nulovou nezamítli."
-  }
+questions <- c(sample(c(sprintf("Testujeme, že průměr populace, ze které pochází vzorek, se liší od teoretické hodnoty %d",mu_0),
+                        "Testujeme, že průměr populace, ze které pochází vzorek, se liší od teoretické hodnoty $\\mu_0$"),1),
+               sample(c(sprintf("Testujeme, že průměr populace, ze které pochází vzorek, je větší než teoretická hodnota %d",mu_0),
+                        "Testujeme, že průměr populace, ze které pochází vzorek, je větší než teoretická hodnota $\\mu_0$"),1),
+               sample(c(sprintf("Testujeme, že průměr populace, ze které pochází vzorek, je menší než teoretická hodnota %d",mu_0),
+                        "Testujeme, že průměr populace, ze které pochází vzorek, je menší než teoretická hodnota $\\mu_0$"),1),
+               "Použijeme jednostranný test",
+               "Použijeme oboustranný test",
+               "Altenativní hypotéza není správně definována")
+solutions <- case_when(
+  operator == "less" ~ c(F,F,T,T,F,F),
+  operator == "more" ~ c(F,T,F,T,F,F),
+  operator == "neq" ~ c(T,F,F,F,T,F),
+  operator == "leq" ~ c(F,F,F,F,F,T),
+  operator == "geq" ~ c(F,F,F,F,F,T)
+)
+
+explanation <- case_when(
+  operator == "less" ~ "Alternativní hypotéza zachycuje stav, kdy je skutečný průměr populace nižší než daná hodnota. Použijme tedy jednostranný test.",
+  operator == "more" ~ "Alternativní hypotéza zachycuje stav, kdy je skutečný průměr populace vyšší než daná hodnota. Použijme tedy jednostranný test.",
+  operator == "neq" ~ "Alternativní hypotéza zachycuje stav, kdy je skutečný průměr populace jiný než daná hodnota (nižší nebo vyšší). Použijme tedy oboustranný test.",
+  operator == "leq" ~ "Alternativní hypotíza je zadaná nesprávně (v nulové i alternativní je znak =).",
+  operator == "geq" ~ "Alternativní hypotíza je zadaná nesprávně (v nulové i alternativní je znak =)."
+) 
+
   
-  questions[3] <- T
-}
-  
-o <- sample(1:length(questions))
+o <- sample(1:length(questions), 3)
 questions <- questions[o]
 solutions <- solutions[o]
 
@@ -96,10 +90,10 @@ answerlist(questions, markup = "markdown")
 Solution
 ========
 
-`r explanation_text`
+`r explanation`
 
 Meta-information
 ================
 extype: mchoice
-exsolution: `r mchoice2string(solutions)`
-exname: error_type
+exsolution: `r mchoice2string(solutions, single = TRUE)`
+exname: tailedness
