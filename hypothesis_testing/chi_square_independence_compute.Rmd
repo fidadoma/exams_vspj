@@ -93,7 +93,7 @@ Pro danou kontingenční tabulku je `r  solution_text` `r exams::fmt(solution,3)
 
 Meta-information
 ================
-extype: schoice
+extype: num
 exsolution: `r exams::fmt(solution,3)`
 exname: chi_square_independence_compute
 extol: 0.001

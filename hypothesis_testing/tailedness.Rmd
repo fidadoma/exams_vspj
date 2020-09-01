@@ -30,7 +30,7 @@ operator_text <- case_when(
   test_type == 5 ~ "\\geq"
 )
 
-HA <- sprintf("$ H_A: \\mu %s \\mu_0$", operator_text) 
+HA <- sprintf("$$ H_A: \\mu %s \\mu_0$$", operator_text) 
 
 mu_0 <- sample(10:70,1)
 
@@ -77,9 +77,11 @@ Question
 ========
 
 Při čtení metodické části bakalářské práce jste narazili na následující část:
-* $ H_0: \mu = \mu_0$
-* `r HA`
-Dále je v textu napsáno, že $\m_0=$`mu0`.
+
+$$ H_0: \mu = \mu_0$$
+`r HA`
+
+Dále je v textu napsáno, že $\mu_0=$ `r mu_0`.
 Které z následujících tvrzení platí?
 
 
@@ -95,5 +97,5 @@ Solution
 Meta-information
 ================
 extype: mchoice
-exsolution: `r mchoice2string(solutions, single = TRUE)`
+exsolution: `r mchoice2string(solutions)`
 exname: tailedness

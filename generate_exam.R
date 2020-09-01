@@ -77,3 +77,15 @@ exams2pdf(list("intervals_estimation/point_estimate.Rmd",
 )
 
 
+set.seed(1193)
+exams2pdf(list("hypothesis_testing/t_test.Rmd",
+               "hypothesis_testing/z_test.Rmd",
+               "hypothesis_testing/hypothesis_testing.Rmd",
+               "hypothesis_testing/chi_square_independence.Rmd",
+               "hypothesis_testing/chi_square_independence_compute.Rmd",
+               "hypothesis_testing/tailedness.Rmd"),  
+          n = 1,  
+          question = question_txt, 
+          solution = solution_txt 
+)
+

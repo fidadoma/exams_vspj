@@ -30,7 +30,7 @@ sigma <- runif(1,df_currvars$sd[1]*0.8, df_currvars$sd[1]*1.2)
 is_signif <- sample(0:1,1)
 
 alpha <- sample(c(0.001, 0.01, 0.05),1)
-alpha_param <- round(alpha*100)
+alpha_param <- round(alpha*100,1)
 if(is_signif) {
   p_val <- runif(1,0, alpha)
 } else {
@@ -76,18 +76,18 @@ if(runif(1) < 0.5) {# correct
 
 
 test_query <- sample(possible_test_types,2)
-questions[1] <- case_when(
-  test_query[1] == "one-sample" ~ "Použijeme jednovýběrový test",
-  test_query[1] == "two-sample" ~ sample(c("Použijeme dvouvýběrový test", "Nepárový dvouvýběrový test", "Nepárový test s dvěma skupinami"),1),
-  test_query[1] == "paired" ~ sample(c("Použijeme párový test", "Párový dvouvýběrový test", "Párový test s dvěma skupinami"),1)
-)
 questions[2] <- case_when(
-  test_query[2] == "one-sample" ~ "Použijeme jednovýběrový test",
-  test_query[2] == "two-sample" ~ sample(c("Použijeme dvouvýběrový test", "Nepárový dvouvýběrový test", "Nepárový test s dvěma skupinami"),1),
-  test_query[2] == "paired" ~ sample(c("Použijeme párový test", "Párový dvouvýběrový test", "Párový test s dvěma skupinami"),1)
+  test_query[1] == "one-sample" ~ "Použijeme jednovýběrový test",
+  test_query[1] == "two-sample" ~ sample(c("Použijeme dvouvýběrový test", "Použijeme nepárový dvouvýběrový test", "Použijeme nepárový test s dvěma skupinami"),1),
+  test_query[1] == "paired" ~ sample(c("Použijeme párový test", "Použijeme párový dvouvýběrový test", "Použijeme párový test s dvěma skupinami"),1)
 )
-solutions[1] <- test_query[1] == test_type
-solutions[2] <- test_query[2] == test_type
+questions[3] <- case_when(
+  test_query[2] == "one-sample" ~ "Použijeme jednovýběrový test",
+  test_query[2] == "two-sample" ~ sample(c("Použijeme dvouvýběrový test", "Použijeme nepárový dvouvýběrový test", "Použijeme nepárový test s dvěma skupinami"),1),
+  test_query[2] == "paired" ~ sample(c("Použijeme párový test", "Použijeme párový dvouvýběrový test", "Použijeme párový test s dvěma skupinami"),1)
+)
+solutions[2] <- test_query[1] == test_type
+solutions[3] <- test_query[2] == test_type
 
 o <- sample(1:length(questions))
 questions <- questions[o]
@@ -95,15 +95,15 @@ solutions <- solutions[o]
 
 
 explanation_text_tmp1 <- case_when(
-  test_type == "one-sample" ~ "Protože nás zajímá rozdíl vzorku od teoretické hodnoty, použijeme jednovýběrový test.",
-  test_type == "two-sample" ~ "V případě rozdílu mezi dvěma vzorky, které jsou nezávislé, použijeme dvouvýběrový test.",
-  test_type == "paired" ~ "V případě rozdílu mezi dvěma vzorky, které jsou závislé (třeba měření před a po intervenci), použijeme párový test."
+  test_type == "one-sample" ~ "Protože nás zajímá rozdíl vzorku od teoretické hodnoty, použijeme jednovýběrový test. ",
+  test_type == "two-sample" ~ "V případě rozdílu mezi dvěma vzorky, které jsou nezávislé, použijeme dvouvýběrový test. ",
+  test_type == "paired" ~ "V případě rozdílu mezi dvěma vzorky, které jsou závislé (třeba měření před a po intervenci), použijeme párový test. "
 )
 
-explanation_text_tmp2 <- if_else(is_signif, "Jelikož je p-hodnota menší než hladina významnosti, můžeme zamítnou nulovou hypotézu ve prospěch alternativní.", "Jelikož je p-hodnota větší než hladina významnosti, nemůžeme zamítnou nulovou hypotézu ve prospěch alternativní. Pozor, neznamená to, že platí nulová hypotéza, pouze ji nemůžeme vyvrátit."
+explanation_text_tmp2 <- if_else(is_signif  == 1, "Jelikož je p-hodnota menší než hladina významnosti, můžeme zamítnou nulovou hypotézu ve prospěch alternativní.", "Jelikož je p-hodnota větší než hladina významnosti, nemůžeme zamítnou nulovou hypotézu ve prospěch alternativní. Pozor, neznamená to, že platí nulová hypotéza, pouze ji nemůžeme vyvrátit."
 )
 
-explanation_text <- spritnf("%s%s", explanation_text_tmp1, explanation_text_tmp2)
+explanation_text <- sprintf("%s%s", explanation_text_tmp1, explanation_text_tmp2)
 ```
 
 
@@ -114,7 +114,7 @@ Question
 cat(eval(parse(text=text_question)))
 ```
 
-Byli jsme požádáni o zpracování analýzy, zda se hodnoty proměnné '`r df_currvars$name[1]`' na nasbíraném vzorku liší `r test_type_text`. Pracujeme s hladinou významnosti `r alpha_param`%. Získali jsme p-hodnotu rovnou `r p_value`. Které z následujících tvrzení platí?
+Byli jsme požádáni o zpracování analýzy, zda se hodnoty proměnné '`r df_currvars$name[1]`' na nasbíraném vzorku liší `r test_type_text`. Pracujeme s hladinou významnosti `r alpha_param`%. Získali jsme p-hodnotu rovnou `r p_val %>% round(3)`. Které z následujících tvrzení platí?
 
 
 ```{r questionlist, echo = FALSE, results = "asis"}

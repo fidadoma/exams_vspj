@@ -45,7 +45,7 @@ Question
 cat(eval(parse(text=text_question)))
 ```
 
-Byli jsme požádáni o zpracování analýzy, zda se hodnoty proměnné '`r df_currvars$name[1]`' liší (oboustranně) od teoretické hodnoty, `r popul_mean`. Jaká je p-hodnota příslušného testu? Data vypadají následovně
+Byli jsme požádáni o zpracování analýzy, zda se hodnoty proměnné '`r df_currvars$name[1]`' liší (oboustranně) od teoretické hodnoty, `r exams::fmt(popul_mean, zeros = F)`. Jaká je p-hodnota příslušného testu? Data vypadají následovně
 
 
 
@@ -66,8 +66,8 @@ t = \frac{\bar{x}-\mu_0}{s_x/\sqrt{n}}
 \end{aligned}
 $$
 
-V daném případě jsou parametry n=`r n`, $\bar{x}$=`r x_bar`, $s_x$ = `r sx` a $\mu_0$ = `r popul_mean`. Dostaneme tedy hodnotu `r t`. 
-Pro výpočet p-hodnoty oboustranného testu použijeme vzorec $2\cdot P(X>|t|)$. V tomto případě je tedy p-hodnota=`r p_val`.
+V daném případě jsou parametry n=`r n`, $\bar{x}$=`r exams::fmt(x_bar, zeros = F)`, $s_x$ = `r sx` a $\mu_0$ = `r exams::fmt(popul_mean, zeros = F)`. Dostaneme tedy hodnotu `r t %>% round(2)`. 
+Pro výpočet p-hodnoty oboustranného testu použijeme vzorec $2\cdot P(X>|t|)$. V tomto případě je tedy p-hodnota=`r p_val %>% exams::fmt(digits = 3)`.
 
 Meta-information
 ================

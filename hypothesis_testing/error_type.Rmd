@@ -30,7 +30,7 @@ sigma <- runif(1,df_currvars$sd[1]*0.8, df_currvars$sd[1]*1.2)
 is_signif <- sample(0:1,1)
 
 alpha <- sample(c(0.001, 0.01, 0.05),1)
-alpha_param <- round(alpha*100)
+alpha_param <- round(alpha*100,1)
 if(is_signif) {
   p_val <- runif(1,0, alpha)
 } else {
