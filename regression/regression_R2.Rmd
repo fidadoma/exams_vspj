@@ -1,5 +1,5 @@
 ---
-title: "Regrese"
+title: "Regression"
 author: "Filip Děchtěrenko"
 date: '`r format(Sys.time(), "%d %B, %Y")`'
 output: html_document
@@ -24,6 +24,8 @@ df_currvars <- sample_vars(df_vardesc, nvar = 2)
 # generate X,Y data
 df_data <- safe_generate_correlated_data(n,r,df_currvars)
 
+X <- df_data[[1]]
+Y <- df_data[[2]]
 lm1 <- lm(Y~X)
 
 #cor(X, Y)  # yay!
@@ -38,7 +40,7 @@ Question
 cat(eval(parse(text=text_question)))
 ```
 
-Spočítejte koeficient determinace ($R^2$) předpovídající `r df_currvars$name[1]` v závislosti na `r df_currvars$name[2]`. Data vypadají následovně:
+Spočítejte koeficient determinace ($R^2$) předpovídající proměnnou '`r df_currvars$name[2]`' v závislosti na proměnné '`r df_currvars$name[1]`'. Data vypadají následovně:
 
 ```{r graf,echo = FALSE, warning =F,message=F}
 df_data %>% knitr::kable()

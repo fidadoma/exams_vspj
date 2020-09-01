@@ -85,5 +85,5 @@ Meta-information
 ================
 extype: num
 exsolution: `r exams::fmt(solution,2)`
-exname: cont_table
+exname: cont_table_asoc
 extol: 0.01

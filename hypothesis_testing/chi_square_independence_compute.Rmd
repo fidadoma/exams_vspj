@@ -53,7 +53,7 @@ if(runif(1) < 0.5) {
 } else {
   query_type <- "chi_sq"
   query_text <- "testovou statistiku $\\chi^2$"
-  solution_text <- "$\\chi^2 roven$"
+  solution_text <- "$\\chi^2$ roven "
   solution <- chisq$statistic
   questions[[2]] <- c("Jaká je hodnota testové statistiky $\\chi^2$?")
 

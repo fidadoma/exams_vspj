@@ -58,7 +58,9 @@ get_var_desc <- function(curr_theme = NULL) {
   df_vars <- df1_vars %>% filter(group_theme == curr_theme)
   df_questions <- df1_questions %>% filter(group_theme == curr_theme) %>% sample_n(1)
   df_all <- tibble(question = df_questions$test_questions, 
-                   var_desc = nest(df_vars, data = everything()))
+                   var_desc = nest(df_vars, data = everything()),
+                   group1 = df_questions$group1,
+                   group2 = df_questions$group2)
   df_all
 }
 
@@ -86,7 +88,9 @@ generate_flat_ctable <- function(n, r, x_fac, y_fac) {
   y_lev <- seq(0,(length(y_fac)-1))
   
   df <- tibble(x_categ = recode(x_categ, !!!setNames(x_fac, x_lev)),
-               y_categ = recode(y_categ, !!!setNames(y_fac, y_lev)))
+               y_categ = recode(y_categ, !!!setNames(y_fac, y_lev))) %>% 
+    mutate(x_categ = factor(x_categ, levels = x_fac),
+           y_categ = factor(y_categ, levels = y_fac))
   
   df
 }

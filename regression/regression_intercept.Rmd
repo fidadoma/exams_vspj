@@ -1,0 +1,82 @@
+---
+title: "Typ grafu"
+author: "Filip Děchtěrenko"
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+output: html_document
+  fig_caption: false
+---
+
+```{r setup, code = readLines("D:/Documents/git/exams_vspj/common_chunks.R")}
+
+```
+
+```{r data generation, echo = FALSE, results = "hide"}
+
+df_assignmnent <- get_var_desc()
+df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
+text_question <- sample(df_assignmnent$question,1)
+
+n <- sample(5:10,1)
+r <- runif(1,-1,1)
+
+df_currvars <- sample_vars(df_vardesc, nvar = 2)
+
+df_data <- safe_generate_correlated_data(n,r,df_currvars)
+X <- df_data[[1]]
+Y <- df_data[[2]]
+lm1 <- lm(Y~X, df_data)
+
+```
+
+
+
+Question
+========
+```{r, results='asis'}
+cat(eval(parse(text=text_question)))
+```
+
+Lineární závislost popisujeme rovnicí ve tvaru $y = b_1x+b_0$. Spočítejte regresní koeficient $b_0$ přímky předpovídající proměnnou '`r df_currvars$name[2]`' v závislosti na proměnné '`r df_currvars$name[1]`'. Data vypadají následovně:
+
+```{r graf,echo = FALSE, warning =F,message=F}
+df_data %>% knitr::kable()
+```
+
+Solution
+========
+Když si vizualizujeme data, vypadají následovně:
+
+```{r plot, fig.path = "", fig.cap = ""}
+df_data %>% 
+  ggplot(aes(x=!!sym(colnames(df_data)[1]), y=!!sym(colnames(df_data)[2]))) +
+  geom_point() + 
+  theme(aspect.ratio = 1)
+```
+
+ Pro výpočet regresních koeficientů můžeme využít funkce INTERCEPT (pro parameter $b_0$) a SLOPE (pro parametr $b_1$)
+
+Regresní koeficienty jsou:
+
+* $b_0$ = `r exams::fmt(coef(lm1)[1])`
+* $b_1$ = `r exams::fmt(coef(lm1)[2])`
+
+Pokud zobrazíme regresní přímku do grafu, vychází to následovně.
+
+
+```{r plot-plus-regression, fig.path = "", fig.cap = ""}
+df_data %>% 
+  ggplot(aes(x=!!sym(colnames(df_data)[1]), y=!!sym(colnames(df_data)[2]))) +
+  geom_point() + 
+  theme(aspect.ratio = 1) +
+  stat_smooth(method ="lm", se = F, formula='y ~ x')
+
+```
+
+
+
+Meta-information
+================
+extype: num
+exsolution: `r exams::fmt(coef(lm1)[1])`
+extol: 0.01
+exname: regression_intercept

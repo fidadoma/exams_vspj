@@ -16,7 +16,12 @@ df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
 text_question <- sample(df_assignmnent$question,1)
 
 n <- sample(100:500,1)
-r <- runif(1,-1,1)
+if(runif(1) < 0.5) {
+  r <- runif(1,0.1,0.9)  
+} else {
+  r <- runif(1,-0.9,-0.1)  
+}
+
 
 df_currvars <- df_vardesc %>% 
   filter(type == "factor") %>% 
@@ -27,22 +32,29 @@ df_currvars <- df_vardesc %>%
 x_levels <- get_factor_levels(df_currvars$values[1])
 y_levels <- get_factor_levels(df_currvars$values[2])
 
-df <- generate_flat_ctable(n, r, x_levels, y_levels) %>% 
+df <- generate_flat_ctable(n, r, x_levels, y_levels) 
+possible_x_lev <- unique(df$x_categ) %>% as.character()
+possible_y_lev <- unique(df$y_categ) %>% as.character()
+
+df <- df %>% 
   mutate(x_categ = sprintf("%s-%s", df_currvars$name[1], x_categ),
          y_categ = sprintf("%s-%s", df_currvars$name[2], y_categ)) %>% 
+  mutate(x_categ = factor(x_categ,  levels = paste0(sprintf("%s-%s",df_currvars$name[1], x_levels))),
+         y_categ = factor(y_categ,  levels = paste0(sprintf("%s-%s",df_currvars$name[2], y_levels)))) %>% 
   mutate(!!sym(df_currvars$name[1]):=x_categ, !!sym(df_currvars$name[2]):=y_categ)
+
 
 if(runif(1) < 0.5) {
   selected_var <- "x"
   query_var <- df_currvars$name[1]
-  group_var_levels <- y_levels  
+  group_var_levels <- intersect(y_levels, possible_y_lev)
   
   group_var <- df_currvars$name[2]
   
 } else {
   selected_var <- "y"
   query_var <- df_currvars$name[2]
-  group_var_levels <- x_levels  
+  group_var_levels <- intersect(x_levels, possible_x_lev)  
 
   group_var <- df_currvars$name[1]
 }

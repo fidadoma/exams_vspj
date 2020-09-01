@@ -130,4 +130,4 @@ Meta-information
 ================
 extype: mchoice
 exsolution: `r mchoice2string(solutions)`
-exname: hypothesis testing
+exname: hypothesis_testing

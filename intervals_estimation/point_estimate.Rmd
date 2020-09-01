@@ -24,7 +24,7 @@ df_currvars <- sample_vars(df_vardesc, nvar = 2)
 # generate X,Y data
 df_data <- safe_generate_correlated_data(n,r,df_currvars)
 m <- df_data[[df_currvars$name[1]]] 
-m <- m %>% matrix(nrow = n/6) %>% round()
+m <- m %>% matrix(nrow = n/6) %>% round(df_currvars$round_val[1])
 
 if (runif(1) < 0.5) {
   estim_type <- "průměr"

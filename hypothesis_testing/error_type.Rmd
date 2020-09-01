@@ -65,10 +65,10 @@ questions <- c("Chyba I. druhu", "Chyba II. druhu", "správný závěr")
 solutions <- rep(F,3)
 if(is_signif& population_true == "H0") {
   explanation_text <- "Jelikož v populaci platí nulová hypotéza, ale my jsme nulovou zamítli, učinili jsme chybu I. druhu."
-  questions[1] <- T
+  solutions[1] <- T
 } else if(!is_signif& population_true == "HA") {
   explanation_text <- "Jelikož v populaci platí alternativní hypotéza, ale my jsme nulovou nezamítli, učinili jsme chybu II. druhu."
-  questions[2] <- T
+  solutions[2] <- T
 } else {
   if(is_signif) {
     explanation_text <- "Učinili jsme správný závěr, jelikož v populaci platí alternativní hypotéza a my jsme nulovou zamítli ve prospěch alternativní."
@@ -76,7 +76,7 @@ if(is_signif& population_true == "H0") {
     explanation_text <- "Učinili jsme správný závěr, jelikož v populaci platí nulová hypotéza a my jsme nulovou nezamítli."
   }
   
-  questions[3] <- T
+  solutions[3] <- T
 }
   
 o <- sample(1:length(questions))
@@ -97,7 +97,7 @@ Question
 cat(eval(parse(text=text_question)))
 ```
 
-Byli jsme požádáni o zpracování analýzy, zda se hodnoty proměnné '`r df_currvars$name[1]`' na nasbíraném vzorku liší `r test_type_text`. Pracujeme s hladinou významnosti `r alpha_param`%. Získali jsme p-hodnotu rovnou `r p_value`. Pokud by ve skutečnosti `r population_true_text` a my správně interpretovali výsledky testy, které z následujících tvrzení platí?
+Byli jsme požádáni o zpracování analýzy, zda se hodnoty proměnné '`r df_currvars$name[1]`' na nasbíraném vzorku liší `r test_type_text`. Pracujeme s hladinou významnosti `r alpha_param`%. Získali jsme p-hodnotu rovnou `r p_val`. Pokud by ve skutečnosti `r population_true_text` a my správně interpretovali výsledky testy, které z následujících tvrzení platí?
 
 
 ```{r questionlist, echo = FALSE, results = "asis"}
@@ -112,5 +112,5 @@ Solution
 Meta-information
 ================
 extype: mchoice
-exsolution: `r mchoice2string(solutions)`
+exsolution: `r mchoice2string(solutions, single = T)`
 exname: error_type

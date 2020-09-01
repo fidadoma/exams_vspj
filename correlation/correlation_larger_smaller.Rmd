@@ -1,5 +1,5 @@
 ---
-title: "Korelace - kladna zaporna"
+title: "Korelace - vetsi mensi"
 author: "Filip Děchtěrenko"
 date: '`r format(Sys.time(), "%d %B, %Y")`'
 output: html_document
@@ -16,15 +16,15 @@ df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
 text_question <- sample(df_assignmnent$question,1)
 
 n <- sample(80:120,1)
-r1 <- runif(1,0.7,0.9)*sample(c(-1,1),1)
-r2 <- runif(1,0.4,0.6)*sample(c(-1,1),1)
+r1 <- runif(1,0.7,0.9)
+r2 <- runif(1,0.1,0.4)
 
 df_currvars <- sample_vars(df_vardesc, nvar = 2)
 
 df_data1 <- safe_generate_correlated_data(n,r1,df_currvars)
 df_data2 <- safe_generate_correlated_data(n,r2,df_currvars)
 
-plot_titles <- c("Z vesnice","Z města")
+plot_titles <- c(df_assignmnent$group1,df_assignmnent$group2)
 plot_left_title <- sample(plot_titles,1)
 plot_right_title <- setdiff(plot_titles,plot_left_title)
 
@@ -47,19 +47,11 @@ y_ranges <- df_currvars$values[2] %>% extract_ranges_vec()
 ymin <- y_ranges[1]
 ymax <- y_ranges[2]
 
-questions <- c("Obě pozitivní","Obě negativní","Vlevo pozitivní, vpravo negativní","Vlevo negativní, vpravo pozitivní")
-solutions <- rep(F,length(questions))
-if(r1>0&r2>0) {
-  solutions[1] <- T
-} else if(r1<0&r2<0) {
-  solutions[2] <- T
-} else if(r1>0&r2<0) {
-  solutions[3] <- T
-}  else if(r1<0&r2>0) {
-  solutions[4] <- T
-}
+questions <- plot_titles
+solutions <- rep(F,length(plot_titles))
+solutions[plot_titles == corr_larger] <- T
 
-o <- sample(1:length(questions))
+o <- sample(1:length(plot_titles))
 questions <- questions[o]
 solutions <- solutions[o]
 
@@ -72,7 +64,7 @@ Question
 cat(eval(parse(text=text_question)))
 ```
 
-V následujících grafech vidíme vztahy mezi proměnnými `r  df_currvars$name[1]` a `r df_currvars$name[2]` zvlášť pro lidi z vesnic a lidé z města. Rozhodněte, které korelace jsou kladné a které záporné.
+V následujících grafech vidíme vztahy mezi proměnnými '`r  df_currvars$name[1]`' a '`r df_currvars$name[2]`' zvlášť pro podskupinu `r df_assignmnent$group1` a `r df_assignmnent$group2`. Rozhodněte, která z korelací je větší.
 
 Data vypadají následovně:
 
@@ -88,7 +80,7 @@ p1+p2
 ```
 
 
-Které korelace jsou kladné a které záporné?
+Která ze skupin má vyšší korelaci?
 
 ```{r questionlist, echo = FALSE, results = "asis"}
 answerlist(questions, markup = "markdown")
@@ -96,7 +88,7 @@ answerlist(questions, markup = "markdown")
 
 Solution
 ========
-Korelace pro levý graf je `r fmt(cor(df_left[1],df_left[2]),2)`, pro pravý je `r fmt(cor(df_right[1],df_right[2]),2)` Správná odpověď je tedy `r questions[solutions]`
+Korelace pro levý graf je `r fmt(cor(df_left[[1]],df_left[[2]]),2)`, pro pravý je `r fmt(cor(df_right[[1]],df_right[[2]]),2)` Vyšší korelaci mají tedy `r corr_larger`.
 
 Meta-information
 ================
