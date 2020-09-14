@@ -80,3 +80,6 @@ Meta-information
 extype: num
 exsolution: `r solutions`
 exname: desc_var
+expoints: 1
+exsection: desc_stat
+
