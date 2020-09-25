@@ -70,3 +70,5 @@ extype: num
 exsolution: `r exams::fmt(summary(lm1)$r.squared,2)`
 exname: regression_R2
 extol: 0.01
+extitle: Regrese - výpočet R2
+expoints: 1

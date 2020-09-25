@@ -95,3 +95,5 @@ Meta-information
 extype: schoice
 exsolution: `r mchoice2string(solutions, single = TRUE)`
 exname: correlation_which_larger
+extitle: Korelace - větší/menší
+expoints: 0.5

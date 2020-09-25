@@ -68,3 +68,5 @@ extype: num
 exsolution: `r exams::fmt(solution,2)`
 exname: point_estimation
 extol: 0.01
+extitle: Bodový odhad
+expoints: 1

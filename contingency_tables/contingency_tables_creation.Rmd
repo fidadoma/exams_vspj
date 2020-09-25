@@ -57,12 +57,18 @@ tb_smaller <- apply(tb_smaller, c(1,2),max,0)
 
 tb_larger  <- tb1 + sample(1:3,1) 
 
+should_continue <- T
+while (should_continue) {
+  should_continue <- F
+  tb_noise <- tb1
+  i_noise <- sample(c(0,sample(c(-1,1), length(tb1)-1, replace = T)))
+  tb_noise <- tb1 + i_noise
 
-tb_noise <- tb1
-i_noise <- sample(c(0,sample(c(-1,1), length(tb1)-1, replace = T)))
-tb_noise <- tb1 + i_noise
-
-tb_noise <- apply(tb_noise, c(1,2),max,0)
+  tb_noise <- apply(tb_noise, c(1,2),max,0)
+  if(all(tb_noise==tb1)) {
+    should_continue <- T
+  }
+}
 
 l_tbs <- list(tb1, tb_rotated, tb_rotated_other, tb_smaller,tb_larger,tb_noise)
 ix <- sample(1:length(l_tbs), 3)
@@ -135,3 +141,6 @@ Meta-information
 extype: schoice
 exsolution: `r mchoice2string(solutions, single = TRUE)`
 exname: cont_table_creation
+extitle: Kontingenční tabulka - vytvoření
+expoints: 0.5
+

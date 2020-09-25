@@ -122,3 +122,5 @@ Meta-information
 extype: num
 exsolution: `r solution`
 exname: cont_table_partial_sum
+extitle: Kontingenční tabulka - marginalizace
+expoints: 1

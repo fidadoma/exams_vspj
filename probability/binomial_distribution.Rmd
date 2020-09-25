@@ -116,3 +116,5 @@ extype: num
 exsolution: `r exams::fmt(solution,3)`
 exname: binom_prob
 extol: 0.001
+extitle: Výpočet pravděpodobnosti
+expoints: 1

@@ -147,3 +147,5 @@ extype: num
 exsolution: `r exams::fmt(solution*100,0)`
 exname: cont_table_rel_freq
 extol: 0.01
+extitle: Kontingenční tabulka - relativní frekvence
+expoints: 1

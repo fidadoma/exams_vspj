@@ -82,3 +82,5 @@ extype: num
 exsolution: `r exams::fmt(coef(lm1)[2])`
 extol: 0.01
 exname: regression_slope
+extitle: Regrese - odhad parametru
+expoints: 1

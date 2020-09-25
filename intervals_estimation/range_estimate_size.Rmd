@@ -80,3 +80,5 @@ extype: num
 exsolution: `r exams::fmt(n_estim,digits = 1)`
 exname: confidence_interval_size
 extol: 0
+extitle: Intervalový odhad
+expoints: 1

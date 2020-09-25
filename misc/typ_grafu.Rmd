@@ -28,10 +28,10 @@ if(curr_plot_type == "hist") {
   n <- sample(5:50,1)
   df_currvars <- sample_vars(df_vardesc, nvar = 1)
   
-  ranges <- extract_ranges(df_var)
+  ranges <- extract_ranges(df_currvars)
   
   curr_vals <- runif(n,ranges[1],ranges[2]) 
-  curr_name <- df_var$name
+  curr_name <- df_currvars$name
   df_data <- tibble(!!curr_name:=curr_vals)
   p <- df_data %>% 
     ggplot(aes(x=!!sym(curr_name))) +
@@ -39,15 +39,15 @@ if(curr_plot_type == "hist") {
     theme(aspect.ratio = 1)
 } else if(curr_plot_type == "scatter") {
   n <- sample(5:50,1)
-  df_var <- sample_vars(df_vardesc, nvar = 2)
+  df_currvars <- sample_vars(df_vardesc, nvar = 2)
   
-  ranges <- extract_ranges(df_var)
+  ranges <- extract_ranges(df_currvars)
   
   curr_vals1 <- runif(n,ranges[1,1],ranges[1,2]) 
-  curr_name1 <- df_var$name[1]
+  curr_name1 <- df_currvars$name[1]
   
   curr_vals2 <- runif(n,ranges[2,1],ranges[2,2]) 
-  curr_name2 <- df_var$name[2]
+  curr_name2 <- df_currvars$name[2]
   
   df_data <- tibble(!!curr_name1:=curr_vals1,!!curr_name2:=curr_vals2)
   
@@ -129,3 +129,5 @@ Meta-information
 extype: schoice
 exsolution: `r mchoice2string(solutions, single = TRUE)`
 exname: plot_type
+extitle: Typ grafu
+expoints: 0.5

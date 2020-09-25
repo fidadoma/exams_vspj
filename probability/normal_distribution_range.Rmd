@@ -134,4 +134,5 @@ extype: num
 exsolution: `r exams::fmt(solution,3)`
 exname: normal_prob_range
 extol: 0.001
-
+extitle: Výpočet pravděpodobnosti
+expoints: 1

@@ -57,4 +57,6 @@ Meta-information
 extype: num
 exsolution: `r exams::fmt(cor(X,Y),2)`
 exname: correlation
+extitle: Výpočet korelace
+expoints: 1
 extol: 0.01

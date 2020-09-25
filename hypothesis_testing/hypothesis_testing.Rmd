@@ -48,7 +48,7 @@ if(test_type == "one-sample") {
 } else if (test_type == "two-sample") {
   test_type_text <- "mezi dvěma skupinami"
 } else {
-  test_type_text <- "mezi dvěma opakovanými měřeními téže skupiny."
+  test_type_text <- "mezi dvěma opakovanými měřeními téže skupiny"
 }
 
 
@@ -131,3 +131,5 @@ Meta-information
 extype: mchoice
 exsolution: `r mchoice2string(solutions)`
 exname: hypothesis_testing
+extitle: Testování hypotéz
+expoints: 1.5

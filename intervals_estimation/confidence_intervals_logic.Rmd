@@ -47,7 +47,7 @@ if(question_type == 1) {
 } else if(question_type == 2) {
   question_text <- "bychom použili 90% interval spolehlivosti."
   solution <- c(T,F)
-  solution_text <- "S vyšší pravděpodobností u intervalu spolehlivosti si tedy můžeme být méně jistější, že v intervalu skutečně leží populační průměr. Interval tedy bude užší."
+  solution_text <- "S nižší pravděpodobností u intervalu spolehlivosti si tedy můžeme být méně jistější, že v intervalu skutečně leží populační průměr. Interval tedy bude užší."
   
 } else if(question_type == 3) {
   question_text <- "by vzorek měl více pozorování."
@@ -95,3 +95,6 @@ Meta-information
 extype: schoice
 exsolution: `r mchoice2string(solution, single = TRUE)`
 exname: confidence_interval_logic
+extitle: Intervalový odhad
+expoints: 0.5
+

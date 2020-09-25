@@ -96,8 +96,8 @@ Následující `r if_else(plot_type=="histogram", "dva grafy zobrazují", "graf 
 
 ```{r plot, fig.path = "", fig.cap = "", warning=F}
 if (plot_type == "histogram") {
-  p1 <- df_left %>% ggplot(aes(x = `proměnná`)) + geom_histogram()
-  p2 <- df_right %>% ggplot(aes(x = `proměnná`)) + geom_histogram()  
+  p1 <- df_left %>% ggplot(aes(x = `proměnná`)) + geom_histogram(bins = 30)
+  p2 <- df_right %>% ggplot(aes(x = `proměnná`)) + geom_histogram(bins = 30)  
   p1+p2
 } else if (plot_type == "boxplot"){
   df_data <- rbind(df_left %>% mutate(`podmínka` = "podmínka 1"), df_right %>% mutate(`podmínka` = "podmínka 2"))
@@ -126,3 +126,5 @@ Meta-information
 extype: schoice
 exsolution: `r exams::mchoice2string(solutions, single = TRUE)`
 exname: desc_plot
+extitle: Vizualizace dat
+expoints: 0.5

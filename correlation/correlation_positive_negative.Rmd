@@ -31,11 +31,11 @@ plot_right_title <- setdiff(plot_titles,plot_left_title)
 if (runif(1) <0.5) {
   df_left <- df_data1  
   df_right <- df_data2
-  corr_larger <- plot_left_title
+  plot_order <- "normal"
 } else {
   df_left <- df_data2  
   df_right <- df_data1
-  corr_larger <- plot_right_title
+  plot_order <- "flipped"
 }
 
 
@@ -49,7 +49,8 @@ ymax <- y_ranges[2]
 
 questions <- c("Obě pozitivní","Obě negativní","Vlevo pozitivní, vpravo negativní","Vlevo negativní, vpravo pozitivní")
 solutions <- rep(F,length(questions))
-if(r1>0&r2>0) {
+if (plot_order == "normal") {
+  if(r1>0&r2>0) {
   solutions[1] <- T
 } else if(r1<0&r2<0) {
   solutions[2] <- T
@@ -57,7 +58,19 @@ if(r1>0&r2>0) {
   solutions[3] <- T
 }  else if(r1<0&r2>0) {
   solutions[4] <- T
+}  
+} else {
+  if(r1>0&r2>0) {
+  solutions[1] <- T
+} else if(r1<0&r2<0) {
+  solutions[2] <- T
+} else if(r1>0&r2<0) {
+  solutions[4] <- T
+}  else if(r1<0&r2>0) {
+  solutions[3] <- T
+} 
 }
+
 
 o <- sample(1:length(questions))
 questions <- questions[o]
@@ -103,4 +116,5 @@ Meta-information
 extype: schoice
 exsolution: `r mchoice2string(solutions, single = TRUE)`
 exname: correlation_positive_negative
-
+extitle: Korelace - kladná/záporná
+expoints: 0.5

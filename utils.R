@@ -146,12 +146,17 @@ upper_quartile <- function(x) {
 }
 
 sample_vars <- function(df_vardesc, var_type = "numeric", nvar = 2) {
-  df_vardesc %>% 
-    filter(type == var_type) %>% 
-    sample_n(nvar) %>% 
-    rowwise() %>% 
-    mutate(mean = compute_mean(values, pdist), 
-           sd = compute_sd(values,pdist))
+  df_currvar <- 
+    df_vardesc %>% 
+      filter(type == var_type) %>% 
+      sample_n(nvar)
+  if(var_type == "numeric") {
+    df_currvar <- df_currvar %>% 
+      rowwise() %>% 
+      mutate(mean = compute_mean(values, pdist), 
+             sd = compute_sd(values,pdist))
+  }
+  df_currvar
 }
 
 standardize_value <- function(x) {

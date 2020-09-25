@@ -26,9 +26,9 @@ df_data <- safe_generate_correlated_data(n,r,df_currvars)
 mm <- df_data[[df_currvars$name[1]]] 
 mm <- mm %>% matrix(nrow = n/6) 
 
-x_bar <- mean(mm) %>% round(df_currvars$round_val[1])
+x_bar <- mean(mm) 
 
-sigma <- runif(1,df_currvars$sd[1]*0.8, df_currvars$sd[1]*1.2) %>% round(2)
+sigma <- runif(1,df_currvars$sd[1]*0.8, df_currvars$sd[1]*1.2) 
 
 popul_mean <- rnorm(1, x_bar, df_currvars$sd[1]/4) %>% round(df_currvars$round_val[1])
 
@@ -66,7 +66,7 @@ Z = \frac{\bar{x}-\mu_0}{\sigma/\sqrt{n}}
 \end{aligned}
 $$
 
-V daném případě jsou parametry n=`r n`, $\bar{x}$=`r x_bar %>% exams::fmt(zeros = F)`, $\sigma$ = `r sigma` a $\mu_0$ = `r popul_mean %>% exams::fmt(zeros = F)`. Dostaneme tedy hodnotu `r z %>% round(2)`. 
+V daném případě jsou parametry n=`r n`, $\bar{x}$=`r x_bar %>% exams::fmt(digits = 2,zeros = F)`, $\sigma$ = `r sigma %>% round(2)` a $\mu_0$ = `r popul_mean %>% exams::fmt( zeros = F)`. Dostaneme tedy hodnotu `r z %>% round(2)`. 
 Pro výpočet p-hodnoty oboustranného testu použijeme vzorec $2\cdot P(Z>|z|)$. V tomto případě je tedy p-hodnota=`r p_val %>% exams::fmt(digits = 3)`.
 
 Meta-information
@@ -75,3 +75,5 @@ extype: num
 exsolution: `r fmt(p_val,3)`
 exname: z-test
 extol: 0.001
+extitle: Testování hypotéz
+expoints: 1

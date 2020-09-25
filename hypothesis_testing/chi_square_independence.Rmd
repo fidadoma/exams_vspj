@@ -114,3 +114,5 @@ extype: schoice
 exsolution: `r mchoice2string(solutions, single = TRUE)`
 exname: chi_square_independence
 extol: 0.001
+extitle: Testování hypotéz
+expoints: 0.5

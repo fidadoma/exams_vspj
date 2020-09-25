@@ -97,3 +97,5 @@ extype: num
 exsolution: `r exams::fmt(solution,3)`
 exname: chi_square_independence_compute
 extol: 0.001
+extitle: Testování hypotéz
+expoints: 1

@@ -26,14 +26,14 @@ df_data <- safe_generate_correlated_data(n,r,df_currvars)
 mm <- df_data[[df_currvars$name[1]]] 
 mm <- mm %>% matrix(nrow = n/6) 
 
-x_bar <- mean(mm) %>% round(df_currvars$round_val[1])
-sx  <- sd(mm) %>% round(df_currvars$round_val[1])
+x_bar <- mean(mm)
+sx  <- sd(mm)
 
 
 popul_mean <- rnorm(1, x_bar, df_currvars$sd[1]/4) %>% round(df_currvars$round_val[1])
 
 t <- sqrt(n)*(x_bar - popul_mean)/sx
-p_val <- 2*pnorm(abs(t), lower.tail = F)
+p_val <- 2*pt(abs(t), n-1,lower.tail = F)
 
 ```
 
@@ -66,7 +66,7 @@ t = \frac{\bar{x}-\mu_0}{s_x/\sqrt{n}}
 \end{aligned}
 $$
 
-V daném případě jsou parametry n=`r n`, $\bar{x}$=`r exams::fmt(x_bar, zeros = F)`, $s_x$ = `r sx` a $\mu_0$ = `r exams::fmt(popul_mean, zeros = F)`. Dostaneme tedy hodnotu `r t %>% round(2)`. 
+V daném případě jsou parametry n=`r n`, $\bar{x}$=`r exams::fmt(x_bar, digits = 2, zeros = F)`, $s_x$ = `r exams::fmt(sx, digits = 2)` a $\mu_0$ = `r exams::fmt(popul_mean, zeros = F)`. Dostaneme tedy hodnotu `r t %>% round(2)`. Tuto hodnotu porovnáme s tabulkou pro t rozdělení s *n-1* stupni volnosti
 Pro výpočet p-hodnoty oboustranného testu použijeme vzorec $2\cdot P(X>|t|)$. V tomto případě je tedy p-hodnota=`r p_val %>% exams::fmt(digits = 3)`.
 
 Meta-information
@@ -75,3 +75,5 @@ extype: num
 exsolution: `r fmt(p_val,3)`
 exname: one sample t-test
 extol: 0.001
+extitle: Testování hypotéz
+expoints: 1

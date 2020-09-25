@@ -80,3 +80,5 @@ extype: num
 exsolution: `r exams::fmt(coef(lm1)[1])`
 extol: 0.01
 exname: regression_intercept
+extitle: Regrese - odhad parametru
+expoints: 1
