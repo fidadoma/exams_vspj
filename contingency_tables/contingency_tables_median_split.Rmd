@@ -5,12 +5,22 @@ date: '`r format(Sys.time(), "%d %B, %Y")`'
 output: html_document
 ---
 
+```{r set_language}
+in_czech <- F
+in_english <- !in_czech
+if(in_czech) {
+  lang <- "CZ"
+} else {
+  lang <- "EN"
+}
+```
+
 ```{r setup, code = readLines("D:/Documents/git/exams_vspj/common_chunks.R")}
 
 ```
 
 ```{r data generation, echo = FALSE, results = "hide"}
-df_assignmnent <- get_var_desc()
+df_assignmnent <- get_var_desc(language = lang)
 df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
 text_question <- sample(df_assignmnent$question,1)
 

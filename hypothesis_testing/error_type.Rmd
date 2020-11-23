@@ -5,6 +5,16 @@ date: '`r format(Sys.time(), "%d %B, %Y")`'
 output: html_document
 ---
 
+```{r set_language}
+in_czech <- T
+in_english <- !in_czech
+if(in_czech) {
+  lang <- "CZ"
+} else {
+  lang <- "EN"
+}
+```
+
 ```{r setup, code = readLines("D:/Documents/git/exams_vspj/common_chunks.R")}
 
 ```
@@ -12,7 +22,7 @@ output: html_document
 
 ```{r data generation, echo = FALSE}
 
-df_assignmnent <- get_var_desc()
+df_assignmnent <- get_var_desc(language = lang)
 df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
 text_question <- sample(df_assignmnent$question,1)
 
@@ -44,36 +54,82 @@ possible_test_types <- c("one-sample","two-sample","paired")
 test_type <- sample(possible_test_types, 1)
 
 if(test_type == "one-sample") {
-  test_type_text <- "od teoretické hodnoty"
+  if(lang == "CZ") {
+    test_type_text <- "od teoretické hodnoty"
+  } else {
+    test_type_text <- "from ome theoretical value"
+  }
+  
 } else if (test_type == "two-sample") {
-  test_type_text <- "mezi dvěma skupinami"
+  
+  if(lang == "CZ") {
+    test_type_text <- "mezi dvěma skupinami"
+  } else {
+    test_type_text <- "between two groups"
+  }
 } else {
-  test_type_text <- "mezi dvěma opakovanými měřeními téže skupiny."
+  
+  if(lang == "CZ") {
+    test_type_text <- "mezi dvěma opakovanými měřeními téže skupiny."
+  } else {
+    test_type_text <- "between two repeated measures of the same group."
+  }
 }
 
 if(runif(1) < 0.5) {
-  population_true_text <- "platila nulová hypotéza"
+  
+  if(lang == "CZ") {
+    population_true_text <- "platila nulová hypotéza"
+  } else {
+    population_true_text <- "null hypothesis is true"
+  }
   population_true <- "H0"
 } else {
-  population_true_text <- "platila alternativní hypotéza"
+  if(lang == "CZ") {
+    population_true_text <- "platila alternativní hypotéza"
+  } else {
+    population_true_text <- "alternative hypothesis is true"
+  }
   population_true <- "HA"
 }
 
 
-
-questions <- c("Chyba I. druhu", "Chyba II. druhu", "správný závěr")
+if(lang == "CZ") {
+  questions <- c("Chyba I. druhu", "Chyba II. druhu", "správný závěr")
+} else {
+  questions <- c("Type I error", "Type II error", "correct decision")
+}
 solutions <- rep(F,3)
 if(is_signif& population_true == "H0") {
-  explanation_text <- "Jelikož v populaci platí nulová hypotéza, ale my jsme nulovou zamítli, učinili jsme chybu I. druhu."
+  if(lang == "CZ") {
+    explanation_text <- "Jelikož v populaci platí nulová hypotéza, ale my jsme nulovou zamítli, učinili jsme chybu I. druhu."
+  } else {
+    explanation_text <- "Because null is true in population, but we rejected it, we made Type I error."
+  }
   solutions[1] <- T
 } else if(!is_signif& population_true == "HA") {
-  explanation_text <- "Jelikož v populaci platí alternativní hypotéza, ale my jsme nulovou nezamítli, učinili jsme chybu II. druhu."
+  if(lang == "CZ") {
+    explanation_text <- "Jelikož v populaci platí alternativní hypotéza, ale my jsme nulovou nezamítli, učinili jsme chybu II. druhu."
+  } else {
+    explanation_text <- "Because alternative is true in population, but we did not reject null, we made Type II error."
+  }
+  
   solutions[2] <- T
 } else {
   if(is_signif) {
-    explanation_text <- "Učinili jsme správný závěr, jelikož v populaci platí alternativní hypotéza a my jsme nulovou zamítli ve prospěch alternativní."
+    if(lang == "CZ") {
+      explanation_text <- "Učinili jsme správný závěr, jelikož v populaci platí alternativní hypotéza a my jsme nulovou zamítli ve prospěch alternativní."
+    } else {
+     explanation_text <- "We made a correct decision, because in population, alternative hypothesis is true and we rejected null in favour of alternative."
+    }
+      
   } else {
-    explanation_text <- "Učinili jsme správný závěr, jelikož v populaci platí nulová hypotéza a my jsme nulovou nezamítli."
+    if(lang == "CZ") {
+      explanation_text <- "Učinili jsme správný závěr, jelikož v populaci platí nulová hypotéza a my jsme nulovou nezamítli."
+    } else {
+     explanation_text <- "We made a correct decision, because in population, null hypothesis is true and we did not rejected null."
+    }
+    
   }
   
   solutions[3] <- T
@@ -85,7 +141,11 @@ solutions <- solutions[o]
 
 
 
-
+if(lang == "CZ") {
+  exam_title <- "Testování hypotéz - chyba I. a II. druhu"
+} else {
+  exam_title <- "Hypothesis testing - Type I and II errors"
+}
 
 ```
 
@@ -97,7 +157,15 @@ Question
 cat(eval(parse(text=text_question)))
 ```
 
-Byli jsme požádáni o zpracování analýzy, zda se hodnoty proměnné '`r df_currvars$name[1]`' na nasbíraném vzorku liší `r test_type_text`. Pracujeme s hladinou významnosti `r alpha_param`%. Získali jsme p-hodnotu rovnou `r p_val %>% round(3)`. Pokud by ve skutečnosti `r population_true_text` a my správně interpretovali výsledky testy, které z následujících tvrzení platí?
+```{r eval=in_czech, results='asis'}
+cat(sprintf("Byli jsme požádáni o zpracování analýzy, zda se hodnoty proměnné '%s' na nasbíraném vzorku liší %s. Pracujeme s hladinou významnosti %s%%. Získali jsme p-hodnotu rovnou %.3f. Pokud by ve skutečnosti %s a my správně interpretovali výsledky testy, které z následujících tvrzení platí?", df_currvars$name[1], test_type_text, alpha_param, p_val %>% round(3), population_true_text))
+```
+
+```{r eval=in_english, results='asis'}
+cat(sprintf("We were asked to perform analysis, whether values of variable '%s' from the sample differ %s. We work with significance level %s%%. We got p-value equal to %.3f. If in reality %s and we correctly interpreted results of our test, which of the following statements holds?", df_currvars$name[1], test_type_text, alpha_param, p_val %>% round(3), population_true_text))
+```
+
+
 
 
 ```{r questionlist, echo = FALSE, results = "asis"}
@@ -114,6 +182,6 @@ Meta-information
 extype: mchoice
 exsolution: `r mchoice2string(solutions, single = T)`
 exname: error_type
-extitle: Testování hypotéz - chyba I. a II. druhu
+extitle: `r exam_title`
 expoints: 0.5
 

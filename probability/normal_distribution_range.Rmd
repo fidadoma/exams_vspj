@@ -7,6 +7,15 @@ output: html_document
 
 ```{r}
 curr_theme <- NULL
+
+in_czech <- T
+in_english <- !in_czech
+if(in_czech) {
+  lang <- "CZ"
+} else {
+  lang <- "EN"
+}
+
 ```
 
 ```{r setup, code = readLines("D:/Documents/git/exams_vspj/common_chunks.R")}
@@ -15,7 +24,7 @@ curr_theme <- NULL
 
 ```{r data generation, echo = FALSE, message=T}
 
-df_assignmnent <- get_prob_var(distr_type = "normal", curr_theme = curr_theme, norm_type = "range")
+df_assignmnent <- get_prob_var(distr_type = "normal", curr_theme = curr_theme, norm_type = "range", language = lang)
 df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
 text_settings <- sample(df_assignmnent$settings,1)
 text_question_range <- sample(df_assignmnent$question_range,1)
@@ -108,9 +117,15 @@ if(is.na(k_text_tmp)) {
 
 
 
-l <- probability_normal_setting_range(k_lower, k_upper, mu_param, sigma_param)
+l <- probability_normal_setting_range(k_lower, k_upper, mu_param, sigma_param, language = lang)
 solution <- l$solution
 explanation <- l$explanation
+
+if(lang == "CZ") {
+  exam_title <- "Výpočet pravděpodobnosti"
+} else {
+  exam_title <- "Computation of probability"
+}
 ```
 
 Question
@@ -134,5 +149,5 @@ extype: num
 exsolution: `r exams::fmt(solution,3)`
 exname: normal_prob_range
 extol: 0.001
-extitle: Výpočet pravděpodobnosti
+extitle: `r exam_title`
 expoints: 1

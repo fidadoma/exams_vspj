@@ -114,35 +114,27 @@ Solution
 
 
 ```{r eval=in_czech, results='asis'}
-cat(sprintf("Pro výpočet %d%% intervalu spolehlivosti pro průměr využijeme vzorce:",  interval_range))
+cat(sprintf("Pro výpočet %d%% intervalu spolehlivosti zkopírujeme data do Jamovi a konfidenční interval spočítáme pomocí nástroje T-Tests-> One sample T-test",  interval_range))
 ```
 
 ```{r eval=in_english, results='asis'}
-cat(sprintf("We use following formula for computation of %d%% confidence interval for the mean:",  interval_range))
+cat(sprintf("To compute %d%% confidence interval for the mean, we copy the data into Jamovi and select T-Tests-> One sample T-test:",  interval_range))
 
 ```
-
-
-$$ 
-\begin{aligned}
-\left[\bar{x} \, - \, t(n-1)_{1-\frac{\alpha}{2}}\sqrt{\frac{s^2}{n}}, \; 
-  \bar{x} \, + \, t(n-1)_{1-\frac{\alpha}{2}}\sqrt{\frac{s^2}{n}}\right] 
-\end{aligned}
-$$
 
 ```{r eval=in_czech, results='asis'}
-cat(sprintf("kde v tomto případě je $\\bar{x}$=%.2f, $t(n-1)_{1-\\frac{\\alpha}{2}}$=%.2f, n = %d a s = %.2f. Interval tedy je ve tvaru %s",  m, u, n, s,sprintf("[%.1f,%.1f]", LB, UB)))
+cat(sprintf("Interval tedy je ve tvaru %s",  sprintf("[%.1f,%.1f]", LB, UB)))
 ```
 
 ```{r eval=in_english, results='asis'}
-cat(sprintf("where in this case $\\bar{x}$=%.2f, $t(n-1)_{1-\\frac{\\alpha}{2}}$=%.2f, n = %d and s = %.2f. Confidence interval is in form of %s",  m, u, n, s,sprintf("[%.1f,%.1f]", LB, UB)))
+cat(sprintf("Confidence interval is in form %s", sprintf("[%.1f,%.1f]", LB, UB)))
 
 ```
 
 Answerlist
 ----------
-* `r lower_limit` $`r LB %>% exams::fmt(digits = 1)   `$.
-* `r upper_limit` $`r UB %>% exams::fmt(digits = 1)   `$.
+* `r lower_limit` $`r LB %>% exams::fmt(digits = 1)`$.
+* `r upper_limit` $`r UB %>% exams::fmt(digits = 1)`$.
 
 Meta-information
 ================

@@ -5,6 +5,16 @@ date: '`r format(Sys.time(), "%d %B, %Y")`'
 output: html_document
 ---
 
+```{r set_language}
+in_czech <- T
+in_english <- !in_czech
+if(in_czech) {
+  lang <- "CZ"
+} else {
+  lang <- "EN"
+}
+```
+
 ```{r setup, code = readLines("D:/Documents/git/exams_vspj/common_chunks.R")}
 
 ```
@@ -12,7 +22,7 @@ output: html_document
 
 ```{r data generation, echo = FALSE}
 
-df_assignmnent <- get_var_desc()
+df_assignmnent <- get_var_desc(language = lang)
 df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
 text_question <- sample(df_assignmnent$question,1)
 
@@ -35,6 +45,11 @@ popul_mean <- rnorm(1, x_bar, df_currvars$sd[1]/4) %>% round(df_currvars$round_v
 z <- sqrt(n)*(x_bar - popul_mean)/sigma
 p_val <- 2*pnorm(abs(z), lower.tail = F)
 
+if(lang == "CZ") {
+  exam_title <- "Testování hypotéz"
+} else {
+  exam_title <- "Hypothesis testing"
+}
 ```
 
 
@@ -45,7 +60,14 @@ Question
 cat(eval(parse(text=text_question)))
 ```
 
-Byli jsme požádáni o zpracování analýzy, zda se hodnoty proměnné '`r df_currvars$name[1]`' liší (oboustranně) od teoretické hodnoty, `r popul_mean %>% exams::fmt(zeros = F)`. Víme, že směrodatná odchylka populace je `r sigma %>% round(2)`. Jaká je p-hodnota příslušného testu? Data vypadají následovně
+```{r eval=in_czech, results='asis'}
+cat(sprintf("Byli jsme požádáni o zpracování analýzy, zda se hodnoty proměnné '%s' liší (oboustranně) od teoretické hodnoty, %s. Víme, že směrodatná odchylka populace je %.2f. Jaká je p-hodnota příslušného testu? Data vypadají následovně: `", df_currvars$name[1],exams::fmt(popul_mean, zeros = F), sigma %>% round(2)))
+```
+
+
+```{r eval=in_english, results='asis'}
+cat(sprintf("We were asked to perform analysis, whether variable '%s' differ (two-sided) from theoretical value %s. We know that SD of the population is %.2f. What is the p-value of corresponding test? Data look as follows: `", df_currvars$name[1],exams::fmt(popul_mean, zeros = F),sigma %>% round(2)))
+```
 
 
 
@@ -58,7 +80,14 @@ mm %>% knitr::kable()
 Solution
 ========
 
-Protože známe směrodatnou odchylku populace, můžeme použít z-test. Nejprve spočítáme Z skór pomocí vzorce
+```{r eval=in_czech, results='asis'}
+cat("Protože známe směrodatnou odchylku populace, můžeme použít z-test. Nejprve spočítáme Z skór pomocí vzorce")
+```
+
+```{r eval=in_english, results='asis'}
+cat("Because we know population SD, we can use z-test. First, we compute Z-score from the formula")
+```
+
 
 $$ 
 \begin{aligned}
@@ -66,8 +95,15 @@ Z = \frac{\bar{x}-\mu_0}{\sigma/\sqrt{n}}
 \end{aligned}
 $$
 
-V daném případě jsou parametry n=`r n`, $\bar{x}$=`r x_bar %>% exams::fmt(digits = 2,zeros = F)`, $\sigma$ = `r sigma %>% round(2)` a $\mu_0$ = `r popul_mean %>% exams::fmt( zeros = F)`. Dostaneme tedy hodnotu `r z %>% round(2)`. 
-Pro výpočet p-hodnoty oboustranného testu použijeme vzorec $2\cdot P(Z>|z|)$. V tomto případě je tedy p-hodnota=`r p_val %>% exams::fmt(digits = 3)`.
+```{r eval=in_czech, results='asis'}
+cat(sprintf("V daném případě jsou parametry n=%d, $\\bar{x}$=%s, $\\sigma$ = %s and $\\mu_0$ = %s. Dostaneme tedy hodnotu %.2f. 
+Pro výpočet p-hodnoty oboustranného testu použijeme vzorec $2\\cdot P(X>|t|)$. V tomto případě je tedy p-hodnota=%s.", n,exams::fmt(x_bar, digits = 2, zeros = F), sigma %>% round(2),exams::fmt(popul_mean, zeros = F),z %>% round(2), p_val %>% exams::fmt(digits = 3)))
+```
+
+```{r eval=in_english, results='asis'}
+cat(sprintf("In our case the parameters are n=%d, $\\bar{x}$=%s, $\\sigma$ = %s and $\\mu_0$ = %s. We thus get the value %.2f. 
+For computation of p-value of two-sided test, we use formula $2\\cdot P(X>|t|)$. In this case, the p-value=%s.", n,exams::fmt(x_bar, digits = 2, zeros = F), sigma %>% round(2),exams::fmt(popul_mean, zeros = F),z %>% round(2), p_val %>% exams::fmt(digits = 3)))
+```
 
 Meta-information
 ================
@@ -75,5 +111,5 @@ extype: num
 exsolution: `r fmt(p_val,3)`
 exname: z-test
 extol: 0.001
-extitle: Testování hypotéz
+extitle: `r exam_title`
 expoints: 1

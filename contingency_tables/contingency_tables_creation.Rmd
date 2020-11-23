@@ -5,13 +5,23 @@ date: '`r format(Sys.time(), "%d %B, %Y")`'
 output: html_document
 ---
 
+```{r set_language}
+in_czech <- T
+in_english <- !in_czech
+if(in_czech) {
+  lang <- "CZ"
+} else {
+  lang <- "EN"
+}
+```
+
 ```{r setup, code = readLines("D:/Documents/git/exams_vspj/common_chunks.R")}
 
 ```
 
 ```{r data generation, echo = FALSE, results = "hide"}
 library(exams)
-df_assignmnent <- get_var_desc()
+df_assignmnent <- get_var_desc(language = lang)
 df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
 text_question <- sample(df_assignmnent$question,1)
 
@@ -82,8 +92,17 @@ if(!any(solutions)) { # if only wrong tables are shown, it is fourth option
 } else {
   solutions <- c(solutions, F)
 }
+if(lang == "CZ") {
+  questions <- c("Tabulka A", "Tabulka B", "Tabulka C", "žádná z tabulek")
+} else {
+  questions <- c("Table A", "Table B", "Table C", "none of the tables")
+}
+if(lang == "CZ") {
+  exam_title <- "Kontingenční tabulka - vytvoření"
+} else {
+  exam_title <- "Contingency tables - creation"
+}
 
-questions <- c("Tabulka A", "Tabulka B", "Tabulka C", "žádná z tabulek")
 
 ```
 
@@ -94,8 +113,15 @@ Question
 cat(eval(parse(text=text_question)))
 ```
 
-Pokud se zaměříme na proměnné `r df_currvars$name[1]` a `r df_currvars$name[2]`, máme následující pozorování:
-Data vypadají následovně:
+```{r eval=in_czech, results='asis'}
+cat(sprintf("Pokud se zaměříme na proměnné '%s' a '%s', máme následující pozorování:", df_currvars$name[1], df_currvars$name[2]))
+```
+
+```{r eval=in_english, results='asis'}
+cat(sprintf("If we focus on variables '%s' and '%s', we have following data: ", df_currvars$name[1], df_currvars$name[2]))
+```
+
+
 
 ```{r plot, fig.path = "", fig.cap = ""}
 df %>% 
@@ -105,25 +131,31 @@ df %>%
   knitr::kable()
 ```
 
-Pokud bychom zapsali data kontingenční tabulkou, která z následujících tabulek je ta správná?
 
+```{r eval=in_czech, results='asis'}
+cat("Pokud bychom zapsali data kontingenční tabulkou, která z následujících tabulek je ta správná?")
+```
 
-Tabulka A
+```{r eval=in_english, results='asis'}
+cat("If we express the data using contingency table, which of the following is the correct one?")
+```
+
+Tab. A
 
 ```{r Tabulka A }
-l_tbs[[1]] %>% knitr::kable(caption = "Tabulka A")
+l_tbs[[1]] %>% knitr::kable(caption = "Tab. A")
 ```
 
-Tabulka B
+Tab. B
 
 ```{r Tabulka B }
-l_tbs[[2]] %>% knitr::kable(caption = "Tabulka B")
+l_tbs[[2]] %>% knitr::kable(caption = "Tab. B")
 ```
 
-Tabulka C
+Tab. C
 
 ```{r Tabulka C}
-l_tbs[[3]] %>% knitr::kable(caption = "Tabulka C")
+l_tbs[[3]] %>% knitr::kable(caption = "Tab. C")
 
 ```
 
@@ -134,13 +166,20 @@ answerlist(questions, markup = "markdown")
 
 Solution
 ========
-Stačí sečíst jednotlivé kombinace hodnot, v tomto případě je tedy správná odpověď `r questions[solutions]`
+```{r eval=in_czech, results='asis'}
+cat(sprintf("Stačí sečíst jednotlivé kombinace hodnot, v tomto případě je tedy správná odpověď %s", questions[solutions]))
+```
+
+```{r eval=in_english, results='asis'}
+cat(sprintf("We just need to count individual observations, in this case, the correct answer is %s", questions[solutions]))
+```
+
 
 Meta-information
 ================
 extype: schoice
 exsolution: `r mchoice2string(solutions, single = TRUE)`
 exname: cont_table_creation
-extitle: Kontingenční tabulka - vytvoření
+extitle: `r exam_title`
 expoints: 0.5
 

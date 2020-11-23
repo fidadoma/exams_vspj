@@ -5,13 +5,23 @@ date: '`r format(Sys.time(), "%d %B, %Y")`'
 output: html_document
 ---
 
+```{r set_language}
+in_czech <- T
+in_english <- !in_czech
+if(in_czech) {
+  lang <- "CZ"
+} else {
+  lang <- "EN"
+}
+```
+
 ```{r setup, code = readLines("D:/Documents/git/exams_vspj/common_chunks.R")}
 
 ```
 
 ```{r data generation, echo = FALSE, results = "hide"}
 
-df_assignmnent <- get_var_desc()
+df_assignmnent <- get_var_desc(language = lang)
 df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
 text_question <- sample(df_assignmnent$question,1)
 
@@ -80,19 +90,46 @@ solution <- df %>%
   if(runif(1) < 0.5) {
     xt <- xtabs(~x_categ + y_categ,df)    
     if (selected_var == "x") {
-      sum_type <- "sloupcové"
+      if(lang == "CZ") {
+          sum_type <- "sloupcové"
+      } else {
+          sum_type <- "column"
+      }
+
+      
     } else {
-      sum_type <- "řádkové"
+      if(lang == "CZ") {
+          sum_type <- "řádkové"
+      } else {
+          sum_type <- "row"
+      }
+      
     }
   } else {
     xt <- xtabs(~y_categ + x_categ,df)
     
     if (selected_var == "x") {
-      sum_type <- "řádkové"
+      if(lang == "CZ") {
+        sum_type <- "řádkové"
+      } else {
+        sum_type <- "row"
+      }
+      
     } else {
-      sum_type <- "sloupcové"
+      if(lang == "CZ") {
+          sum_type <- "sloupcové"
+      } else {
+          sum_type <- "column"
+      }
     }
   }
+
+
+if(lang == "CZ") {
+  exam_title <- "Kontingenční tabulka - marginalizace"
+} else {
+  exam_title <- "Contingency tables - creation"
+}
 
 ```
 
@@ -103,24 +140,53 @@ Question
 cat(eval(parse(text=text_question)))
 ```
 
-Získali jsme data o proměnných `r df_currvars$name[1]` a `r df_currvars$name[2]`. 
+```{r eval=in_czech, results='asis'}
+cat(sprintf("Získali jsme data o proměnných '%s' a '%s'", df_currvars$name[1], df_currvars$name[2]))
+```
 
-Data vypadají následovně:
+```{r eval=in_english, results='asis'}
+cat(sprintf("We collected data for variables '%s' and '%s'.", df_currvars$name[1], df_currvars$name[2]))
+```
+
+```{r eval=in_czech, results='asis'}
+cat("Data vypadají následovně:")
+```
+
+```{r eval=in_english, results='asis'}
+cat("Data look as follows:")
+```
 
 ```{r echo = FALSE}
 knitr::kable(xt)
 ```
 
-Pokud bychom neměli brát ohled na rozdělení dle proměnné "`r query_var`", kolik je v datech pozorovaní, kde `r group_var`="`r selected_level`"?
+```{r eval=in_czech, results='asis'}
+cat(sprintf("Pokud bychom neměli brát ohled na rozdělení dle proměnné '%s', kolik je v datech pozorování, kde '%s'='%s'?", query_var, group_var, selected_level))
+```
+
+```{r eval=in_english, results='asis'}
+cat(sprintf("If we omit the data division by variable '%s', how many observations do we have in cell, where '%s'='%s'?", query_var, group_var, selected_level))
+
+```
+
 
 Solution
 ========
-Stačí sečíst `r sum_type` součty v tabulce. Pro podkategorii "`r selected_level`" je součet `r solution `.  
+
+```{r eval=in_czech, results='asis'}
+cat(sprintf("Stačí sečíst %s součty v tabulce. Pro podkategorii '%s' je součet %s.", sum_type, selected_level, solution))
+```
+
+```{r eval=in_english, results='asis'}
+cat(sprintf("We just need to compute %s sums in the table. For level '%s' is the sum  %s.", sum_type, selected_level, solution))
+
+```
+
 
 Meta-information
 ================
 extype: num
 exsolution: `r solution`
 exname: cont_table_partial_sum
-extitle: Kontingenční tabulka - marginalizace
+extitle: `r exam_title`
 expoints: 1

@@ -7,6 +7,15 @@ output: html_document
 
 ```{r possible_parameters}
 curr_theme <- NULL
+
+in_czech <- T
+in_english <- !in_czech
+if(in_czech) {
+  lang <- "CZ"
+} else {
+  lang <- "EN"
+}
+
 ```
 
 ```{r setup, code = readLines("D:/Documents/git/exams_vspj/common_chunks.R")}
@@ -15,7 +24,7 @@ curr_theme <- NULL
 
 ```{r data generation, echo = FALSE, message=T}
 
-df_assignmnent <- get_prob_var(distr_type = "normal", curr_theme = curr_theme,norm_type = "sum")
+df_assignmnent <- get_prob_var(distr_type = "normal", curr_theme = curr_theme,norm_type = "sum", language = lang)
 df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
 text_settings <- sample(df_assignmnent$settings,1)
 text_question <- sample(df_assignmnent$question_sum,1)
@@ -73,8 +82,11 @@ if(is.na(df_vardesc$n_param)) {
 k <- rnorm(1, mu_param, sigma_param) %>% round()
 
 
-
-quantifier <- sample(c("alespoň", "nejvýše", "méně než", "více než"),1)  
+if(lang == "CZ") {
+  quantifier <- sample(c("alespoň", "nejvýše", "méně než", "více než"),1) 
+} else {
+  quantifier <- sample(c("at least", "at most", "less than", "more than"),1)  
+}
 
 
 
@@ -134,9 +146,15 @@ if(is.na(n_text_tmp)) {
 
 
 
-l <- probability_normal_setting_sum(k, n, mu_param, sigma_param, quantifier)
+l <- probability_normal_setting_sum(k, n, mu_param, sigma_param, quantifier, language = lang)
 solution <- l$solution
 explanation <- l$explanation
+
+if(lang == "CZ") {
+  exam_title <- "Výpočet pravděpodobnosti"
+} else {
+  exam_title <- "Computation of probability"
+}
 ```
 
 Question
@@ -160,5 +178,5 @@ extype: num
 exsolution: `r exams::fmt(solution,3)`
 exname: normal_prob_sum
 extol: 0.001
-extitle: Výpočet pravděpodobnosti
+extitle: `r exam_title`
 expoints: 1

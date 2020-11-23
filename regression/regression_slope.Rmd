@@ -6,13 +6,23 @@ output: html_document
   fig_caption: false
 ---
 
+```{r set_language}
+in_czech <- T
+in_english <- !in_czech
+if(in_czech) {
+  lang <- "CZ"
+} else {
+  lang <- "EN"
+}
+```
+
 ```{r setup, code = readLines("D:/Documents/git/exams_vspj/common_chunks.R")}
 
 ```
 
 ```{r data generation, echo = FALSE, results = "hide"}
 
-df_assignmnent <- get_var_desc()
+df_assignmnent <- get_var_desc(language = lang)
 df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
 text_question <- sample(df_assignmnent$question,1)
 
@@ -27,6 +37,12 @@ X <- df_data[[1]]
 Y <- df_data[[2]]
 lm1 <- lm(Y~X, df_data)
 
+if(lang == "CZ") {
+  exam_title <- "Regrese - odhad parametru"
+} else {
+  exam_title <- "Regression - parameter estimation"
+}
+
 ```
 
 
@@ -37,7 +53,13 @@ Question
 cat(eval(parse(text=text_question)))
 ```
 
-Lineární závislost popisujeme rovnicí ve tvaru $y = b_1x+b_0$. Spočítejte regresní koeficient $b_1$ přímky předpovídající proměnnou '`r df_currvars$name[2]`' v závislosti na proměnné '`r df_currvars$name[1]`'. Data vypadají následovně:
+```{r eval=in_czech, results='asis'}
+cat(sprintf("Lineární závislost popisujeme rovnicí ve tvaru $y = b_1x+b_0$. Spočítejte regresní koeficient $b_1$ přímky předpovídající proměnnou '%s' v závislosti na proměnné '%s'. Data vypadají následovně:", df_currvars$name[2], df_currvars$name[1]))
+```
+
+```{r eval=in_english, results='asis'}
+cat(sprintf("Linear relationship is captured by equation $y = b_1x+b_0$. Compute regression coefficient $b_1$ for the line predicting variable '%s' from variable '%s'. Data looks as follows:", df_currvars$name[2], df_currvars$name[1]))
+```
 
 
 ```{r graf,echo = FALSE, warning =F,message=F}
@@ -46,7 +68,14 @@ df_data %>% knitr::kable()
 
 Solution
 ========
-Když si vizualizujeme data, vypadají následovně:
+```{r eval=in_czech, results='asis'}
+cat("Když si vizualizujeme data, vypadají následovně:")
+```
+
+```{r eval=in_english, results='asis'}
+cat("When we visualize data, it looks like follows:")
+```
+
 
 ```{r plot, fig.path = "", fig.cap = ""}
 df_data %>% 
@@ -55,15 +84,33 @@ df_data %>%
   theme(aspect.ratio = 1)
 ```
 
- Pro výpočet regresních koeficientů můžeme využít funkce INTERCEPT (pro parameter $b_0$) a SLOPE (pro parametr $b_1$)
+```{r eval=in_czech, results='asis'}
+cat("Pro výpočet regresních koeficientů můžeme využít funkce INTERCEPT (pro parameter $b_0$) a SLOPE (pro parametr $b_1$)")
+```
 
-Regresní koeficienty jsou:
+```{r eval=in_english, results='asis'}
+cat("We can use functions INTERCEPT (for parameter $b_0$) and SLOPE (for parameter $b_1$) to compure regression coefficients")
+```
+
+
+```{r eval=in_czech, results='asis'}
+cat("Regresní koeficienty jsou: ")
+```
+
+```{r eval=in_english, results='asis'}
+cat("Regression coefficients are: ")
+```
 
 * $b_0$ = `r exams::fmt(coef(lm1)[1])`
 * $b_1$ = `r exams::fmt(coef(lm1)[2])`
 
-Pokud zobrazíme regresní přímku do grafu, vychází to následovně.
+```{r eval=in_czech, results='asis'}
+cat("Pokud zobrazíme regresní přímku do grafu, vychází to následovně.")
+```
 
+```{r eval=in_english, results='asis'}
+cat("If we add regression line into figure, it looks as follows.")
+```
 
 ```{r plot-plus-regression, fig.path = "", fig.cap = ""}
 df_data %>% 
@@ -82,5 +129,5 @@ extype: num
 exsolution: `r exams::fmt(coef(lm1)[2])`
 extol: 0.01
 exname: regression_slope
-extitle: Regrese - odhad parametru
+extitle: `r exam_title`
 expoints: 1

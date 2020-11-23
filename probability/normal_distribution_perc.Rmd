@@ -7,6 +7,16 @@ output: html_document
 
 ```{r parameters modyfiable using expar}
 curr_theme <- NULL
+
+
+in_czech <- T
+in_english <- !in_czech
+if(in_czech) {
+  lang <- "CZ"
+} else {
+  lang <- "EN"
+}
+
 ```
 
 
@@ -16,7 +26,7 @@ curr_theme <- NULL
 
 ```{r data generation, echo = FALSE, message=T}
 
-df_assignmnent <- get_prob_var(distr_type = "normal", curr_theme = curr_theme, norm_type = "perc")
+df_assignmnent <- get_prob_var(distr_type = "normal", curr_theme = curr_theme, norm_type = "perc", language = lang)
 df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
 text_settings <- sample(df_assignmnent$settings,1)
 text_question_perc <- sample(df_assignmnent$question_perc,1)
@@ -93,9 +103,15 @@ sigma_text <- sprintf("%d %s",sigma_param, sigma_text_tmp)
 
 
 
-l <- probability_normal_setting_perc(perc/100, mu_param, sigma_param,direction = direction)
+l <- probability_normal_setting_perc(perc/100, mu_param, sigma_param,direction = direction, language = lang)
 solution <- l$solution
 explanation <- l$explanation
+
+if(lang == "CZ") {
+  exam_title <- "Výpočet pravděpodobnosti"
+} else {
+  exam_title <- "Computation of probability"
+}
 ```
 
 Question
@@ -119,5 +135,5 @@ extype: num
 exsolution: `r exams::fmt(solution,3)`
 exname: normal_prob_perc
 extol: 0.001
-extitle: Výpočet pravděpodobnosti
+extitle: `r exam_title`
 expoints: 1

@@ -38,7 +38,7 @@ mm <- mm %>% matrix(nrow = n/6) %>% round(df_currvars$round_val[1])
 
 interval_range <- sample(c(95,90,99),1)
 
-u <- qt(1-(1-interval_range/100)/2, n-1) %>% round(2)
+u <- qnorm(1-(1-interval_range/100)/2) %>% round(2)
 s <- sd(mm) %>% round(2)
 m <- mean(mm) %>% round(2)
 LB <- m-u*s/sqrt(n) %>% round(1)
@@ -60,7 +60,6 @@ if(runif(1) < 0.5) {
     interval_type <- "upper"
   }
 }
-
 if(lang == "CZ") {
   lower_limit <- "Dolní limit je"
   upper_limit <- "Horní limit je"
@@ -75,7 +74,6 @@ if(lang == "CZ") {
 } else {
   exam_title <- "Confidence intervals"
 }
-
 ```
 
 
@@ -85,7 +83,6 @@ Question
 ```{r, results='asis'}
 cat(eval(parse(text=text_question)))
 ```
-
 
 ```{r eval=in_czech, results='asis'}
 cat(sprintf("Když se zaměříme pouze na proměnnou %s, vypadají data pro tento výběr data následovně:",  df_currvars$name[1]))
@@ -99,7 +96,6 @@ cat(sprintf("When we focus only on variable %s, the data looks as follows:",  df
 mm %>% knitr::kable()
 ```
 
-
 ```{r eval=in_czech, results='asis'}
 cat(sprintf("Spočítejte interval, ve kterém se nachází s pravděpodobností %d%% průměr celé populace (konfidenční interval). Pro výsledek zadejte pouze %s hranici intervalu a zaokrouhlete na 1 desetinné místo.",  interval_range,interval_type))
 ```
@@ -109,9 +105,9 @@ cat(sprintf("Compute confidence interval, in which the population mean lies with
 
 ```
 
+
 Solution
 ========
-
 
 ```{r eval=in_czech, results='asis'}
 cat(sprintf("Pro výpočet %d%% intervalu spolehlivosti pro průměr využijeme vzorce:",  interval_range))
@@ -125,19 +121,21 @@ cat(sprintf("We use following formula for computation of %d%% confidence interva
 
 $$ 
 \begin{aligned}
-\left[\bar{x} \, - \, t(n-1)_{1-\frac{\alpha}{2}}\sqrt{\frac{s^2}{n}}, \; 
-  \bar{x} \, + \, t(n-1)_{1-\frac{\alpha}{2}}\sqrt{\frac{s^2}{n}}\right] 
+\left[\bar{x} \, - \, u_{1-\frac{\alpha}{2}}\sqrt{\frac{s^2}{n}}, \; 
+  \bar{x} \, + \, u_{1-\frac{\alpha}{2}}\sqrt{\frac{s^2}{n}}\right] 
 \end{aligned}
 $$
 
+
 ```{r eval=in_czech, results='asis'}
-cat(sprintf("kde v tomto případě je $\\bar{x}$=%.2f, $t(n-1)_{1-\\frac{\\alpha}{2}}$=%.2f, n = %d a s = %.2f. Interval tedy je ve tvaru %s",  m, u, n, s,sprintf("[%.1f,%.1f]", LB, UB)))
+cat(sprintf("kde v tomto případě je $\\bar{x}$=%.2f, $u_{1-\\frac{\\alpha}{2}}$=%.2f, n = %d a s = %.2f. Interval tedy je ve tvaru %s",  m, u, n, s,sprintf("[%.1f,%.1f]", LB, UB)))
 ```
 
 ```{r eval=in_english, results='asis'}
-cat(sprintf("where in this case $\\bar{x}$=%.2f, $t(n-1)_{1-\\frac{\\alpha}{2}}$=%.2f, n = %d and s = %.2f. Confidence interval is in form of %s",  m, u, n, s,sprintf("[%.1f,%.1f]", LB, UB)))
+cat(sprintf("where in this case $\\bar{x}$=%.2f, $u_{1-\\frac{\\alpha}{2}}$=%.2f, n = %d and s = %.2f. Confidence interval is in form of %s",  m, u, n, s,sprintf("[%.1f,%.1f]", LB, UB)))
 
 ```
+
 
 Answerlist
 ----------

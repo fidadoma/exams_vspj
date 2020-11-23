@@ -1,0 +1,133 @@
+---
+title: "Deskriptivní statistika"
+author: "Filip Děchtěrenko"
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+output: html_document
+---
+
+```{r}
+in_czech <- T
+in_english <- !in_czech
+if(in_czech) {
+  lang <- "CZ"
+} else {
+  lang <- "EN"
+}
+
+
+if(lang == "CZ") {
+  questions <- c("průměr", "median", "směrodatnou odchylku", "rozptyl", "dolní kvartil", "horní kvartil")
+} else {
+  questions <- c("mean", "median", "standard deviation", "variance", "lower quartile", "upper quartile")
+  
+}
+
+ix <- sample(1:length(questions),1)
+curr_theme <- NULL
+
+
+
+```
+
+```{r setup, code = readLines("D:/Documents/git/exams_vspj/common_chunks.R")}
+
+```
+
+```{r data generation, echo = FALSE, results = "hide"}
+df_assignmnent <- get_var_desc(curr_theme, language = lang)
+df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
+text_question <- sample(df_assignmnent$question,1)
+
+n <- sample(5:15,1)
+r <- runif(1,-1,1)
+
+df_currvars <- df_vardesc %>% 
+  filter(type == "numeric") %>% 
+  sample_n(2) %>% 
+  rowwise() %>% 
+  mutate(mean = compute_mean(values, pdist), sd = compute_sd(values,pdist))
+
+df <- safe_generate_correlated_data(n,r,df_currvars)
+
+X <- df[[1]]  # standard normal (mu=0, sd=1)
+Y <- df[[2]]  # standard normal (mu=0, sd=1)
+
+df_data <- tibble(!!df_currvars$name[1]:=X)
+
+if(lang == "CZ") {
+  questions <- c("průměr", "median", "směrodatnou odchylku", "rozptyl", "dolní kvartil", "horní kvartil")
+} else {
+  questions <- c("mean", "median", "standard deviation", "variance", "lower quartile", "upper quartile")
+  
+}
+
+functions <- c(mean, median, sd, var, lower_quartile, upper_quartile)
+if(lang == "CZ") {
+solutions_text <- 
+  "Zkopírujeme data do Jamovi a pomocí nástroje Descriptive statistics spočítáme požadovanou statistiku"
+ } else {
+ solutions_text <- 
+  "We copy the data into Jamovi and we use Descriptive statistics to compute the approprate statistics" 
+}
+stopifnot(length(questions) == length(functions))
+#ix <- sample(1:length(questions),1)
+
+f <- functions[[ix]]
+
+
+solutions <- exams::fmt(f(X),2)
+
+
+if(lang == "CZ") {
+  exam_title <- "Deskriptivní statistika"
+} else {
+  exam_title <- "Descriptive statistics"
+}
+
+
+```
+
+Question
+========
+```{r, results='asis'}
+cat(eval(parse(text=text_question)))
+```
+
+```{r eval=in_czech, results='asis'}
+cat(sprintf("Spočítejte %s pro následující data.", questions[ix]))
+```
+
+```{r eval=in_english, results='asis'}
+cat(sprintf("Compute %s for following data.", questions[ix]))
+```
+
+```{r plot, fig.path = "", fig.cap = ""}
+df_data %>% knitr::kable()
+```
+
+```{r warning=F}
+#warning(text_question)
+```
+
+Solution
+========
+
+`r solutions_text`
+
+```{r eval=in_czech, results='asis'}
+cat(sprintf("V tomto případě je výsledek %s", solutions))
+```
+
+```{r eval=in_english, results='asis'}
+cat(sprintf("In this case, the result is %s", solutions))
+```
+
+
+Meta-information
+================
+extype: num
+exsolution: `r solutions`
+exname: Deskriptivní statistika
+extitle: `r exam_title`
+expoints: 1
+

@@ -1,0 +1,125 @@
+---
+title: "Point estimation"
+author: "Filip Děchtěrenko"
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+output: html_document
+---
+
+```{r set_language}
+in_czech <- T
+in_english <- !in_czech
+if(in_czech) {
+  lang <- "CZ"
+} else {
+  lang <- "EN"
+}
+```
+
+```{r setup, code = readLines("D:/Documents/git/exams_vspj/common_chunks.R")}
+
+```
+
+
+```{r data generation, echo = FALSE}
+
+df_assignmnent <- get_var_desc(language = lang)
+df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
+text_question <- sample(df_assignmnent$question,1)
+
+n <- sample(c(36,42,48),1)
+r <- runif(1,-1,1)
+
+df_currvars <- sample_vars(df_vardesc, nvar = 2)
+
+# generate X,Y data
+df_data <- safe_generate_correlated_data(n,r,df_currvars)
+m <- df_data[[df_currvars$name[1]]] 
+m <- m %>% matrix(nrow = n/6) %>% round(df_currvars$round_val[1])
+
+if (runif(1) < 0.5) {
+  if(lang == "CZ") {
+    estim_type <- "průměr"
+    solution_text <- "stačí spočítat výběrový průměr"  
+  } else {
+    estim_type <- "mean"
+    solution_text <- "we just compute sample mean"  
+  }
+    
+  
+  solution <- mean(m)
+} else {
+  if(lang == "CZ") {
+    estim_type <- "směrodatnou odchylku"
+    solution_text <- "stačí spočítat směrodatnou odchylku výběru. Můžeme to udělat v Jamovi"
+  } else {
+    estim_type <- "standard deviance"
+  solution_text <- "we just compute sample standard deviation. We can do that using Jamovi"
+  }
+  
+  
+  solution <- sd(m)
+}
+
+if(lang == "CZ") {
+  exam_title <- "Bodový odhad"
+} else {
+  exam_title <- "Point intervals"
+}
+
+```
+
+
+
+Question
+========
+```{r, results='asis'}
+cat(eval(parse(text=text_question)))
+```
+
+```{r eval=in_czech, results='asis'}
+cat(sprintf("Když se zaměříme pouze na proměnnou %s, vypadají data pro tento výběr data následovně:",  df_currvars$name[1]))
+```
+
+```{r eval=in_english, results='asis'}
+cat(sprintf("When we focus only on variable %s, the data looks as follows:",  df_currvars$name[1]))
+```
+
+
+
+```{r graf,echo = FALSE, warning =F,message=F}
+m %>% knitr::kable()
+
+```
+
+```{r eval=in_czech, results='asis'}
+cat(sprintf("Spočítejte bodový odhad pro %s pro celou populaci. Zaokrouhlete na dvě desetinná místa.",  estim_type))
+```
+
+```{r eval=in_english, results='asis'}
+cat(sprintf("Compute point estimate for %s for whole population. Round to two decimal places.",  estim_type))
+```
+
+
+
+Solution
+========
+
+```{r eval=in_czech, results='asis'}
+cat(sprintf("Jelikož počítáme odhad pro %s, %s. Výsledek je tedy %s.",  estim_type, solution_text, exams::fmt(solution,2)))
+```
+
+```{r eval=in_english, results='asis'}
+cat(sprintf("Becauase we are computing estimate for %s, %s. Solution is %s.",  estim_type, solution_text, exams::fmt(solution,2)))
+```
+
+
+
+
+Meta-information
+================
+extype: num
+exsolution: `r exams::fmt(solution,2)`
+exname: point_estimation
+extol: 0.01
+extitle: `r exam_title`
+expoints: 1

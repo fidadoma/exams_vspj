@@ -1,0 +1,100 @@
+---
+title: "Correlation"
+author: "Filip Děchtěrenko"
+date: '`r format(Sys.time(), "%d %B, %Y")`'
+output: html_document
+---
+
+```{r set_language}
+in_czech <- T
+in_english <- !in_czech
+if(in_czech) {
+  lang <- "CZ"
+} else {
+  lang <- "EN"
+}
+```
+
+```{r setup, code = readLines("D:/Documents/git/exams_vspj/common_chunks.R")}
+
+```
+
+
+```{r data generation, echo = FALSE, message=T}
+
+df_assignmnent <- get_var_desc(language = lang)
+df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
+text_question <- sample(df_assignmnent$question,1)
+
+n <- sample(5:10,1)
+r <- runif(1,-1,1)
+
+df_currvars <- sample_vars(df_vardesc, nvar = 2)
+
+df_data <- safe_generate_correlated_data(n,r,df_currvars)
+X <- df_data[[1]]
+Y <- df_data[[2]]
+
+if(lang == "CZ") {
+  exam_title <- "Výpočet korelace"
+} else {
+  exam_title <- "Compuation of correlation"
+}
+```
+
+Question
+========
+```{r, results='asis'}
+cat(eval(parse(text=text_question)))
+```
+
+```{r eval=in_czech, results='asis'}
+cat("Data vypadají následovně:")
+```
+
+```{r eval=in_english, results='asis'}
+cat("Data look as follows:")
+```
+
+```{r echo = FALSE, results='asis'}
+knitr::kable(df_data)
+```
+
+```{r eval=in_czech, results='asis'}
+cat("Určete Pearsonův korelační koeficient (s přesností na 2 desetinná místa)")
+```
+
+```{r eval=in_english, results='asis'}
+cat("Compute Pearson's correlation coefficient (with precision to 2 decimal places)")
+```
+
+
+
+Solution
+========
+```{r eval=in_czech, results='asis'}
+cat(sprintf("Korelaci spočítáme pomocí funkce CORREL, výsledek je %s.\n
+Bodový graf vypadá následovně:", exams::fmt(cor(X,Y),2)))
+```
+
+```{r eval=in_english, results='asis'}
+cat(sprintf("Correlation can be computed using function Correl, the result is %s.\n
+Scatter plot looks as follows:", exams::fmt(cor(X,Y),2)))
+```
+
+
+```{r echo = FALSE}
+df_data %>% 
+  ggplot(aes(x=!!sym(colnames(df_data)[1]), y=!!sym(colnames(df_data)[2]))) +
+  geom_point() + 
+  theme(aspect.ratio = 1)
+```
+
+Meta-information
+================
+extype: num
+exsolution: `r exams::fmt(cor(X,Y),2)`
+exname: correlation
+extitle: `r exam_title`
+expoints: 1
+extol: 0.01

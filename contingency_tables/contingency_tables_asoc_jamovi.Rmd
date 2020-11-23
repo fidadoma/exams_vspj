@@ -1,5 +1,5 @@
 ---
-title: "Chi square independence"
+title: "Kontignenční tabulka"
 author: "Filip Děchtěrenko"
 date: '`r format(Sys.time(), "%d %B, %Y")`'
 output: html_document
@@ -20,7 +20,7 @@ if(in_czech) {
 ```
 
 ```{r data generation, echo = FALSE, results = "hide"}
-library(exams)
+
 
 df_assignmnent <- get_var_desc(language = lang)
 df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
@@ -45,56 +45,34 @@ df <- generate_flat_ctable(n, r, x_levels, y_levels) %>%
 
 xt <- xtabs(~y_categ+x_categ,df)
 
-chisq <- chisq.test(xt, correct = F)
+cont_coef <- sample(2,1)
 
-
-
-
-question_type <- sample(2,1)
-
-if(runif(1) < 0.5) {
-  query_type <- "p_val"
-  solution <- chisq$p.value
-  if (lang == "CZ") {
-    query_text <- "p-hodnotu"
-  
-    solution_text <- "p-hodnota rovna "
-    questions[[2]] <- c("Jaká je p-hodnota testu?")
-    
+if(cont_coef == 1) {
+  f <-   pearson_cont_coef
+  if(lang == "CZ") {
+    asoc_coef <- "Koeficient kontingence"
   } else {
-    query_text <- "p-value"
-  
-    solution_text <- "p-value equals to "
-    questions[[2]] <- c("What is the p-value?")
-    
+    asoc_coef <- "Contingency coefficient"
+  }
+} else if(cont_coef == 2){
+  f <-   cramer_cont_coef
+  if(lang == "CZ") {
+    asoc_coef <- "Cramevův"
+  } else {
+    asoc_coef <- "Cramer's V"
   }
   
-
 } else {
-  query_type <- "chi_sq"
-  solution <- chisq$statistic
-  
-  if (lang == "CZ") {
-    query_text <- "testovou statistiku $\\chi^2$"
-  solution_text <- "$\\chi^2$ roven "
-  
-  questions[[2]] <- c("Jaká je hodnota testové statistiky $\\chi^2$?")
-
-  } else {
-    query_text <- "test statistic $\\chi^2$"
-  
-    solution_text <- "$\\chi^2$ equals to "
-    questions[[2]] <- c("What is the $\\chi^2$?")
-    
-  }
+  stop("incorrect contingency index")
 }
+  
+solution <- f(chi_sq = (chisq.test(xt, correct = F))$statistic, n, ncol(df), nrow(df))
 
 if(lang == "CZ") {
-  exam_title <- "Testování hypotéz"
+  exam_title <- "Kontingenční tabulka - asociace"
 } else {
-  exam_title <- "Hypothesis testing"
+  exam_title <- "Contingency tables - asociation"
 }
-
 ```
 
 Question
@@ -112,6 +90,8 @@ cat(sprintf("Získali jsme data o proměnných '%s' a '%s' a zajímá nás, zda 
 cat(sprintf("We collected data for variables '%s' and '%s' and we want to inspect, whether there is a relationship between variables.", df_currvars$name[1], df_currvars$name[2]))
 ```
 
+
+
 ```{r eval=in_czech, results='asis'}
 cat("Data vypadají následovně:")
 ```
@@ -120,10 +100,9 @@ cat("Data vypadají následovně:")
 cat("Data look as follows:")
 ```
 
-
 ```{r echo = FALSE}
 
-table(df[[df_currvars$name[1]]], df[[df_currvars$name[2]]])
+table(df[[df_currvars$name[1]]], df[[df_currvars$name[2]]]) %>% knitr::kable()
 #knitr::kable(xtabs(~))
 #knitr::kable(ftable(df %>% select(-x_categ, -y_categ)), row.names = 1:2)
 #epitab::contingency_table(list(df_currvars$name[1],df_currvars$name[2]), df)
@@ -133,30 +112,29 @@ table(df[[df_currvars$name[1]]], df[[df_currvars$name[2]]])
 ```
 
 ```{r eval=in_czech, results='asis'}
-cat(sprintf("Použijte test nezávislosti proměnných a spočítejte %s. Výsledek zadejte na 3 desetinná místa. ", query_text))
+cat(sprintf("Určete %s koeficient kontingence (s přesností na 2 desetinná místa).", asoc_coef))
 ```
 
 ```{r eval=in_english, results='asis'}
-cat(sprintf("Use $\\chi^2$ independence test and compute %s. Result round to three digits.", query_text))
+cat(sprintf("Compute %s association (and round to 2 decimal places).", asoc_coef))
 ```
-
-
 
 Solution
 ========
 ```{r eval=in_czech, results='asis'}
-cat(sprintf("Pro danou kontingenční tabulku je %s %s.", solution_text, exams::fmt(solution,3)))
+cat(sprintf("Daný kontingenční koeficient můžeme snadno vybrat v Jamovi. Pro danou kontingenční tabulku je výsledek %s", fmt(solution,2)))
 ```
 
+
 ```{r eval=in_english, results='asis'}
-cat(sprintf("For given contingency table is %s %s.", solution_text, exams::fmt(solution,3)))
+cat(sprintf("We can easily select the contingency coefficient in Jamovi. For given contingency table is the solution %s", fmt(solution,2)))
 ```
 
 Meta-information
 ================
 extype: num
-exsolution: `r exams::fmt(solution,3)`
-exname: chi_square_independence_compute
-extol: 0.001
+exsolution: `r exams::fmt(solution,2)`
+exname: cont_table_asoc
+extol: 0.01
 extitle: `r exam_title`
 expoints: 1

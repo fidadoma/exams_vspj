@@ -5,6 +5,16 @@ date: '`r format(Sys.time(), "%d %B, %Y")`'
 output: html_document
 ---
 
+```{r set_language}
+in_czech <- T
+in_english <- !in_czech
+if(in_czech) {
+  lang <- "CZ"
+} else {
+  lang <- "EN"
+}
+```
+
 ```{r setup, code = readLines("D:/Documents/git/exams_vspj/common_chunks.R")}
 
 ```
@@ -12,7 +22,7 @@ output: html_document
 
 ```{r data generation, echo = FALSE}
 
-df_assignmnent <- get_var_desc()
+df_assignmnent <- get_var_desc(language = lang)
 df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
 text_question <- sample(df_assignmnent$question,1)
 
@@ -35,6 +45,12 @@ LB <- m-u*s/sqrt(n) %>% round(1)
 UB <- m+u*s/sqrt(n) %>% round(1)
 delta <- (0.5*runif(1, (UB-LB)/4, 0.8*(UB-LB))) %>% round(2)
 n_estim <- ceiling(((u^2)*(s^2))/(delta^2))
+
+if(lang == "CZ") {
+  exam_title <- "Intervalový odhad"
+} else {
+  exam_title <- "Confidence intervals"
+}
 ```
 
 
@@ -45,18 +61,41 @@ Question
 cat(eval(parse(text=text_question)))
 ```
 
-Když se zaměříme pouze na proměnnou `r df_currvars$name[1]`, vypadají data pro tento výběr data následovně:
+```{r eval=in_czech, results='asis'}
+cat(sprintf("Když se zaměříme pouze na proměnnou %s, vypadají data pro tento výběr data následovně:",  df_currvars$name[1]))
+```
+
+```{r eval=in_english, results='asis'}
+cat(sprintf("When we focus only on variable %s, the data looks as follows:",  df_currvars$name[1]))
+```
 
 ```{r graf,echo = FALSE, warning =F,message=F}
 mm %>% knitr::kable()
 ```
 
-Na základě těchto dat můžeme spočítat, že `r interval_range`% interval spolehlivosti je `r sprintf("[%.1f,%.1f]", LB, UB)`. Pokud bychom měli data se stejnou směrodatnou odchylkou jako v tomto vzorku, jaká by musela být velikost nového vzorku, aby přípustná chyba výběrového souboru při `r 100-interval_range`% hladině významnosti nepřesáhla `r delta`? Přípustnou chybou rozumíme vzdálenost měření od skutečného průměru.
+```{r eval=in_czech, results='asis'}
+cat(sprintf("Na základě těchto dat můžeme spočítat, že %d%% interval spolehlivosti je %s. Pokud bychom měli data se stejnou směrodatnou odchylkou jako v tomto vzorku, jaká by musela být velikost nového vzorku, aby přípustná chyba výběrového souboru při %d%% hladině významnosti nepřesáhla %.2f? Přípustnou chybou rozumíme vzdálenost měření od skutečného průměru.
+",  interval_range,sprintf("[%.1f,%.1f]", LB, UB),100-interval_range, delta))
+```
+
+```{r eval=in_english, results='asis'}
+cat(sprintf("Based on these data, we can compute that %d%% confidence interval is %s. If we had data with the same standard deviation as in this sample, what would be the size of the new sample so that the allowable sample error at the %d%% level of significance does not exceed  %.2f? By allowable sample error we mean distance of measurement to the true mean.
+",  interval_range,sprintf("[%.1f,%.1f]", LB, UB),100-interval_range, delta))
+```
 
 
 Solution
 ========
-Pro výpočet šíře intervalu stačí vyjít z původního vzorec 
+
+```{r eval=in_czech, results='asis'}
+cat(sprintf("Pro výpočet %d%% intervalu spolehlivosti pro průměr využijeme původní vzorce:",  interval_range))
+```
+
+```{r eval=in_english, results='asis'}
+cat(sprintf("We use following formula for computation of %d%% confidence interval for the mean:",  interval_range))
+
+```
+
 $$ 
 \begin{aligned}
 \left[\bar{y} \, - \, u_{1-\frac{\alpha}{2}}\sqrt{\frac{s^2}{n}}, \; 
@@ -64,14 +103,31 @@ $$
 \end{aligned}
 $$
 
- a spočítat rozdíl krajních limit intervalu. Pokud si označíme přípustnou chybu jako $\Delta$, platí následující vztah:
+
+```{r eval=in_czech, results='asis'}
+cat("a spočítat rozdíl krajních limit intervalu. Pokud si označíme přípustnou chybu jako $\\Delta$, platí následující vztah:")
+```
+
+```{r eval=in_english, results='asis'}
+cat("and compute difference of interval bounds. If we set the allowed error as $\\Delta$, following relationship holds:")
+
+```
+
+ 
 $$ 
 \begin{aligned}
  n \geq \frac{u_{1-\frac{\alpha}{2}}^2 \cdot s^2} {\Delta^2}
 \end{aligned}
 $$
 
-V tomto případě je $u_{1-\frac{\alpha}{2}}$=`r u`, s = `r s`, a $\Delta$=`r delta`. Výběr by tedy měl obsahovat alespoň `r n_estim` pozorování.
+```{r eval=in_czech, results='asis'}
+cat(sprintf("V tomto případě je $u_{1-\\frac{\\alpha}{2}}$=%.2f, s = %.2f a $\\Delta$=%.2f. Výběr by tedy měl obsahovat alespoň %d pozorování.",  u, s,delta,n_estim))
+```
+
+```{r eval=in_english, results='asis'}
+cat(sprintf("In this case, $u_{1-\\frac{\\alpha}{2}}$=%.2f, s = %.2f and $\\Delta$=%.2f. Sample should contain at least %d observations.",  u, s,delta,n_estim))
+
+```
 
 
 Meta-information
@@ -80,5 +136,5 @@ extype: num
 exsolution: `r exams::fmt(n_estim,digits = 1)`
 exname: confidence_interval_size
 extol: 0
-extitle: Intervalový odhad
+extitle: `r exam_title`
 expoints: 1

@@ -12,6 +12,14 @@ if(runif(1) < 0.5) {
   plot_type <- "boxplot"  
 }
 
+in_czech <- T
+in_english <- !in_czech
+if(in_czech) {
+  lang <- "CZ"
+} else {
+  lang <- "EN"
+}
+
 ```
 
 ```{r setup, code = readLines("D:/Documents/git/exams_vspj/common_chunks.R")}
@@ -19,7 +27,7 @@ if(runif(1) < 0.5) {
 ```
 
 ```{r data generation, echo = FALSE, results = "hide"}
-df_assignmnent <- get_var_desc()
+df_assignmnent <- get_var_desc(language = lang)
 df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
 text_question <- sample(df_assignmnent$question,1)
 
@@ -28,7 +36,7 @@ df_currvars <- sample_vars(df_vardesc, nvar = 1)
 var_ranges <- extract_ranges(df_currvars)
 x_lower <- var_ranges[1,1]
 x_upper <- var_ranges[1,2]
-  
+
 n  <- sample(50:100,1)
 sd1 <- runif(1,0.5, 1.5)
 sd2 <- runif(1,3, 6)
@@ -53,6 +61,12 @@ if(runif(1) < 0.5) {
 } else {
   query_question <- "menší"
 }
+if (lang == "CZ") {
+  query_question_text <- query_question
+} else {
+  query_question_text <- recode(query_question, "větší" = "larger", "menší" = "smaller")
+}
+
 
 if(runif(1) < 0.5) {
   where_target <- "left"
@@ -76,9 +90,19 @@ if(runif(1) < 0.5) {
 }
 
 if(plot_type=="histogram") {
-  questions <- c("levý graf","pravý graf")  
+  if(lang == "CZ") {
+    questions <- c("levý graf","pravý graf")  
+  } else {
+    questions <- c("left figure","right figure")  
+  }
+  
 } else {
-  questions <- c("podmínka 1","podmínka 2")  
+  
+  if(lang == "CZ") {
+    questions <- c("podmínka 1","podmínka 2")  
+  } else {
+    questions <- c("condition 1","condition 2")  
+  }
 }
 if(where_target == "right") {
   solutions <- c(F,T)
@@ -86,27 +110,68 @@ if(where_target == "right") {
   solutions <- c(T,F)
 }
 
-sdvar <- sample(c("rozptyl", "směrodatnou odchylku"),1)
+sdvar <- sample(c("var","sd"),1)
+
+if(lang == "CZ") {
+  sdvar_text <- recode(sdvar, "sd" = "směrodatnou odchylku", "var" = "rozptyl")
+} else {
+  sdvar_text <- recode(sdvar, "sd" = "standard deviation", "var" = "variance")
+}
+
+
+
+if(lang == "CZ") {
+  exam_title <- "Vizualizace dat"
+} else {
+  exam_title <- "Visualization of the data"
+}
+
 ```
 
 Question
 ========
 
-Následující `r if_else(plot_type=="histogram", "dva grafy zobrazují", "graf zobrazuje")` náhodnou proměnnou. `r if_else(plot_type=="histogram", "V kterém z grafů má", "V které podmínce má")` proměnná `r query_question` `r sdvar`?
+```{r eval=in_czech, results='asis'}
+cat(sprintf("Následující %s náhodnou proměnnou. %s proměnná %s %s?", if_else(plot_type=="histogram", "dva grafy zobrazují", "graf zobrazuje"), if_else(plot_type=="histogram", "V kterém z grafů má", "V které podmínce má"),query_question_text, sdvar_text))
+```
+
+```{r eval=in_english, results='asis'}
+cat(sprintf("Following %s shows measured variable. %s %s %s?", if_else(plot_type=="histogram", "two figures display", " figure displays"), if_else(plot_type=="histogram", "Which of the figures show ", "Which condition shows "),query_question_text, sdvar_text))
+
+```
+
 
 ```{r plot, fig.path = "", fig.cap = "", warning=F}
-if (plot_type == "histogram") {
-  p1 <- df_left %>% ggplot(aes(x = `proměnná`)) + geom_histogram(bins = 30)
-  p2 <- df_right %>% ggplot(aes(x = `proměnná`)) + geom_histogram(bins = 30)  
-  p1+p2
-} else if (plot_type == "boxplot"){
-  df_data <- rbind(df_left %>% mutate(`podmínka` = "podmínka 1"), df_right %>% mutate(`podmínka` = "podmínka 2"))
-  p <- df_data %>% ggplot(aes(x = `podmínka`, y = `proměnná`)) + geom_boxplot()
-  p
+if(lang == "CZ") {
+  if (plot_type == "histogram") {
+    p1 <- df_left %>% ggplot(aes(x = `proměnná`)) + geom_histogram(bins = 30)
+    p2 <- df_right %>% ggplot(aes(x = `proměnná`)) + geom_histogram(bins = 30)  
+    p1+p2
+  } else if (plot_type == "boxplot"){
+    df_data <- rbind(df_left %>% mutate(`podmínka` = "podmínka 1"), df_right %>% mutate(`podmínka` = "podmínka 2"))
+    p <- df_data %>% ggplot(aes(x = `podmínka`, y = `proměnná`)) + geom_boxplot()
+    p
+  } else {
+    df_data <- rbind(df_left %>% mutate(`podmínka` = "podmínka 1"), df_right %>% mutate(`podmínka` = "podmínka 2"))
+    p <- df_data %>% ggplot(aes(x = `podmínka`, y = `proměnná`)) + geom_point(position = position_jitter(0.2))
+    p
+  }
+  
 } else {
-  df_data <- rbind(df_left %>% mutate(`podmínka` = "podmínka 1"), df_right %>% mutate(`podmínka` = "podmínka 2"))
-  p <- df_data %>% ggplot(aes(x = `podmínka`, y = `proměnná`)) + geom_point(position = position_jitter(0.2))
-  p
+  if (plot_type == "histogram") {
+    p1 <- df_left %>% ggplot(aes(x = `proměnná`)) + geom_histogram(bins = 30) + xlab("variable")
+    p2 <- df_right %>% ggplot(aes(x = `proměnná`)) + geom_histogram(bins = 30)  + xlab("variable")
+    p1+p2
+  } else if (plot_type == "boxplot"){
+    df_data <- rbind(df_left %>% mutate(`condition` = "condition 1"), df_right %>% mutate(`condition` = "condition 2"))
+    p <- df_data %>% ggplot(aes(x = `condition`, y = `proměnná`)) + geom_boxplot() + ylab("variable")
+    p
+  } else {
+    df_data <- rbind(df_left %>% mutate(`conditon` = "condition 1"), df_right %>% mutate(`conditon` = "condition 2"))
+    p <- df_data %>% ggplot(aes(x = `conditon`, y = `proměnná`)) + geom_point(position = position_jitter(0.2)) + ylab(variable)
+    p
+  }
+  
 }
 
 
@@ -119,12 +184,44 @@ exams::answerlist(questions, markup = "markdown")
 Solution
 ========
 
-Graf vlevo má v tomto případě `r sdvar` roven `r if_else(sdvar == "rozptyl", round(var(df_left[["proměnná"]]),3), round(var(df_left[["proměnná"]]),3))` a graf vpravo má `r sdvar` `r if_else(sdvar == "rozptyl", round(var(df_right[["proměnná"]]),3), round(sd(df_right[["proměnná"]]),3))`. V tomto případě má tedy `r query_question` `r sdvar` `r if_else(plot_type == "histogram", "graf", "podmínka")` `r if_else(where_target == "right", if_else(plot_type == "histogram", "vpravo", "2"), if_else(plot_type == "histogram", "vlevo", "1"))`.
+```{r eval=in_czech, results='asis'}
+cat(sprintf("
+%s vlevo má v tomto případě %s roven %.3f a %s vpravo má %s %.3f. V tomto případě má tedy %s %s %s %s .", 
+if_else(plot_type == "histogram", "Graf", "Podmínka"),
+sdvar_text,
+            if_else(sdvar == "var", round(var(df_left[["proměnná"]]),3), round(var(df_left[["proměnná"]]),3)),
+if_else(plot_type == "histogram", "graf", "podmínka"),
+            sdvar_text,
+            if_else(sdvar == "var", round(var(df_right[["proměnná"]]),3), round(sd(df_right[["proměnná"]]),3)),
+            query_question_text,
+            sdvar_text,
+            if_else(plot_type == "histogram", "graf", "podmínka"),
+            if_else(where_target == "right", if_else(plot_type == "histogram", "vpravo", "2"), if_else(plot_type == "histogram", "vlevo", "1"))
+            ))
+```
+
+```{r eval=in_english, results='asis'}
+cat(sprintf("
+Left %s has %s equal to %.3f and right %s has %s equal to %.3f. In this case, it shows  %s %s in the %s %s.", 
+if_else(plot_type == "histogram", "graph", "condition"),
+sdvar_text,
+            if_else(sdvar == "var", round(var(df_left[["proměnná"]]),3), round(var(df_left[["proměnná"]]),3)),
+  if_else(plot_type == "histogram", "graph", "condition"),
+            sdvar_text,
+            if_else(sdvar == "var", round(var(df_right[["proměnná"]]),3), round(sd(df_right[["proměnná"]]),3)),
+            query_question_text,
+            sdvar_text,
+            if_else(where_target == "right", if_else(plot_type == "histogram", "right", "2"), if_else(plot_type == "histogram", "left", "1")),
+if_else(plot_type == "histogram", "graph", "condition")
+            ))
+
+```
+
 
 Meta-information
 ================
 extype: schoice
 exsolution: `r exams::mchoice2string(solutions, single = TRUE)`
 exname: desc_plot
-extitle: Vizualizace dat
+extitle: `r exam_title`
 expoints: 0.5

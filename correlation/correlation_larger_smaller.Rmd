@@ -5,13 +5,23 @@ date: '`r format(Sys.time(), "%d %B, %Y")`'
 output: html_document
 ---
 
+```{r set_language}
+in_czech <- T
+in_english <- !in_czech
+if(in_czech) {
+  lang <- "CZ"
+} else {
+  lang <- "EN"
+}
+```
+
 ```{r setup, code = readLines("D:/Documents/git/exams_vspj/common_chunks.R")}
 
 ```
 
 ```{r data generation, echo = FALSE, results = "hide"}
 ## DATA GENERATION
-df_assignmnent <- get_var_desc()
+df_assignmnent <- get_var_desc(language = lang)
 df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
 text_question <- sample(df_assignmnent$question,1)
 
@@ -55,6 +65,11 @@ o <- sample(1:length(plot_titles))
 questions <- questions[o]
 solutions <- solutions[o]
 
+if(lang == "CZ") {
+  exam_title <- "Korelace - větší/menší"
+} else {
+  exam_title <- "Correlation - larger/smaller"
+}
 ```
 
 Question
@@ -64,9 +79,22 @@ Question
 cat(eval(parse(text=text_question)))
 ```
 
-V následujících grafech vidíme vztahy mezi proměnnými '`r  df_currvars$name[1]`' a '`r df_currvars$name[2]`' zvlášť pro podskupinu `r df_assignmnent$group1` a `r df_assignmnent$group2`. Rozhodněte, která z korelací je větší.
+```{r eval=in_czech, results='asis'}
+cat(sprintf("V následujících grafech vidíme vztahy mezi proměnnými '%s' a '%s' zvlášť pro podskupinu %s a %s. Rozhodněte, která z korelací je větší.", df_currvars$name[1], df_currvars$name[2], df_assignmnent$group1, df_assignmnent$group2))
+```
 
-Data vypadají následovně:
+```{r eval=in_english, results='asis'}
+cat(sprintf("In following plots, we can see relationship between variables '%s' a '%s' separately for groups %s a %s. Decide, which correlation is larger.", df_currvars$name[1], df_currvars$name[2], df_assignmnent$group1, df_assignmnent$group2))
+```
+
+```{r eval=in_czech, results='asis'}
+cat("Data vypadají následovně:")
+```
+
+```{r eval=in_english, results='asis'}
+cat("Data look as follows:")
+```
+
 
 ```{r graf,echo = FALSE, warning =F,message=F, fig.width=10}
 p1 <- df_left %>% ggplot(aes(x = !!sym(df_currvars$name[1]),!!sym(df_currvars$name[2]))) + theme(aspect.ratio = 1) + 
@@ -79,8 +107,15 @@ p2 <- df_right %>% ggplot(aes(x = !!sym(df_currvars$name[1]),!!sym(df_currvars$n
 p1+p2
 ```
 
+```{r eval=in_czech, results='asis'}
+cat("Která ze skupin má vyšší korelaci?")
+```
 
-Která ze skupin má vyšší korelaci?
+```{r eval=in_english, results='asis'}
+cat("Which of the subgroups has larger correlation?")
+```
+
+
 
 ```{r questionlist, echo = FALSE, results = "asis"}
 answerlist(questions, markup = "markdown")
@@ -88,12 +123,18 @@ answerlist(questions, markup = "markdown")
 
 Solution
 ========
-Korelace pro levý graf je `r fmt(cor(df_left[[1]],df_left[[2]]),2)`, pro pravý je `r fmt(cor(df_right[[1]],df_right[[2]]),2)` Vyšší korelaci mají tedy `r corr_larger`.
+```{r eval=in_czech, results='asis'}
+cat(sprintf("Korelace pro levý graf je %s, pro pravý je %s. Vyšší korelaci mají tedy %s.", fmt(cor(df_left[[1]],df_left[[2]]),2), fmt(cor(df_right[[1]],df_right[[2]]),2), corr_larger))
+```
+
+```{r eval=in_english, results='asis'}
+cat(sprintf("Correlation for left plot is %s, for right plot is %s. Larger correlation has %s.", fmt(cor(df_left[[1]],df_left[[2]]),2), fmt(cor(df_right[[1]],df_right[[2]]),2), corr_larger))
+```
 
 Meta-information
 ================
 extype: schoice
 exsolution: `r mchoice2string(solutions, single = TRUE)`
 exname: correlation_which_larger
-extitle: Korelace - větší/menší
+extitle: `r exam_title` 
 expoints: 0.5

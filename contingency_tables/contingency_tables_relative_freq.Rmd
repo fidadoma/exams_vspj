@@ -5,6 +5,16 @@ date: '`r format(Sys.time(), "%d %B, %Y")`'
 output: html_document
 ---
 
+```{r set_language}
+in_czech <- T
+in_english <- !in_czech
+if(in_czech) {
+  lang <- "CZ"
+} else {
+  lang <- "EN"
+}
+```
+
 ```{r setup, code = readLines("D:/Documents/git/exams_vspj/common_chunks.R")}
 
 ```
@@ -12,7 +22,7 @@ output: html_document
 ```{r data generation, echo = FALSE, results = "hide"}
 #rm(list = ls())
 #source("common_chunks.R")
-df_assignmnent <- get_var_desc()
+df_assignmnent <- get_var_desc(language = lang)
 df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
 text_question <- sample(df_assignmnent$question,1)
 
@@ -72,23 +82,41 @@ selected_level_query <- sample(query_var_levels,1)
     xt <- xtabs(~x_categ + y_categ,df) 
     
     if (selected_var == "x") {
-      sum_type <- "ke sloupcům"
+      
+      if(lang == "CZ") {
+          sum_type <- "ke sloupcům"
+      } else {
+          sum_type <- "column"
+      }
+      
       xt_prop <- prop.table(xt,2)
     } else {
-      sum_type <- "k řádkům"
+      if(lang == "CZ") {
+          sum_type <- "k řádkům"
+      } else {
+          sum_type <- "row"
+      }
+      
       xt_prop <- prop.table(xt,1)
     }
   } else {
     xt <- xtabs(~y_categ + x_categ,df)
     
     if (selected_var == "x") {
-      sum_type <- "k řádkům"
+      if(lang == "CZ") {
+          sum_type <- "k řádkům"
+      } else {
+          sum_type <- "row"
+      }
       xt_prop <- prop.table(xt,1)
     } else {
-      sum_type <- "ke sloupcům"
-      xt_prop <- prop.table(xt,2)
+      if(lang == "CZ") {
+          sum_type <- "ke sloupcům"
+      } else {
+          sum_type <- "column"
+      }
       
- 
+      xt_prop <- prop.table(xt,2)
 
     }
   }
@@ -105,6 +133,11 @@ solution <- df %>%
          !!sym(query_var) == sprintf("%s-%s",query_var,selected_level_query)) %>% 
         pull(f)
 
+if(lang == "CZ") {
+  exam_title <- "Kontingenční tabulka - relativní frekvence"
+} else {
+  exam_title <- "Contingency tables - relative frequencies"
+}
 
 ```
 
@@ -115,9 +148,21 @@ Question
 cat(eval(parse(text=text_question)))
 ```
 
-Získali jsme data o proměnných '`r df_currvars$name[1]`' a '`r df_currvars$name[2]`'. 
+```{r eval=in_czech, results='asis'}
+cat(sprintf("Získali jsme data o proměnných '%s' a '%s'", df_currvars$name[1], df_currvars$name[2]))
+```
 
-Data vypadají následovně:
+```{r eval=in_english, results='asis'}
+cat(sprintf("We collected data for variables '%s' and '%s'.", df_currvars$name[1], df_currvars$name[2]))
+```
+
+```{r eval=in_czech, results='asis'}
+cat("Data vypadají následovně:")
+```
+
+```{r eval=in_english, results='asis'}
+cat("Data look as follows:")
+```
 
 ```{r echo = FALSE}
 xt %>% knitr::kable()
@@ -130,16 +175,42 @@ xt %>% knitr::kable()
 #      method = "render")
 ```
 
-Vyjádříme-li tabulku v relativních četnostech vzhledem `r sum_type`, kolik procent pozorování bude spadat do bunky `r group_var`='`r selected_level_group`' a `r query_var`='`r selected_level_query`'. Zaokrouhlujte na celá procenta.
+```{r eval=in_czech, results='asis'}
+cat(sprintf("Vyjádříme-li tabulku v relativních četnostech vzhledem %s, kolik procent pozorování bude spadat do bunky '%s'='%s' a '%s'='%s'. Zaokrouhlujte na celá procenta.", sum_type, group_var, selected_level_group, query_var, selected_level_query))
+```
+
+```{r eval=in_english, results='asis'}
+cat(sprintf("If we express the table in relative frequencies relative to %s sums, how many percent of data will fall into cell '%s'='%s' and '%s'='%s'. Round to whole percentages.", sum_type, group_var, selected_level_group, query_var, selected_level_query))
+
+```
+
 
 Solution
 ========
-Tabulka relativních četností vzhledem `r sum_type` vypadá následovně.
+
+```{r eval=in_czech, results='asis'}
+cat(sprintf("Tabulka relativních četností vzhledem %s vypadá následovně:", sum_type))
+```
+
+```{r eval=in_english, results='asis'}
+cat(sprintf("Tabel with relative frequencies relative to %s looks as follows:", sum_type))
+
+```
+
+
 ```{r }
 xt_prop %>% knitr::kable(digits = 2)
 ```
 
-Pro danou buňkuje výsledek `r exams::fmt(solution*100,0)`%.  
+
+```{r eval=in_english, results='asis'}
+cat(sprintf("For given cell, the solution is %s%%.", exams::fmt(solution*100,0)))
+```
+
+```{r eval=in_czech, results='asis'}
+cat(sprintf("Pro danou buňku je výsledek %s%%.", exams::fmt(solution*100,0)))
+
+```
 
 Meta-information
 ================
@@ -147,5 +218,5 @@ extype: num
 exsolution: `r exams::fmt(solution*100,0)`
 exname: cont_table_rel_freq
 extol: 0.01
-extitle: Kontingenční tabulka - relativní frekvence
+extitle: `r exam_title`
 expoints: 1

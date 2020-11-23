@@ -6,6 +6,16 @@ output: html_document
   fig_caption: false
 ---
 
+```{r set_language}
+in_czech <- T
+in_english <- !in_czech
+if(in_czech) {
+  lang <- "CZ"
+} else {
+  lang <- "EN"
+}
+```
+
 ```{r setup, code = readLines("D:/Documents/git/exams_vspj/common_chunks.R")}
 
 ```
@@ -16,12 +26,17 @@ output: html_document
 #curr_theme <- sample(possible_themes,1)
 #theme_set(eval(parse(text=as.character(curr_theme))))
 
-df_assignmnent <- get_var_desc()
+df_assignmnent <- get_var_desc(language = lang)
 df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
 text_question <- sample(df_assignmnent$question,1)
 
 plot_types <- c("scatter","hist","pie","boxplot")
-plot_names <- c("Bodový graf","Histogram","Koláčový graf","Krabickový graf")
+if(lang == "CZ") {
+  plot_names <- c("Bodový graf","Histogram","Koláčový graf","Krabickový graf")  
+} else {
+  plot_names <- c("Scatter plot","Histogram","Pie chart","Box plot")  
+}
+
 curr_plot_type <- sample(plot_types,1)
 
 if(curr_plot_type == "hist") {
@@ -105,11 +120,27 @@ solutions[plot_types == curr_plot_type] <- T
 o <- sample(1:length(plot_names))
 questions <- questions[o]
 solutions <- solutions[o]
+
+if(lang == "CZ") {
+  exam_title <- "Typ grafu"
+} else {
+  exam_title <- "Type of plot"
+}
+
 ```
 
 Question
 ========
-Určete typ následujícího grafu:
+
+```{r eval=in_czech, results='asis'}
+cat("Určete typ následujícího grafu")
+```
+
+```{r eval=in_english, results='asis'}
+cat("Determine the type of following plot")
+
+```
+
 
 ```{r graf,echo = FALSE, warning =F,message=F}
 p
@@ -122,12 +153,21 @@ answerlist(questions, markup = "markdown")
 
 Solution
 ========
-Tento graf se nazývá `r questions[solutions]`.
+
+```{r eval=in_czech, results='asis'}
+cat(sprintf("Tento graf se nazývá %s.", questions[solutions]))
+```
+
+```{r eval=in_english, results='asis'}
+cat(sprintf("This plot is %s.", questions[solutions]))
+```
+
+
 
 Meta-information
 ================
 extype: schoice
 exsolution: `r mchoice2string(solutions, single = TRUE)`
 exname: plot_type
-extitle: Typ grafu
+extitle: `r exam_title`
 expoints: 0.5

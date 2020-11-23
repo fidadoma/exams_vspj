@@ -81,29 +81,11 @@ Solution
 ========
 
 ```{r eval=in_czech, results='asis'}
-cat("Protože neznáme směrodatnou odchylku populace, musíme použít t-test. Nejprve spočítáme t-skór pomocí vzorce")
+cat(sprintf("Protože neznáme směrodatnou odchylku populace, musíme použít t-test. Nejprve data zkopírujeme do Jamovi. V Jamovi poté vybereme T-Tests-> One sample-tests, vybereme proměnnou a z výsledků zkopírujeme p-hodnotu. V tomto případě je výsledek %s", p_val %>% exams::fmt(digits = 3)))
 ```
 
 ```{r eval=in_english, results='asis'}
-cat("Because we don't know population SD, we need to use t-test. First, we compute t-score from the formula")
-```
-
-
-$$ 
-\begin{aligned}
-t = \frac{\bar{x}-\mu_0}{s_x/\sqrt{n}}
-\end{aligned}
-$$
-
-```{r eval=in_czech, results='asis'}
-cat(sprintf("V daném případě jsou parametry n=%d, $\\bar{x}$=%s, $s_x$ = %s and $\\mu_0$ = %s. Dostaneme tedy hodnotu %.2f. Tuto hodnotu porovnáme s tabulkou pro t rozdělení s *n-1* stupni volnosti
-Pro výpočet p-hodnoty oboustranného testu použijeme vzorec $2\\cdot P(X>|t|)$. V tomto případě je tedy p-hodnota=%s.", n,exams::fmt(x_bar, digits = 2, zeros = F), exams::fmt(sx, digits = 2),exams::fmt(popul_mean, zeros = F),t %>% round(2), p_val %>% exams::fmt(digits = 3)))
-```
-
-
-```{r eval=in_english, results='asis'}
-cat(sprintf("In our case the parameters are n=%d, $\\bar{x}$=%s, $s_x$ = %s and $\\mu_0$ = %s. We thus get the value %.2f. This value is compared with critical value for t-distribution with  *n-1* degrees of freedom
-For computation of p-value of two-sided test, we use formula $2\\cdot P(X>|t|)$. In this case, the p-value=%s.", n,exams::fmt(x_bar, digits = 2, zeros = F), exams::fmt(sx, digits = 2),exams::fmt(popul_mean, zeros = F),t %>% round(2), p_val %>% exams::fmt(digits = 3)))
+cat(sprintf("Because we don't know population SD, we need to use t-test. First, we copy the data into Jamovi, then we select T-tests -> One sample t-tests, select the variable and copy the p-value. In this case, the p-value is %s", p_val %>% exams::fmt(digits = 3)))
 ```
 
 

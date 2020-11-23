@@ -5,6 +5,16 @@ date: '`r format(Sys.time(), "%d %B, %Y")`'
 output: html_document
 ---
 
+```{r set_language}
+in_czech <- T
+in_english <- !in_czech
+if(in_czech) {
+  lang <- "CZ"
+} else {
+  lang <- "EN"
+}
+```
+
 ```{r setup, code = readLines("D:/Documents/git/exams_vspj/common_chunks.R")}
 
 ```
@@ -12,7 +22,7 @@ output: html_document
 ```{r data generation, echo = FALSE, results = "hide"}
 library(exams)
 
-df_assignmnent <- get_var_desc()
+df_assignmnent <- get_var_desc(language = lang)
 df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
 text_question <- sample(df_assignmnent$question,1)
 
@@ -37,8 +47,11 @@ xt <- xtabs(~y_categ+x_categ,df)
 
 chisq <- chisq.test(xt, correct = F)
 
-
-questions <- c("Proměnné jsou nezávislé", "Proměnné jsou závislé")
+if (lang == "CZ") {
+  questions <- c("Proměnné jsou nezávislé", "Proměnné jsou závislé")
+} else {
+  questions <- c("Variables are independent", "Variables are dependent")
+}
 
 #question_type <- sample(2,1)
 
@@ -50,11 +63,20 @@ questions <- c("Proměnné jsou nezávislé", "Proměnné jsou závislé")
   
 if(chisq$p.value < 0.05) {
     solutions <- c(F,T)
+    if (lang == "CZ") {
+      solution_text <- "Protože p hodnota je menší než 0.05, zamítáme nulovou hypotézu o nezávislosti proměnných. Proměnné jsou tedy na sobě závislé."
+    } else {
+      solution_text <- "Because p value is lower than 0.05, we reject null hypothesis about independence of variables. Thus variables are dependent."
+    }
     
-    solution_text <- "Protože p hodnota je menší než 0.05, zamítáme nulovou hypotézu o nezávislosti proměnných. Proměnné jsou tedy na sobě závislé."
   } else {
     solutions <- c(T,F)
-    solution_text <- "Protože p hodnota je větší než 0.05, nemůžeme zamítnout nulovou hypotézu o nezávislosti proměnných."
+    
+    if (lang == "CZ") {
+      solution_text <- "Protože p hodnota je větší než 0.05, nemůžeme zamítnout nulovou hypotézu o nezávislosti proměnných."
+    } else {
+      solution_text <- "Because p value is greater than 0.05, we can't reject nullnull hypothesis about independence of variables."
+    }
   }
   
 #} else {
@@ -71,7 +93,11 @@ if(chisq$p.value < 0.05) {
 #  }
   
 #}
-
+if(lang == "CZ") {
+  exam_title <- "Testování hypotéz"
+} else {
+  exam_title <- "Hypothesis testing"
+}
 
 
 ```
@@ -83,13 +109,26 @@ Question
 cat(eval(parse(text=text_question)))
 ```
 
-Získali jsme data o proměnných '`r df_currvars$name[1]`' a '`r df_currvars$name[2]`' a zajímá nás, zda je mezi těmito proměnnými vztah.
+```{r eval=in_czech, results='asis'}
+cat(sprintf("Získali jsme data o proměnných '%s' a '%s' a zajímá nás, zda je mezi těmito proměnnými vztah.", df_currvars$name[1], df_currvars$name[2]))
+```
 
-Data vypadají následovně:
+```{r eval=in_english, results='asis'}
+cat(sprintf("We collected data for variables '%s' and '%s' and we want to inspect, whether there is a relationship between variables.", df_currvars$name[1], df_currvars$name[2]))
+```
+
+```{r eval=in_czech, results='asis'}
+cat("Data vypadají následovně:")
+```
+
+```{r eval=in_english, results='asis'}
+cat("Data look as follows:")
+```
+
 
 ```{r echo = FALSE}
 
-table(df[[df_currvars$name[1]]], df[[df_currvars$name[2]]])
+table(df[[df_currvars$name[1]]], df[[df_currvars$name[2]]]) %>% knitr::kable()
 #knitr::kable(xtabs(~))
 #knitr::kable(ftable(df %>% select(-x_categ, -y_categ)), row.names = 1:2)
 #epitab::contingency_table(list(df_currvars$name[1],df_currvars$name[2]), df)
@@ -98,7 +137,16 @@ table(df[[df_currvars$name[1]]], df[[df_currvars$name[2]]])
 #      method = "render")
 ```
 
-Rozhodněte: zda jsou proměnné na sobě nezávislé či závislé. Pro test použijte hladinu významnosti $\alpha$=5%.
+```{r eval=in_czech, results='asis'}
+
+cat("Rozhodněte, zda jsou proměnné na sobě nezávislé či závislé. Pro test použijte hladinu významnosti $\\alpha$=5%.") 
+```
+
+```{r eval=in_english, results='asis'}
+cat("Decide whether are the variables independent or not. Use significance level $\\alpha$=5%. ")
+```
+
+
 
 ```{r questionlist, echo = FALSE, results = "asis"}
 answerlist(unlist(questions), markup = "markdown")
@@ -106,7 +154,15 @@ answerlist(unlist(questions), markup = "markdown")
 
 Solution
 ========
-Pro danou kontingenční tabulku je p-hodnota testu nezávislosti rovna `r exams::fmt(chisq$p.value,3)`. `r solution_text` 
+```{r eval=in_czech, results='asis'}
+cat(sprintf("Pro danou kontingenční tabulku je p-hodnota testu nezávislosti rovna %s.", exams::fmt(chisq$p.value,3)))
+```
+
+```{r eval=in_english, results='asis'}
+cat(sprintf("For given contingency table is the p-value equal to %s.", exams::fmt(chisq$p.value,3)))
+```
+
+`r solution_text` 
 
 Meta-information
 ================
@@ -114,5 +170,5 @@ extype: schoice
 exsolution: `r mchoice2string(solutions, single = TRUE)`
 exname: chi_square_independence
 extol: 0.001
-extitle: Testování hypotéz
+extitle: `r exam_title`
 expoints: 0.5

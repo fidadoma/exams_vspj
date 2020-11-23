@@ -86,11 +86,11 @@ df_data %>%
 ```
 
 ```{r eval=in_czech, results='asis'}
-cat("Pro výpočet koeficientu determinace použijeme funkci CORREL()*CORREL()")
+cat("Koeficient determinace můžeme spočítat pomocí Regression nástroje v Jamovi")
 ```
 
 ```{r eval=in_english, results='asis'}
-cat("We use CORREL()*CORREL() to compute $R^2$")
+cat("We can compute $R^2$ using Regression tool in Jamovi")
 ```
 
 

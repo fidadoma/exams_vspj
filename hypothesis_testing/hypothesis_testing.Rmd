@@ -5,6 +5,16 @@ date: '`r format(Sys.time(), "%d %B, %Y")`'
 output: html_document
 ---
 
+```{r set_language}
+in_czech <- T
+in_english <- !in_czech
+if(in_czech) {
+  lang <- "CZ"
+} else {
+  lang <- "EN"
+}
+```
+
 ```{r setup, code = readLines("D:/Documents/git/exams_vspj/common_chunks.R")}
 
 ```
@@ -12,7 +22,7 @@ output: html_document
 
 ```{r data generation, echo = FALSE}
 
-df_assignmnent <- get_var_desc()
+df_assignmnent <- get_var_desc(language = lang)
 df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
 text_question <- sample(df_assignmnent$question,1)
 
@@ -44,12 +54,28 @@ possible_test_types <- c("one-sample","two-sample","paired")
 test_type <- sample(possible_test_types, 1)
 
 if(test_type == "one-sample") {
-  test_type_text <- "od teoretické hodnoty"
+  if(lang == "CZ") {
+    test_type_text <- "od teoretické hodnoty"
+  } else {
+    test_type_text <- "from ome theoretical value"
+  }
+  
 } else if (test_type == "two-sample") {
-  test_type_text <- "mezi dvěma skupinami"
+  
+  if(lang == "CZ") {
+    test_type_text <- "mezi dvěma skupinami"
+  } else {
+    test_type_text <- "between two groups"
+  }
 } else {
-  test_type_text <- "mezi dvěma opakovanými měřeními téže skupiny"
+  
+  if(lang == "CZ") {
+    test_type_text <- "mezi dvěma opakovanými měřeními téže skupiny."
+  } else {
+    test_type_text <- "between two repeated measures of the same group."
+  }
 }
+
 
 
 
@@ -58,34 +84,72 @@ solutions <- logical()
 
 if(runif(1) < 0.5) {# correct 
   if(is_signif) {
-    questions[1] <- "Zamítáme nulovou hypotézu"
+    if(lang == "CZ") {
+      questions[1] <- "Zamítáme nulovou hypotézu"
+    } else {
+      questions[1] <- "Reject null hypothesis"
+    }
+    
     solutions[1] <- T
   } else {
-    questions[1] <- "Nezamítáme nulovou hypotézu"
+    if(lang == "CZ") {
+      questions[1] <- "Nemítáme nulovou hypotézu"
+    } else {
+      questions[1] <- "Don't reject null hypothesis"
+    }
+    
     solutions[1] <- F
   }
 } else { # incorrect
   if(is_signif) {
-    questions[1] <- sample(c("Nezamítáme nulovou hypotézu", "Platí nulová hypotéza", "Platí alternativní hypotéza"),1)
+    if(lang == "CZ") {
+      questions[1] <- sample(c("Nezamítáme nulovou hypotézu", "Platí nulová hypotéza", "Neplatí alternativní hypotéza"),1)
+    } else {
+      questions[1] <- 
+        questions[1] <- sample(c("Don't reject null hypothesis", "Null hypothesis is true", "Alternative hypothesis is not true"),1)
+    }
+    
+    
     solutions[1] <- F
   } else {
-    questions[1] <- "Zamítáme nulovou hypotézu"
+    if(lang == "CZ") {
+      questions[1] <- "Zamítáme nulovou hypotézu"
+    } else {
+      questions[1] <- "We reject null hypothesis"
+    }
+    
+    
     solutions[1] <- F
   }
 }
 
 
 test_query <- sample(possible_test_types,2)
-questions[2] <- case_when(
-  test_query[1] == "one-sample" ~ "Použijeme jednovýběrový test",
-  test_query[1] == "two-sample" ~ sample(c("Použijeme dvouvýběrový test", "Použijeme nepárový dvouvýběrový test", "Použijeme nepárový test s dvěma skupinami"),1),
-  test_query[1] == "paired" ~ sample(c("Použijeme párový test", "Použijeme párový dvouvýběrový test", "Použijeme párový test s dvěma skupinami"),1)
-)
-questions[3] <- case_when(
-  test_query[2] == "one-sample" ~ "Použijeme jednovýběrový test",
-  test_query[2] == "two-sample" ~ sample(c("Použijeme dvouvýběrový test", "Použijeme nepárový dvouvýběrový test", "Použijeme nepárový test s dvěma skupinami"),1),
-  test_query[2] == "paired" ~ sample(c("Použijeme párový test", "Použijeme párový dvouvýběrový test", "Použijeme párový test s dvěma skupinami"),1)
-)
+if(lang == "CZ") {
+  
+  questions[2] <- case_when(
+    test_query[1] == "one-sample" ~ "Použijeme jednovýběrový test",
+    test_query[1] == "two-sample" ~ sample(c("Použijeme dvouvýběrový test", "Použijeme nepárový dvouvýběrový test", "Použijeme nepárový test s dvěma skupinami"),1),
+    test_query[1] == "paired" ~ sample(c("Použijeme párový test", "Použijeme párový dvouvýběrový test", "Použijeme párový test s dvěma skupinami"),1)
+  )
+  questions[3] <- case_when(
+    test_query[2] == "one-sample" ~ "Použijeme jednovýběrový test",
+    test_query[2] == "two-sample" ~ sample(c("Použijeme dvouvýběrový test", "Použijeme nepárový dvouvýběrový test", "Použijeme nepárový test s dvěma skupinami"),1),
+    test_query[2] == "paired" ~ sample(c("Použijeme párový test", "Použijeme párový dvouvýběrový test", "Použijeme párový test s dvěma skupinami"),1)
+  )} else {
+    questions[2] <- case_when(
+      test_query[1] == "one-sample" ~ "We use one-sample test",
+      test_query[1] == "two-sample" ~ sample(c("We use two-sample test", "We use non-paired two-sample test", "We use non-paired test with two groups"),1),
+      test_query[1] == "paired" ~ sample(c("We use paired test", "We use paired two-sample test", "We use paired test with two groups"),1)
+    )
+    
+    questions[3] <- case_when(
+      test_query[2] == "one-sample" ~ "We use one-sample test",
+      test_query[2] == "two-sample" ~ sample(c("We use two-sample test", "We use non-paired two-sample test", "We use non-paired test with two groups"),1),
+      test_query[2] == "paired" ~ sample(c("We use paired test", "We use paired two-sample test", "We use paired test with two groups"),1)
+    )
+  }
+
 solutions[2] <- test_query[1] == test_type
 solutions[3] <- test_query[2] == test_type
 
@@ -93,17 +157,33 @@ o <- sample(1:length(questions))
 questions <- questions[o]
 solutions <- solutions[o]
 
-
-explanation_text_tmp1 <- case_when(
-  test_type == "one-sample" ~ "Protože nás zajímá rozdíl vzorku od teoretické hodnoty, použijeme jednovýběrový test. ",
-  test_type == "two-sample" ~ "V případě rozdílu mezi dvěma vzorky, které jsou nezávislé, použijeme dvouvýběrový test. ",
-  test_type == "paired" ~ "V případě rozdílu mezi dvěma vzorky, které jsou závislé (třeba měření před a po intervenci), použijeme párový test. "
-)
-
-explanation_text_tmp2 <- if_else(is_signif  == 1, "Jelikož je p-hodnota menší než hladina významnosti, můžeme zamítnou nulovou hypotézu ve prospěch alternativní.", "Jelikož je p-hodnota větší než hladina významnosti, nemůžeme zamítnou nulovou hypotézu ve prospěch alternativní. Pozor, neznamená to, že platí nulová hypotéza, pouze ji nemůžeme vyvrátit."
-)
-
+if(lang == "CZ") {
+  
+  
+  explanation_text_tmp1 <- case_when(
+    test_type == "one-sample" ~ "Protože nás zajímá rozdíl vzorku od teoretické hodnoty, použijeme jednovýběrový test. ",
+    test_type == "two-sample" ~ "V případě rozdílu mezi dvěma vzorky, které jsou nezávislé, použijeme dvouvýběrový test. ",
+    test_type == "paired" ~ "V případě rozdílu mezi dvěma vzorky, které jsou závislé (třeba měření před a po intervenci), použijeme párový test. "
+  )
+  
+  explanation_text_tmp2 <- if_else(is_signif  == 1, "Jelikož je p-hodnota menší než hladina významnosti, můžeme zamítnout nulovou hypotézu ve prospěch alternativní.", "Jelikož je p-hodnota větší než hladina významnosti, nemůžeme zamítnout nulovou hypotézu ve prospěch alternativní. Pozor, neznamená to, že platí nulová hypotéza, pouze ji nemůžeme vyvrátit."
+  )
+} else {
+  explanation_text_tmp1 <- case_when(
+    test_type == "one-sample" ~ "Because we are interested in difference from theoretical value, we use one-sample test. ",
+    test_type == "two-sample" ~ "In case of difference between two samples, which are independent, we use two sample test. ",
+    test_type == "paired" ~ "In case of difference between two samples, which are dependent (such as measuring same group before and after measurement), we use paired test. "
+  )
+  
+  explanation_text_tmp2 <- if_else(is_signif  == 1, "Because p-value is lower than significance level, we can reject null in favour of alternative.", "Because p-value is larger than significance level, we can't rejct null in favour of alternative.")
+}
 explanation_text <- sprintf("%s%s", explanation_text_tmp1, explanation_text_tmp2)
+
+if(lang == "CZ") {
+  exam_title <- "Testování hypotéz"
+} else {
+  exam_title <- "Hypothesis testing"
+}
 ```
 
 
@@ -114,8 +194,13 @@ Question
 cat(eval(parse(text=text_question)))
 ```
 
-Byli jsme požádáni o zpracování analýzy, zda se hodnoty proměnné '`r df_currvars$name[1]`' na nasbíraném vzorku liší `r test_type_text`. Pracujeme s hladinou významnosti `r alpha_param`%. Získali jsme p-hodnotu rovnou `r p_val %>% round(3)`. Které z následujících tvrzení platí?
+```{r eval=in_czech, results='asis'}
+cat(sprintf("Byli jsme požádáni o zpracování analýzy, zda se hodnoty proměnné '%s' na nasbíraném vzorku liší %s. Pracujeme s hladinou významnosti %s%%. Získali jsme p-hodnotu rovnou %.3f. Které z následujících tvrzení platí?", df_currvars$name[1], test_type_text, alpha_param, p_val %>% round(3)))
+```
 
+```{r eval=in_english, results='asis'}
+cat(sprintf("We were asked to perform analysis, whether values of variable '%s' from the sample differ %s. We work with significance level %s%%. We got p-value equal to %.3f. Which of the following statements holds?", df_currvars$name[1], test_type_text, alpha_param, p_val %>% round(3)))
+```
 
 ```{r questionlist, echo = FALSE, results = "asis"}
 answerlist(questions, markup = "markdown")
@@ -131,5 +216,5 @@ Meta-information
 extype: mchoice
 exsolution: `r mchoice2string(solutions)`
 exname: hypothesis_testing
-extitle: Testování hypotéz
+extitle: `r exam_title`
 expoints: 1.5

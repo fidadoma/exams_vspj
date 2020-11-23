@@ -5,13 +5,23 @@ date: '`r format(Sys.time(), "%d %B, %Y")`'
 output: html_document
 ---
 
+```{r set_language}
+in_czech <- T
+in_english <- !in_czech
+if(in_czech) {
+  lang <- "CZ"
+} else {
+  lang <- "EN"
+}
+```
+
 ```{r setup, code = readLines("D:/Documents/git/exams_vspj/common_chunks.R")}
 
 ```
 
 ```{r data generation, echo = FALSE, results = "hide"}
 ## DATA GENERATION
-df_assignmnent <- get_var_desc()
+df_assignmnent <- get_var_desc(language = lang)
 df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
 text_question <- sample(df_assignmnent$question,1)
 
@@ -46,8 +56,12 @@ xmax <- x_ranges[2]
 y_ranges <- df_currvars$values[2] %>% extract_ranges_vec()
 ymin <- y_ranges[1]
 ymax <- y_ranges[2]
+if (lang == "CZ") {
+  questions <- c("Obě pozitivní","Obě negativní","Vlevo pozitivní, vpravo negativní","Vlevo negativní, vpravo pozitivní")  
+} else {
+  questions <- c("Both positive","Both negative","Left positive, right negative","Left negative, right positive")  
+}
 
-questions <- c("Obě pozitivní","Obě negativní","Vlevo pozitivní, vpravo negativní","Vlevo negativní, vpravo pozitivní")
 solutions <- rep(F,length(questions))
 if (plot_order == "normal") {
   if(r1>0&r2>0) {
@@ -76,6 +90,11 @@ o <- sample(1:length(questions))
 questions <- questions[o]
 solutions <- solutions[o]
 
+if(lang == "CZ") {
+  exam_title <- "Korelace - kladná/záporná"
+} else {
+  exam_title <- "Correlation - positive/negative"
+}
 ```
 
 Question
@@ -85,9 +104,22 @@ Question
 cat(eval(parse(text=text_question)))
 ```
 
-V následujících grafech vidíme vztahy mezi proměnnými `r  df_currvars$name[1]` a `r df_currvars$name[2]` zvlášť pro podskupinu `r df_assignmnent$group1` a `r df_assignmnent$group2`. Rozhodněte, které korelace jsou kladné a které záporné.
 
-Data vypadají následovně:
+```{r eval=in_czech, results='asis'}
+cat(sprintf("V následujících grafech vidíme vztahy mezi proměnnými '%s' a '%s' zvlášť pro podskupinu %s a %s. Rozhodněte, které korelace jsou kladné a které záporné.", df_currvars$name[1], df_currvars$name[2], df_assignmnent$group1, df_assignmnent$group2))
+```
+
+```{r eval=in_english, results='asis'}
+cat(sprintf("In following plots, we can see relationship between variables '%s' a '%s' separately for groups %s a %s. Decide, whether each correlation is positive or negative.", df_currvars$name[1], df_currvars$name[2], df_assignmnent$group1, df_assignmnent$group2))
+```
+
+```{r eval=in_czech, results='asis'}
+cat("Data vypadají následovně:")
+```
+
+```{r eval=in_english, results='asis'}
+cat("Data look as follows:")
+```
 
 ```{r graf,echo = FALSE, warning =F,message=F, fig.width=10}
 p1 <- df_left %>% ggplot(aes(x = !!sym(df_currvars$name[1]),!!sym(df_currvars$name[2]))) + theme(aspect.ratio = 1) + 
@@ -100,8 +132,14 @@ p2 <- df_right %>% ggplot(aes(x = !!sym(df_currvars$name[1]),!!sym(df_currvars$n
 p1+p2
 ```
 
+```{r eval=in_czech, results='asis'}
+cat("Které korelace jsou kladné a které záporné?")
+```
 
-Které korelace jsou kladné a které záporné?
+```{r eval=in_english, results='asis'}
+cat("Which of the following correlations are positive/negative?")
+```
+
 
 ```{r questionlist, echo = FALSE, results = "asis"}
 answerlist(questions, markup = "markdown")
@@ -109,12 +147,19 @@ answerlist(questions, markup = "markdown")
 
 Solution
 ========
-Korelace pro levý graf je `r fmt(cor(df_left[[1]],df_left[[2]]),2)`, pro pravý je `r fmt(cor(df_right[[1]],df_right[[2]]),2)` Správná odpověď je tedy `r questions[solutions]`
+```{r eval=in_czech, results='asis'}
+cat(sprintf("Korelace pro levý graf je %s, pro pravý je %s. správná odpověď je tedy %s.", fmt(cor(df_left[[1]],df_left[[2]]),2), fmt(cor(df_right[[1]],df_right[[2]]),2), questions[solutions]))
+```
+
+```{r eval=in_english, results='asis'}
+cat(sprintf("Correlation for left plot is %s, for right plot is %s. Correct answer is %s.", fmt(cor(df_left[[1]],df_left[[2]]),2), fmt(cor(df_right[[1]],df_right[[2]]),2), questions[solutions]))
+```
+
 
 Meta-information
 ================
 extype: schoice
 exsolution: `r mchoice2string(solutions, single = TRUE)`
 exname: correlation_positive_negative
-extitle: Korelace - kladná/záporná
+extitle: `r exam_title`
 expoints: 0.5

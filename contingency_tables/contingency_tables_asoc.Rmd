@@ -5,6 +5,16 @@ date: '`r format(Sys.time(), "%d %B, %Y")`'
 output: html_document
 ---
 
+```{r set_language}
+in_czech <- T
+in_english <- !in_czech
+if(in_czech) {
+  lang <- "CZ"
+} else {
+  lang <- "EN"
+}
+```
+
 ```{r setup, code = readLines("D:/Documents/git/exams_vspj/common_chunks.R")}
 
 ```
@@ -12,7 +22,7 @@ output: html_document
 ```{r data generation, echo = FALSE, results = "hide"}
 
 
-df_assignmnent <- get_var_desc()
+df_assignmnent <- get_var_desc(language = lang)
 df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
 text_question <- sample(df_assignmnent$question,1)
 
@@ -39,18 +49,38 @@ cont_coef <- sample(3,1)
 
 if(cont_coef == 1) {
   f <-   pearson_cont_coef
-  asoc_coef <- "Pearsonův"
+  if(lang == "CZ") {
+    asoc_coef <- "Pearsonův"
+  } else {
+    asoc_coef <- "Pearson's"
+  }
 } else if(cont_coef == 2){
   f <-   cramer_cont_coef
-  asoc_coef <- "Cramevův"
+  if(lang == "CZ") {
+    asoc_coef <- "Cramevův"
+  } else {
+    asoc_coef <- "Cramer's V"
+  }
+  
 } else if(cont_coef == 3) {
   f <- cuporev_cont_coef
-  asoc_coef <- "Čuprovův"
+  if(lang == "CZ") {
+    asoc_coef <- "Čuprovův"
+  } else {
+    asoc_coef <- "cuproev"
+  }
+  
 } else {
   stop("incorrect contingency index")
 }
   
 solution <- f(chi_sq = (chisq.test(xt, correct = F))$statistic, n, ncol(df), nrow(df))
+
+if(lang == "CZ") {
+  exam_title <- "Kontingenční tabulka - asociace"
+} else {
+  exam_title <- "Contingency tables - asociation"
+}
 ```
 
 Question
@@ -60,13 +90,27 @@ Question
 cat(eval(parse(text=text_question)))
 ```
 
-Získali jsme data o proměnných '`r df_currvars$name[1]`' a '`r df_currvars$name[2]`' a zajímá nás, zda je mezi těmito proměnnými vztah.
+```{r eval=in_czech, results='asis'}
+cat(sprintf("Získali jsme data o proměnných '%s' a '%s' a zajímá nás, zda je mezi těmito proměnnými vztah.", df_currvars$name[1], df_currvars$name[2]))
+```
 
-Data vypadají následovně:
+```{r eval=in_english, results='asis'}
+cat(sprintf("We collected data for variables '%s' and '%s' and we want to inspect, whether there is a relationship between variables.", df_currvars$name[1], df_currvars$name[2]))
+```
+
+
+
+```{r eval=in_czech, results='asis'}
+cat("Data vypadají následovně:")
+```
+
+```{r eval=in_english, results='asis'}
+cat("Data look as follows:")
+```
 
 ```{r echo = FALSE}
 
-table(df[[df_currvars$name[1]]], df[[df_currvars$name[2]]])
+table(df[[df_currvars$name[1]]], df[[df_currvars$name[2]]]) %>% knitr::kable()
 #knitr::kable(xtabs(~))
 #knitr::kable(ftable(df %>% select(-x_categ, -y_categ)), row.names = 1:2)
 #epitab::contingency_table(list(df_currvars$name[1],df_currvars$name[2]), df)
@@ -75,11 +119,24 @@ table(df[[df_currvars$name[1]]], df[[df_currvars$name[2]]])
 #      method = "render")
 ```
 
-Určete `r asoc_coef` koeficient kontingence (s přesností na 2 desetinná místa)
+```{r eval=in_czech, results='asis'}
+cat(sprintf("Určete %s koeficient kontingence (s přesností na 2 desetinná místa).", asoc_coef))
+```
+
+```{r eval=in_english, results='asis'}
+cat(sprintf("Compute %s association (and round to 2 decimal places).", asoc_coef))
+```
 
 Solution
 ========
-Pro danou kontingenční tabulku je výsledek `r exams::fmt(solution,2)`.  
+```{r eval=in_czech, results='asis'}
+cat(sprintf("Pro danou kontingenční tabulku je výsledek %s", fmt(solution,2)))
+```
+
+
+```{r eval=in_english, results='asis'}
+cat(sprintf("For given contingency table is the solution %s", fmt(solution,2)))
+```
 
 Meta-information
 ================
@@ -87,5 +144,5 @@ extype: num
 exsolution: `r exams::fmt(solution,2)`
 exname: cont_table_asoc
 extol: 0.01
-extitle: Kontingenční tabulka - asociace
+extitle: `r exam_title`
 expoints: 1

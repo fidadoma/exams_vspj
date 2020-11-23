@@ -1,12 +1,13 @@
 ---
-title: "Regression"
+title: "Typ grafu"
 author: "Filip Děchtěrenko"
 date: '`r format(Sys.time(), "%d %B, %Y")`'
 output: html_document
+  fig_caption: false
 ---
 
 ```{r set_language}
-in_czech <- T
+in_czech <- F
 in_english <- !in_czech
 if(in_czech) {
   lang <- "CZ"
@@ -19,8 +20,7 @@ if(in_czech) {
 
 ```
 
-
-```{r data generation, echo = FALSE}
+```{r data generation, echo = FALSE, results = "hide"}
 
 df_assignmnent <- get_var_desc(language = lang)
 df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
@@ -31,17 +31,16 @@ r <- runif(1,-1,1)
 
 df_currvars <- sample_vars(df_vardesc, nvar = 2)
 
-# generate X,Y data
 df_data <- safe_generate_correlated_data(n,r,df_currvars)
 
 X <- df_data[[1]]
 Y <- df_data[[2]]
-lm1 <- lm(Y~X)
+lm1 <- lm(Y~X, df_data)
 
 if(lang == "CZ") {
-  exam_title <- "Regrese - výpočet R2"
+  exam_title <- "Regrese - odhad parametru"
 } else {
-  exam_title <- "Regression - computation of R2"
+  exam_title <- "Regression - parameter estimation"
 }
 
 ```
@@ -55,12 +54,13 @@ cat(eval(parse(text=text_question)))
 ```
 
 ```{r eval=in_czech, results='asis'}
-cat(sprintf("Spočítejte koeficient determinace předpovídající proměnnou '%s' v závislosti na proměnné '%s'. Data vypadají následovně:", df_currvars$name[2], df_currvars$name[1]))
+cat(sprintf("Lineární závislost popisujeme rovnicí ve tvaru $y = b_1x+b_0$. Spočítejte regresní koeficient $b_1$ přímky předpovídající proměnnou '%s' v závislosti na proměnné '%s'. Data vypadají následovně:", df_currvars$name[2], df_currvars$name[1]))
 ```
 
 ```{r eval=in_english, results='asis'}
-cat(sprintf("Compute $R^2$ coefficient for the line predicting variable '%s' from variable '%s'. Data looks as follows:", df_currvars$name[2], df_currvars$name[1]))
+cat(sprintf("Linear relationship is captured by equation $y = b_1x+b_0$. Compute regression coefficient $b_1$ for the line predicting variable '%s' from variable '%s'. Data looks as follows:", df_currvars$name[2], df_currvars$name[1]))
 ```
+
 
 ```{r graf,echo = FALSE, warning =F,message=F}
 df_data %>% knitr::kable()
@@ -68,7 +68,6 @@ df_data %>% knitr::kable()
 
 Solution
 ========
-
 ```{r eval=in_czech, results='asis'}
 cat("Když si vizualizujeme data, vypadají následovně:")
 ```
@@ -86,28 +85,49 @@ df_data %>%
 ```
 
 ```{r eval=in_czech, results='asis'}
-cat("Pro výpočet koeficientu determinace použijeme funkci CORREL()*CORREL()")
+cat("Regresní koeficienty můžeme spočítat pomocí Regression nástroje v Jamovi")
 ```
 
 ```{r eval=in_english, results='asis'}
-cat("We use CORREL()*CORREL() to compute $R^2$")
+cat("We can compute regression using Regression tool in Jamovi")
 ```
 
 
 ```{r eval=in_czech, results='asis'}
-cat(sprintf("V tomto případě je koeficient determinace roven %s", exams::fmt(summary(lm1)$r.squared,2)))
+cat("Regresní koeficienty jsou: ")
 ```
 
 ```{r eval=in_english, results='asis'}
-cat(sprintf("In this case is the coefficient of determination equals to %s", exams::fmt(summary(lm1)$r.squared,2)))
+cat("Regression coefficients are: ")
 ```
+
+* $b_0$ = `r exams::fmt(coef(lm1)[1])`
+* $b_1$ = `r exams::fmt(coef(lm1)[2])`
+
+```{r eval=in_czech, results='asis'}
+cat("Pokud zobrazíme regresní přímku do grafu, vychází to následovně.")
+```
+
+```{r eval=in_english, results='asis'}
+cat("If we add regression line into figure, it looks as follows.")
+```
+
+```{r plot-plus-regression, fig.path = "", fig.cap = ""}
+df_data %>% 
+  ggplot(aes(x=!!sym(colnames(df_data)[1]), y=!!sym(colnames(df_data)[2]))) +
+  geom_point() + 
+  theme(aspect.ratio = 1) +
+  stat_smooth(method ="lm", se = F, formula='y ~ x')
+
+```
+
 
 
 Meta-information
 ================
 extype: num
-exsolution: `r exams::fmt(summary(lm1)$r.squared,2)`
-exname: regression_R2
+exsolution: `r exams::fmt(coef(lm1)[2])`
 extol: 0.01
+exname: regression_slope
 extitle: `r exam_title`
 expoints: 1

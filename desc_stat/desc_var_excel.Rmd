@@ -6,9 +6,27 @@ output: html_document
 ---
 
 ```{r}
-questions <- c("průměr", "median", "směrodatnou odchylku", "rozptyl", "dolní kvartil", "horní kvartil")
+in_czech <- T
+in_english <- !in_czech
+if(in_czech) {
+  lang <- "CZ"
+} else {
+  lang <- "EN"
+}
+
+
+if(lang == "CZ") {
+  questions <- c("průměr", "median", "směrodatnou odchylku", "rozptyl", "dolní kvartil", "horní kvartil")
+} else {
+  questions <- c("mean", "median", "standard deviation", "variance", "lower quartile", "upper quartile")
+  
+}
+
 ix <- sample(1:length(questions),1)
 curr_theme <- NULL
+
+
+
 ```
 
 ```{r setup, code = readLines("D:/Documents/git/exams_vspj/common_chunks.R")}
@@ -16,7 +34,7 @@ curr_theme <- NULL
 ```
 
 ```{r data generation, echo = FALSE, results = "hide"}
-df_assignmnent <- get_var_desc(curr_theme)
+df_assignmnent <- get_var_desc(curr_theme, language = lang)
 df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
 text_question <- sample(df_assignmnent$question,1)
 
@@ -35,16 +53,32 @@ X <- df[[1]]  # standard normal (mu=0, sd=1)
 Y <- df[[2]]  # standard normal (mu=0, sd=1)
 
 df_data <- tibble(!!df_currvars$name[1]:=X)
-questions <- c("průměr", "median", "směrodatnou odchylku", "rozptyl", "dolní kvartil", "horní kvartil")
+
+if(lang == "CZ") {
+  questions <- c("průměr", "median", "směrodatnou odchylku", "rozptyl", "dolní kvartil", "horní kvartil")
+} else {
+  questions <- c("mean", "median", "standard deviation", "variance", "lower quartile", "upper quartile")
+  
+}
+
 functions <- c(mean, median, sd, var, lower_quartile, upper_quartile)
+if(lang == "CZ") {
 solutions_text <- c(
   "Průměr spočítáme pomocí funkce PRŮMĚR. Vzorec pro průměr je $m_x = \\frac{1}{n}\\sum_{i=1}^{n}{x_i}$",
   "Median spočítáme pomocí funkce MEDIAN. Můžeme také seřadit data a použít prostřední hodnotu (v případě sudého počtu bereme průměr z dvou prostředních čísel",
   "Směrodatnou odchylku spočítáme pomocí vzorce SMODCH.VÝBĚR.S. Vzorec pro výpočet je $sd_x = \\sqrt{\\frac{1}{n-1}\\sum_{i=1}^{n}{(x_i-\\bar{x}})^2}$",
   "Rozptyl spočítáme pomocí vzorce VAR.S",
   "Dolní kvartil spočítáme pomocí vzorce QUARTIL.INC, kde za druhý parametr dosadíme hodnotu 1",
-  "Horní kvartil kvartil spočítáme pomocí vzorce QUARTIL.INC, kde za druhý parametr dosadíme hodnotu 2"
-)
+  "Horní kvartil spočítáme pomocí vzorce QUARTIL.INC, kde za druhý parametr dosadíme hodnotu 3"
+) } else {
+ solutions_text <- c(
+  "Mean is computed using function PRŮMĚR/AVERAGE. ",
+  "Median is computed using function MEDIAN. ",
+  "Standard deviation is computed using formula SMODCH.VÝBĚR.S/STDEV.S.",
+  "Variance is computed using formula VAR.S",
+  "Lower quartile is computed using formula QUARTIL.INC, where we use 1 as second parameter",
+  "Lower quartile is computed using formula QUARTIL.INC, where we use 3 as second parameter") 
+}
 stopifnot(length(questions) == length(functions))
 #ix <- sample(1:length(questions),1)
 
@@ -52,6 +86,14 @@ f <- functions[[ix]]
 
 
 solutions <- exams::fmt(f(X),2)
+
+
+if(lang == "CZ") {
+  exam_title <- "Deskriptivní statistika"
+} else {
+  exam_title <- "Descriptive statistics"
+}
+
 
 ```
 
@@ -61,7 +103,13 @@ Question
 cat(eval(parse(text=text_question)))
 ```
 
-Spočítejte `r questions[ix]` pro následující data.
+```{r eval=in_czech, results='asis'}
+cat(sprintf("Spočítejte %s pro následující data.", questions[ix]))
+```
+
+```{r eval=in_english, results='asis'}
+cat(sprintf("Compute %s for following data.", questions[ix]))
+```
 
 ```{r plot, fig.path = "", fig.cap = ""}
 df_data %>% knitr::kable()
@@ -76,14 +124,20 @@ Solution
 
 `r solutions_text[ix]`
 
+```{r eval=in_czech, results='asis'}
+cat(sprintf("V tomto případě je výsledek %s", solutions))
+```
 
-V tomto případě je výsledek `r solutions`
+```{r eval=in_english, results='asis'}
+cat(sprintf("In this case, the result is %s", solutions))
+```
+
 
 Meta-information
 ================
 extype: num
 exsolution: `r solutions`
 exname: Deskriptivní statistika
-extitle: Deskriptivní statistika
+extitle: `r exam_title`
 expoints: 1
 

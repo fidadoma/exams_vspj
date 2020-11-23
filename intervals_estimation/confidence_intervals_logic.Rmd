@@ -7,6 +7,15 @@ output: html_document
 
 ```{r}
 question_type <- sample(1:6, 1)
+
+in_czech <- T
+in_english <- !in_czech
+if(in_czech) {
+  lang <- "CZ"
+} else {
+  lang <- "EN"
+}
+
 ```
 
 ```{r setup, code = readLines("D:/Documents/git/exams_vspj/common_chunks.R")}
@@ -16,7 +25,7 @@ question_type <- sample(1:6, 1)
 
 ```{r data generation, echo = FALSE}
 
-df_assignmnent <- get_var_desc()
+df_assignmnent <- get_var_desc(language = lang)
 df_vardesc <- df_assignmnent$var_desc %>% unnest(cols = c(data))
 text_question <- sample(df_assignmnent$question,1)
 
@@ -38,36 +47,83 @@ m <- mean(mm) %>% round(2)
 LB <- m-u*s/sqrt(n) %>% round(1)
 UB <- m+u*s/sqrt(n) %>% round(1)
 
-
-if(question_type == 1) {
-  question_text <- "bychom použili 99% interval spolehlivosti."
-  solution <- c(F,T)
-  solution_text <- "S vyšší pravděpodobností u intervalu spolehlivosti si chceme být jistější, že v intervalu skutečně leží populační průměr. Interval tedy bude širší."
-  
-} else if(question_type == 2) {
-  question_text <- "bychom použili 90% interval spolehlivosti."
-  solution <- c(T,F)
-  solution_text <- "S nižší pravděpodobností u intervalu spolehlivosti si tedy můžeme být méně jistější, že v intervalu skutečně leží populační průměr. Interval tedy bude užší."
-  
-} else if(question_type == 3) {
-  question_text <- "by vzorek měl více pozorování."
-  solution_text <- "S větším množstvím pozorování se nám bude zvyšovat jistota, že náš průměr vzorku je bliže průměru populace. Interval tedy bude užší."
-  solution <- c(T,F)
-} else if(question_type == 4) {
-  question_text <- "by vzorek měl méně pozorování."
-  solution <- c(F,T)
-  solution_text <- "S menším množstvím pozorování nám bude klesat jistota, že náš průměr vzorku je bliže průměru populace. Interval tedy bude širší."
-} else if(question_type == 5) {
-  question_text <- "by směrodatná odchylka vzorku byla větší."
-  solution <- c(F,T)
-  solution_text <- "Je-li variabilita vzorku vyšší, jsme is méně jisti, že náš bodový odhad je blízko populačnímu průměru. Interval tedy bude širší."
-} else if(question_type == 6) {
-  question_text <- "by směrodatná odchylka vzorku byla menší."
-  solution <- c(T,F)
-  solution_text <- "Je-li variabilita vzorku nižší, jsme is více jisti, že náš bodový odhad je blízko populačnímu průměru. Interval tedy bude užší."
+if(lang == "CZ") {
+  if(question_type == 1) {
+    question_text <- "bychom použili 99% interval spolehlivosti."
+    solution <- c(F,T)
+    solution_text <- "S vyšší pravděpodobností u intervalu spolehlivosti si chceme být jistější, že v intervalu skutečně leží populační průměr. Interval tedy bude širší."
+    
+  } else if(question_type == 2) {
+    question_text <- "bychom použili 90% interval spolehlivosti."
+    solution <- c(T,F)
+    solution_text <- "S nižší pravděpodobností u intervalu spolehlivosti si tedy můžeme být méně jistější, že v intervalu skutečně leží populační průměr. Interval tedy bude užší."
+    
+  } else if(question_type == 3) {
+    question_text <- "by vzorek měl více pozorování."
+    solution_text <- "S větším množstvím pozorování se nám bude zvyšovat jistota, že náš průměr vzorku je bliže průměru populace. Interval tedy bude užší."
+    solution <- c(T,F)
+  } else if(question_type == 4) {
+    question_text <- "by vzorek měl méně pozorování."
+    solution <- c(F,T)
+    solution_text <- "S menším množstvím pozorování nám bude klesat jistota, že náš průměr vzorku je bliže průměru populace. Interval tedy bude širší."
+  } else if(question_type == 5) {
+    question_text <- "by směrodatná odchylka vzorku byla větší."
+    solution <- c(F,T)
+    solution_text <- "Je-li variabilita vzorku vyšší, jsme is méně jisti, že náš bodový odhad je blízko populačnímu průměru. Interval tedy bude širší."
+  } else if(question_type == 6) {
+    question_text <- "by směrodatná odchylka vzorku byla menší."
+    solution <- c(T,F)
+    solution_text <- "Je-li variabilita vzorku nižší, jsme is více jisti, že náš bodový odhad je blízko populačnímu průměru. Interval tedy bude užší."
+  } else {
+    stop("unknown type")
+  }
 } else {
-  stop("unknown type")
+  if(question_type == 1) {
+    question_text <- "we used 99% confidence interval instead."
+    solution <- c(F,T)
+    solution_text <- "With higher probability with confidence interval, we want to be more sure that population mean lies within the interval. Interval will be wider."
+    
+  } else if(question_type == 2) {
+    question_text <- "we used 90% confidence interval instead."
+    solution <- c(T,F)
+    solution_text <- "With lower probability with confidence interval, we can be less sure that population mean lies within the interval. Interval will be thiner."
+    
+  } else if(question_type == 3) {
+    question_text <- "sample would have been larger."
+    solution_text <- "With larger sample also increases our confidence that our sample mean is closer to population mean. Interval will be thiner."
+    solution <- c(T,F)
+  } else if(question_type == 4) {
+    question_text <- "sample would have been smaller."
+    solution <- c(F,T)
+    solution_text <- "With smaller sample also decreases our confidence that our sample mean is closer to population mean. Interval will be wider."
+  } else if(question_type == 5) {
+    question_text <- "standard deviation of the sample would be larger."
+    solution <- c(F,T)
+    solution_text <- "If the variability of the sample is larger, we are less sure that our sample mean is closer to the population mean. Interval will be wider."
+  } else if(question_type == 6) {
+    question_text <- "standard deviation of the sample would be larger."
+    solution <- c(T,F)
+    solution_text <- "If the variability of the sample is smaller, we are more sure that our sample mean is closer to the population mean. Interval will be thiner."
+  } else {
+    stop("unknown type")
+  }
 }
+if(lang == "CZ") {
+  first_answer <- "Interval bude užší"
+  second_answer <- "Interval bude širší"
+} else {
+  first_answer <- "Interval will be thiner"
+  second_answer <- "Interval will be wider"
+  
+}
+
+if(lang == "CZ") {
+  exam_title <- "Intervalový odhad"
+} else {
+  exam_title <- "Confidence intervals"
+}
+
+
 ```
 
 
@@ -75,14 +131,21 @@ if(question_type == 1) {
 Question
 ========
 
-Při výpočtu 95% konfidenčního intervalu pro proměnnou jsme získali výsledek ve tvaru `r sprintf("[%.1f,%.1f]", LB, UB)`. 
+```{r eval=in_czech, results='asis'}
+cat(sprintf("Při výpočtu 95%% konfidenčního intervalu pro proměnnou jsme získali výsledek ve tvaru %s\n\n
+Co se s intervalem stane, pokud %s", sprintf("[%.1f,%.1f]", LB, UB), question_text))
+```
 
-Co se s intervalem stane, pokud `r question_text`
+```{r eval=in_english, results='asis'}
+cat(sprintf("When computing 95%% confidence interval for variable, we obtained answer in format %s\n\n
+What happens with the interval, if %s", sprintf("[%.1f,%.1f]", LB, UB), question_text))
+```
+
 
 Answerlist
 ----------
-* Interval bude užší
-* Interval bude širší
+* `r first_answer` 
+* `r second_answer` 
 
 
 Solution
@@ -95,6 +158,6 @@ Meta-information
 extype: schoice
 exsolution: `r mchoice2string(solution, single = TRUE)`
 exname: confidence_interval_logic
-extitle: Intervalový odhad
+extitle: `r exam_title`
 expoints: 0.5
 
