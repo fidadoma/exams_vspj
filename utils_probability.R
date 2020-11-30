@@ -159,7 +159,7 @@ probability_normal_setting_perc <- function(perc, mu_param, sigma_param, directi
     if(language == "CZ") {
       explanation <- sprintf("V této inverzní úloze máme zadanou pravděpodobnost p a zajímá nás hodnota k, pro kterou platí P(X < k) = p. K tomuto se dá použít funkce NORM.INV. V tomto případě pro parametery $\\mu$=%d, $\\sigma$=%d,  p=%.2f. Daná hodnota je %.3f", mu_param, sigma_param, perc, solution)  
     } else {
-      explanation <- sprintf("In this inverse task, we have probability p and we are interested in value k, for which following holds P(X < k) = p. We can use NORM.INV formula for that. In that case V tomto with parameters $\\mu$=%d, $\\sigma$=%d,  p=%.2f. Given value is %.3f", mu_param, sigma_param, perc, solution)  
+      explanation <- sprintf("In this inverse task, we have probability p and we are interested in value k, for which following holds P(X < k) = p. We can use NORM.INV formula for that. In that case with parameters $\\mu$=%d, $\\sigma$=%d,  p=%.2f. Given value is %.3f", mu_param, sigma_param, perc, solution)  
     }
     
     
@@ -168,7 +168,7 @@ probability_normal_setting_perc <- function(perc, mu_param, sigma_param, directi
     if(language == "CZ") {
       explanation <- sprintf("V této inverzní úloze máme zadanou pravděpodobnost p a zajímá nás hodnota k, pro kterou platí P(X > k) = 1 - P(X <= k) = p. K tomuto se dá použít funkce NORM.INV. V tomto případě pro parametery $\\mu$=%d, $\\sigma$=%d,  p=%.2f. Daná hodnota je %.3f", mu_param, sigma_param, perc, solution)
     } else {
-      explanation <- sprintf("In this inverse task, we have probability p and we are interested in value k, for which following holds P(X > k) = = 1 - P(X <= k) = p. We can use NORM.INV formula for that. In that case V tomto with parameters $\\mu$=%d, $\\sigma$=%d,  p=%.2f. Given value is %.3f", mu_param, sigma_param, perc, solution)  
+      explanation <- sprintf("In this inverse task, we have probability p and we are interested in value k, for which following holds P(X > k) = = 1 - P(X <= k) = p. We can use NORM.INV formula for that. In that case with parameters $\\mu$=%d, $\\sigma$=%d,  p=%.2f. Given value is %.3f", mu_param, sigma_param, perc, solution)  
     }
   
   } else {

@@ -110,7 +110,7 @@ cat(sprintf("V následujících grafech vidíme vztahy mezi proměnnými '%s' a 
 ```
 
 ```{r eval=in_english, results='asis'}
-cat(sprintf("In following plots, we can see relationship between variables '%s' a '%s' separately for groups %s a %s. Decide, whether each correlation is positive or negative.", df_currvars$name[1], df_currvars$name[2], df_assignmnent$group1, df_assignmnent$group2))
+cat(sprintf("In following plots, we can see relationship between variables '%s' a '%s' separately for groups %s and %s. Decide, whether each correlation is positive or negative.", df_currvars$name[1], df_currvars$name[2], df_assignmnent$group1, df_assignmnent$group2))
 ```
 
 ```{r eval=in_czech, results='asis'}

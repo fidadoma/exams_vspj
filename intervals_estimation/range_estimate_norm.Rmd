@@ -101,7 +101,7 @@ cat(sprintf("Spočítejte interval, ve kterém se nachází s pravděpodobností
 ```
 
 ```{r eval=in_english, results='asis'}
-cat(sprintf("Compute confidence interval, in which the population mean lies with probability %d%% . Report just %s bound of the interval and round to 1 decimal point.",  interval_range,interval_type))
+cat(sprintf("Compute confidence interval, in which the population mean lies with probability %d%% . Report just %s bound of the interval and round to 1 decimal place.",  interval_range,interval_type))
 
 ```
 

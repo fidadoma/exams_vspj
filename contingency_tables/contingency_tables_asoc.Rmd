@@ -124,7 +124,7 @@ cat(sprintf("Určete %s koeficient kontingence (s přesností na 2 desetinná m�
 ```
 
 ```{r eval=in_english, results='asis'}
-cat(sprintf("Compute %s association (and round to 2 decimal places).", asoc_coef))
+cat(sprintf("Compute %s contingency coefficient (and round to 2 decimal places).", asoc_coef))
 ```
 
 Solution

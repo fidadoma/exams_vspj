@@ -52,7 +52,7 @@ if (runif(1) < 0.5) {
     estim_type <- "směrodatnou odchylku"
     solution_text <- "stačí spočítat směrodatnou odchylku výběru. V Excelu jde o funkci SMODCH.VÝBĚR.S"
   } else {
-    estim_type <- "standard deviance"
+    estim_type <- "standard deviation"
   solution_text <- "we just compute sample standard deviation. In Excel, we can do it using formula STDEV.S/SMODCH.VÝBĚR.S"
   }
   
