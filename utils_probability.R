@@ -223,7 +223,7 @@ probability_normal_setting_sum <- function(k, n, mu_param, sigma_param, quantifi
                          In this case we are interested in P(X <= %d) = F(%d). 
                          We fill in the formula for normal distribution with parameters $\\mu$=%d, $\\sigma$=%d,  k=%d. 
                          Probability is %.3f", k, k, n*mu_param, n*sigma_param, k, solution)
-    } else if (quantifier == "less then") {
+    } else if (quantifier == "less than") {
       solution <- pnorm(k, mu_param*n, sigma_param*n)
       explanation <- sprintf("Following holds for sum of normal distributions $\\mu_{sum} = n*\\mu$ and $\\sigma_{sum} = n*\\sigma$. 
                          In this case we are interested in P(X < %d) = F(%d). 
