@@ -145,4 +145,4 @@ exsolution: `r exams::fmt(solution,2)`
 exname: cont_table_asoc
 extol: 0.01
 extitle: `r exam_title`
-expoints: 1
+expoints: 2
