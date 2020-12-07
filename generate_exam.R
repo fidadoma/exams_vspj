@@ -299,3 +299,37 @@ expar("hypothesis_testing/tailedness.Rmd", in_czech = F)),
           question = question_txt, 
           solution = solution_txt
 )
+
+
+# probability --------------------------------------------------------------
+
+rm(list = ls())
+library(tidyverse)
+library(exams)
+library(printr)
+
+question_txt <- "<h4>Otazka</h4>"
+solution_txt <- "<h4>Reseni</h4>"
+out_dir <- "generated_questions"
+
+set.seed(76194)
+
+exams2pdf(list("probability/binomial_distribution.Rmd","probability/binomial_distribution.Rmd","probability/binomial_distribution.Rmd","probability/poisson_distribution.Rmd",
+               "probability/normal_distribution.Rmd",
+               "probability/normal_distribution_mean.Rmd",
+               "probability/normal_distribution_sum.Rmd",
+               "probability/normal_distribution_perc.Rmd",
+               "probability/normal_distribution_range.Rmd"),
+          n = 1, template = "exam")
+
+set.seed(76194)
+
+exams2pdf(list("probability/binomial_distribution.Rmd","probability/binomial_distribution.Rmd","probability/binomial_distribution.Rmd","probability/poisson_distribution.Rmd",
+               "probability/normal_distribution.Rmd",
+               "probability/normal_distribution_mean.Rmd",
+               "probability/normal_distribution_sum.Rmd",
+               "probability/normal_distribution_perc.Rmd",
+               "probability/normal_distribution_range.Rmd"),
+          n = 1, template = "plain")
+
+
