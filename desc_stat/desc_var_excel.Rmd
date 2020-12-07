@@ -1,5 +1,5 @@
 ---
-title: "Deskriptivní statistika"
+title: "Descriptive statistics"
 author: "Filip Děchtěrenko"
 date: '`r format(Sys.time(), "%d %B, %Y")`'
 output: html_document
@@ -137,7 +137,7 @@ Meta-information
 ================
 extype: num
 exsolution: `r solutions`
-exname: Deskriptivní statistika
+exname:  `r exam_title`
 extitle: `r exam_title`
 expoints: 1
 
