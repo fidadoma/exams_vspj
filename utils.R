@@ -123,7 +123,7 @@ pearson_cont_coef <- function(chi_sq, n, r,s) {
 }
 
 cramer_cont_coef <- function(chi_sq, n, r,s) {
-  return(sqrt(chi_sq/(n*min(r-1,s-1))))
+  return(sqrt((chi_sq/n)/min(r-1,s-1)))
 }
 cuporev_cont_coef <- function(chi_sq, n, r,s) {
   return(sqrt(chi_sq/(n*sqrt((r-1)*(s-1)))))
