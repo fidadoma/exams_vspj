@@ -72,13 +72,14 @@ cat("Compute Pearson's correlation coefficient (with precision to 2 decimal plac
 
 Solution
 ========
+
 ```{r eval=in_czech, results='asis'}
-cat(sprintf("Korelaci spočítáme v Jamovi pomocí nástroje Correlation, výsledek je %s.\n
+cat(sprintf("Korelaci spočítáme pomocí funkce CORREL, výsledek je %s.\n
 Bodový graf vypadá následovně:", exams::fmt(cor(X,Y),2)))
 ```
 
 ```{r eval=in_english, results='asis'}
-cat(sprintf("Correlation can be computed in Jamovi using Correlation tool, the result is %s.\n
+cat(sprintf("Correlation can be computed using function Correl, the result is %s.\n
 Scatter plot looks as follows:", exams::fmt(cor(X,Y),2)))
 ```
 
