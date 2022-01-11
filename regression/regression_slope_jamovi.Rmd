@@ -7,7 +7,7 @@ output: html_document
 ---
 
 ```{r set_language}
-in_czech <- F
+in_czech <- T
 in_english <- !in_czech
 if(in_czech) {
   lang <- "CZ"

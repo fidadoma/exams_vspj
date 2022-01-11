@@ -93,12 +93,12 @@ if(runif(1) < 0.5) {# correct
     solutions[1] <- T
   } else {
     if(lang == "CZ") {
-      questions[1] <- "Nemítáme nulovou hypotézu"
+      questions[1] <- "Nezamítáme nulovou hypotézu"
     } else {
       questions[1] <- "Don't reject null hypothesis"
     }
     
-    solutions[1] <- F
+    solutions[1] <- T
   }
 } else { # incorrect
   if(is_signif) {
@@ -156,6 +156,15 @@ solutions[3] <- test_query[2] == test_type
 o <- sample(1:length(questions))
 questions <- questions[o]
 solutions <- solutions[o]
+
+if(lang == "CZ") {
+questions[4] <- "Žádná z možností není správná"
+solutions[4] <- !any(solutions)
+} else {
+  questions[4] <- "None of the above"
+  solutions[4] <- !any(solutions)
+ 
+ }
 
 if(lang == "CZ") {
   

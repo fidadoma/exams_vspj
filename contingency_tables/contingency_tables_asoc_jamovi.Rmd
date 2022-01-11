@@ -50,14 +50,14 @@ cont_coef <- sample(2,1)
 if(cont_coef == 1) {
   f <-   pearson_cont_coef
   if(lang == "CZ") {
-    asoc_coef <- "Koeficient kontingence"
+    asoc_coef <- "koeficient kontingence"
   } else {
-    asoc_coef <- "Contingency coefficient"
+    asoc_coef <- "contingency coefficient"
   }
 } else if(cont_coef == 2){
   f <-   cramer_cont_coef
   if(lang == "CZ") {
-    asoc_coef <- "Cramevův"
+    asoc_coef <- "Cramerovo V"
   } else {
     asoc_coef <- "Cramer's V"
   }
@@ -66,7 +66,7 @@ if(cont_coef == 1) {
   stop("incorrect contingency index")
 }
   
-solution <- f(chi_sq = (chisq.test(xt, correct = F))$statistic, n, ncol(df), nrow(df))
+solution <- f(chi_sq = (chisq.test(xt, correct = F))$statistic, n, ncol(xt), nrow(xt))
 
 if(lang == "CZ") {
   exam_title <- "Kontingenční tabulka - asociace"
@@ -112,7 +112,7 @@ table(df[[df_currvars$name[1]]], df[[df_currvars$name[2]]]) %>% knitr::kable()
 ```
 
 ```{r eval=in_czech, results='asis'}
-cat(sprintf("Určete %s koeficient kontingence (s přesností na 2 desetinná místa).", asoc_coef))
+cat(sprintf("Určete %s (s přesností na 2 desetinná místa).", asoc_coef))
 ```
 
 ```{r eval=in_english, results='asis'}

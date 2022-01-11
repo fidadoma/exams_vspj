@@ -74,7 +74,7 @@ if(cont_coef == 1) {
   stop("incorrect contingency index")
 }
   
-solution <- f(chi_sq = (chisq.test(xt, correct = F))$statistic, n, ncol(df), nrow(df))
+solution <- f(chi_sq = (chisq.test(xt, correct = F))$statistic, n, ncol(xt), nrow(xt))
 
 if(lang == "CZ") {
   exam_title <- "Kontingenční tabulka - asociace"

@@ -3,6 +3,7 @@ rm(list = ls())
 library(tidyverse)
 library(exams)
 library(printr)
+options(OutDec= ",")
 
 themes <- readxl::read_excel("data/input_data.xlsx") %>% pull(group_theme) %>% unique()
 bank_prefix <- "vsechny ulohy"
@@ -88,6 +89,89 @@ clean_moodle_categories <- function(exam_dir, bank_root) {
 
 
 clean_moodle_categories("generated_questions", "vsechny ulohy")
+
+
+# FR - Jamovi version ---------------------------------------------------
+
+
+rm(list = ls())
+library(tidyverse)
+library(exams)
+library(printr)
+options(OutDec= ".")
+themes <- readxl::read_excel("data/input_data.xlsx") %>% pull(group_theme) %>% unique()
+bank_prefix <- "vsechny ulohy_jamovi"
+n_total <- 50
+out_dir <- "generated_questions"
+
+set.seed(1)
+
+current_group <- "Deskriptivni statistika"
+
+exams2moodle(file = list(expar("desc_stat/desc_var_jamovi.Rmd",ix = 1)),name = "Deskriptivni statistika1", stitle = sprintf("%s/%s/Vypocet prumeru",bank_prefix,current_group),n = n_total, dir = out_dir)
+exams2moodle(file = list(expar("desc_stat/desc_var_jamovi.Rmd",ix = 2)),name = "Deskriptivni statistika2", stitle = sprintf("%s/%s/Vypocet medianu",bank_prefix,current_group),n = n_total, dir = out_dir)
+exams2moodle(file = list(expar("desc_stat/desc_var_jamovi.Rmd",ix = 3)),name = "Deskriptivni statistika3", stitle = sprintf("%s/%s/Vypocet smd. odchylky",bank_prefix,current_group),n = n_total, dir = out_dir)
+exams2moodle(file = list(expar("desc_stat/desc_var_jamovi.Rmd",ix = 4)),name = "Deskriptivni statistika4", stitle = sprintf("%s/%s/Vypocet rozptylu",bank_prefix,current_group),n = n_total, dir = out_dir)
+exams2moodle(file = list(expar("desc_stat/desc_var_jamovi.Rmd",ix = 5)),name = "Deskriptivni statistika5", stitle = sprintf("%s/%s/Vypocet dolniho kvartilu",bank_prefix,current_group),n = n_total, dir = out_dir)
+exams2moodle(file = list(expar("desc_stat/desc_var_jamovi.Rmd",ix = 6)),name = "Deskriptivni statistika6", stitle = sprintf("%s/%s/Vypocet horniho kvartilu",bank_prefix,current_group),n = n_total, dir = out_dir)
+
+set.seed(123)
+current_group <- "Deskriptivni statistika"
+exams2moodle(file = list("misc/typ_grafu.Rmd"),name = "Deskriptivni statistika_misc", stitle = sprintf("%s/%s/Typ grafu",bank_prefix,current_group),n = n_total, dir = out_dir)
+
+set.seed(11)
+current_group <- "Deskriptivni statistika"
+exams2moodle(file = list("desc_stat/desc_plot.Rmd"),name = "Deskriptivni statistika7", stitle = sprintf("%s/%s/Vizualizace dat",bank_prefix,current_group),n = n_total, dir = out_dir)
+
+set.seed(2)
+current_group <- "Korelace a regrese"
+
+exams2moodle(file = list("correlation/correlation_jamovi.Rmd"),name = "Korelace_a_regrese1", stitle = sprintf("%s/%s/Korelace/Vypocet korelace",bank_prefix,current_group),n = n_total, dir = out_dir)
+exams2moodle(file = list("correlation/correlation_positive_negative.Rmd"),name = "Korelace_a_regrese2", stitle = sprintf("%s/%s/Korelace/Korelace - kladna-zaporna",bank_prefix,current_group),n = n_total, dir = out_dir)
+exams2moodle(file = list("correlation/correlation_larger_smaller.Rmd"),name = "Korelace_a_regrese3", stitle = sprintf("%s/%s/Korelace/Korelace - vetsi-mensi",bank_prefix,current_group),n = n_total, dir = out_dir)
+exams2moodle(file = list("regression/regression_R2_jamovi.Rmd"),name = "Korelace_a_regrese4", stitle = sprintf("%s/%s/Regrese/Regrese - vypocet R2",bank_prefix,current_group),n = n_total, dir = out_dir)
+exams2moodle(file = list("regression/regression_intercept_jamovi.Rmd"),name = "Korelace_a_regrese5", stitle = sprintf("%s/%s/Regrese/Regrese - vypocet interceptu",bank_prefix,current_group),n = n_total, dir = out_dir)
+exams2moodle(file = list("regression/regression_slope_jamovi.Rmd"),name = "Korelace_a_regrese6", stitle = sprintf("%s/%s/Regrese/Regrese - vypocet slope",bank_prefix,current_group),n = n_total, dir = out_dir)
+
+set.seed(3)
+current_group <- "Kontingencni tabulka"
+
+exams2moodle(file = list("contingency_tables/contingency_tables_asoc_jamovi.Rmd"),name = "Kontingencni_tabulka1", stitle = sprintf("%s/%s/Kontingencni tabulka - asociace",bank_prefix,current_group),n = n_total, dir = out_dir)
+exams2moodle(file = list("contingency_tables/contingency_tables_creation.Rmd"),name = "Kontingencni_tabulka2", stitle = sprintf("%s/%s/Kontingencni tabulka - vytvoreni",bank_prefix,current_group),n = n_total, dir = out_dir)
+exams2moodle(file = list("contingency_tables/contingency_tables_marginalization.Rmd"),name = "Kontingencni_tabulka3", stitle = sprintf("%s/%s/Kontingencni tabulka - marginalizace",bank_prefix,current_group),n = n_total, dir = out_dir)
+exams2moodle(file = list("contingency_tables/contingency_tables_relative_freq.Rmd"),name = "Kontingencni_tabulka4", stitle = sprintf("%s/%s/Kontingencni tabulka - relativni frekvence",bank_prefix,current_group),n = n_total, dir = out_dir)
+
+set.seed(5)
+current_group <- "Odhady a testovani hypotez"
+
+exams2moodle(file = list("intervals_estimation/confidence_intervals_logic.Rmd"),name = "Intervaly_hypotezy1", stitle = sprintf("%s/%s/Intervaly/Logika konfidencnich intervalu",bank_prefix,current_group),n = n_total, dir = out_dir)
+exams2moodle(file = list("intervals_estimation/point_estimate_jamovi.Rmd"),name = "Intervaly_hypotezy2", stitle = sprintf("%s/%s/Intervaly/Bodovy odhad",bank_prefix,current_group),n = n_total, dir = out_dir)
+exams2moodle(file = list("intervals_estimation/range_estimate_tdist_jamovi.Rmd"),name = "Intervaly_hypotezy3", stitle = sprintf("%s/%s/Intervaly/Intervalovy odhad",bank_prefix,current_group),n = n_total, dir = out_dir)
+
+set.seed(6)
+current_group <- "Odhady a testovani hypotez"
+
+exams2moodle(file = list("hypothesis_testing/chi_square_independence.Rmd"),name = "Intervaly_hypotezy5", stitle = sprintf("%s/%s/Hypotezy/Chi kvadrat",bank_prefix,current_group),n = n_total, dir = out_dir)
+exams2moodle(file = list("hypothesis_testing/chi_square_independence_compute.Rmd"),name = "Intervaly_hypotezy6", stitle = sprintf("%s/%s/Hypotezy/Chi kvadrat vypocet",bank_prefix,current_group),n = n_total, dir = out_dir)
+exams2moodle(file = list("hypothesis_testing/error_type.Rmd"),name = "Intervaly_hypotezy7", stitle = sprintf("%s/%s/Hypotezy/Chyba I a II druhu",bank_prefix,current_group),n = n_total, dir = out_dir)
+exams2moodle(file = list("hypothesis_testing/hypothesis_testing.Rmd"),name = "Intervaly_hypotezy8", stitle = sprintf("%s/%s/Hypotezy/Testovani hypotez - obecne",bank_prefix,current_group),n = n_total, dir = out_dir)
+exams2moodle(file = list("hypothesis_testing/t_test.Rmd"),name = "Intervaly_hypotezy9", stitle = sprintf("%s/%s/Hypotezy/t-test",bank_prefix,current_group),n = n_total, dir = out_dir)
+exams2moodle(file = list("hypothesis_testing/tailedness.Rmd"),name = "Intervaly_hypotezy10", stitle = sprintf("%s/%s/Hypotezy/Jedno-dvoustranny test",bank_prefix,current_group),n = n_total, dir = out_dir)
+
+
+clean_moodle_categories <- function(exam_dir, bank_root) {
+  fs <- dir(exam_dir, pattern = "*.xml", full.names = T)
+  for (i in 1:length(fs)) {
+    f <- fs[i]
+    txt <- read_file(f)
+    txt <- str_replace(txt, sprintf("(<text>\\$course\\$)/.*/(%s)",bank_root),"\\1/\\2")
+    write_file(txt, fs[i])
+  }
+}
+
+
+clean_moodle_categories("generated_questions", "vsechny ulohy_jamovi")
+
 
 # EN tests ----------------------------------------------------------------
 
@@ -224,4 +308,85 @@ exams2moodle(list(c(expar("desc_stat/desc_var.Rmd",ix = ix[1]),
           name = "test_FR"
 )
 
+
+
+# EN UNYP -----------------------------------------------------------------
+
+rm(list = ls())
+library(tidyverse)
+library(exams)
+library(printr)
+
+themes <- readxl::read_excel("data/input_data_eng.xlsx") %>% pull(group_theme) %>% unique()
+bank_prefix <- "vsechny ulohy"
+n_total <- 50
+out_dir <- "generated_questions"
+
+set.seed(1)
+
+current_group <- "Descriptive statistics"
+
+exams2moodle(file = list(expar("desc_stat/desc_var_jamovi.Rmd",ix = 1,in_czech = F)),name = "Descriptive_statistics1", stitle = sprintf("%s/%s/Compute mean",bank_prefix,current_group),n = n_total, dir = out_dir)
+exams2moodle(file = list(expar("desc_stat/desc_var_jamovi.Rmd",ix = 2,in_czech = F)),name = "Descriptive_statistics2", stitle = sprintf("%s/%s/Compute median",bank_prefix,current_group),n = n_total, dir = out_dir)
+exams2moodle(file = list(expar("desc_stat/desc_var_jamovi.Rmd",ix = 3,in_czech = F)),name = "Descriptive_statistics3", stitle = sprintf("%s/%s/Compute std. deviation",bank_prefix,current_group),n = n_total, dir = out_dir)
+exams2moodle(file = list(expar("desc_stat/desc_var_jamovi.Rmd",ix = 4,in_czech = F)),name = "Descriptive_statistics4", stitle = sprintf("%s/%s/Compute variance",bank_prefix,current_group),n = n_total, dir = out_dir)
+exams2moodle(file = list(expar("desc_stat/desc_var_jamovi.Rmd",ix = 5,in_czech = F)),name = "Descriptive_statistics5", stitle = sprintf("%s/%s/Compute lower quartile",bank_prefix,current_group),n = n_total, dir = out_dir)
+exams2moodle(file = list(expar("desc_stat/desc_var_jamovi.Rmd",ix = 6,in_czech = F)),name = "Descriptive_statistics6", stitle = sprintf("%s/%s/Compute upper quartile",bank_prefix,current_group),n = n_total, dir = out_dir)
+
+set.seed(123)
+current_group <- "Descriptive statistics"
+exams2moodle(file = list(expar("misc/typ_grafu.Rmd",in_czech = F)),name = "Descriptive statistics_misc", stitle = sprintf("%s/%s/Type of figure",bank_prefix,current_group),n = n_total, dir = out_dir)
+
+set.seed(11)
+current_group <- "Descriptive statistics"
+exams2moodle(file = list(expar("desc_stat/desc_plot.Rmd",in_czech = F)),name = "Descriptive statistics7", stitle = sprintf("%s/%s/Data visualization",bank_prefix,current_group),n = n_total, dir = out_dir)
+
+set.seed(2)
+current_group <- "Correlation and regression"
+
+exams2moodle(file = list(expar("correlation/correlation_jamovi.Rmd",in_czech = F)),name = "Correlation_and_regression1", stitle = sprintf("%s/%s/Correlation/Compute correlation",bank_prefix,current_group),n = n_total, dir = out_dir)
+exams2moodle(file = list(expar("correlation/correlation_positive_negative.Rmd",in_czech = F)),name = "Correlation_and_regression2", stitle = sprintf("%s/%s/Correlation/Correlation - positive-negative",bank_prefix,current_group),n = n_total, dir = out_dir)
+exams2moodle(file = list(expar("correlation/correlation_larger_smaller.Rmd",in_czech = F)),name = "Correlation_and_regression3", stitle = sprintf("%s/%s/Correlation/Correlation - larger-smaller",bank_prefix,current_group),n = n_total, dir = out_dir)
+exams2moodle(file = list(expar("regression/regression_R2.Rmd",in_czech = F)),name = "Correlation_and_regression4", stitle = sprintf("%s/%s/Regression/Regression - compute R2",bank_prefix,current_group),n = n_total, dir = out_dir)
+exams2moodle(file = list(expar("regression/regression_intercept.Rmd",in_czech = F)),name = "Correlation_and_regression5", stitle = sprintf("%s/%s/Regression/Regression - compute intercept",bank_prefix,current_group),n = n_total, dir = out_dir)
+exams2moodle(file = list(expar("regression/regression_slope.Rmd",in_czech = F)),name = "Correlation_and_regression6", stitle = sprintf("%s/%s/Regression/Regression - compute slope",bank_prefix,current_group),n = n_total, dir = out_dir)
+
+set.seed(3)
+current_group <- "Contingency table"
+
+exams2moodle(file = list(expar("contingency_tables/contingency_tables_asoc.Rmd",in_czech = F)),name = "Contingency table1", stitle = sprintf("%s/%s/Contingency table- association",bank_prefix,current_group),n = n_total, dir = out_dir)
+exams2moodle(file = list(expar("contingency_tables/contingency_tables_creation.Rmd",in_czech = F)),name = "Contingency table2", stitle = sprintf("%s/%s/Contingency table - creation",bank_prefix,current_group),n = n_total, dir = out_dir)
+exams2moodle(file = list(expar("contingency_tables/contingency_tables_marginalization.Rmd",in_czech = F)),name = "Contingency table3", stitle = sprintf("%s/%s/Contingency table - marginalization",bank_prefix,current_group),n = n_total, dir = out_dir)
+exams2moodle(file = list(expar("contingency_tables/contingency_tables_relative_freq.Rmd",in_czech = F)),name = "Contingency table4", stitle = sprintf("%s/%s/Contingency table - relative frequencies",bank_prefix,current_group),n = n_total, dir = out_dir)
+
+set.seed(5)
+current_group <- "Estimation and hypothesis testing"
+
+exams2moodle(file = list(expar("intervals_estimation/confidence_intervals_logic.Rmd",in_czech = F)),name = "Intervals_hypotheses1", stitle = sprintf("%s/%s/Intervals/Logic of confidence intervals",bank_prefix,current_group),n = n_total, dir = out_dir)
+exams2moodle(file = list(expar("intervals_estimation/point_estimate_jamovi.Rmd",in_czech = F)),name = "Intervals_hypotheses2", stitle = sprintf("%s/%s/Intervals/Point estimate",bank_prefix,current_group),n = n_total, dir = out_dir)
+exams2moodle(file = list(expar("intervals_estimation/range_estimate_tdist_jamovi.Rmd",in_czech = F)),name = "Intervals_hypotheses3", stitle = sprintf("%s/%s/Intervals/Confidence interval",bank_prefix,current_group),n = n_total, dir = out_dir)
+
+set.seed(6)
+current_group <- "Estimation and hypothesis testing"
+
+exams2moodle(file = list(expar("hypothesis_testing/chi_square_independence.Rmd",in_czech = F)),name = "Intervals_hypotheses5", stitle = sprintf("%s/%s/Hypotheses/Chi-square",bank_prefix,current_group),n = n_total, dir = out_dir)
+exams2moodle(file = list(expar("hypothesis_testing/chi_square_independence_compute.Rmd",in_czech = F)),name = "Intervals_hypotheses6", stitle = sprintf("%s/%s/Hypotheses/Chi-square computation",bank_prefix,current_group),n = n_total, dir = out_dir)
+exams2moodle(file = list(expar("hypothesis_testing/error_type.Rmd",in_czech = F)),name = "Intervals_hypotheses7", stitle = sprintf("%s/%s/Hypotheses/Type I and II error",bank_prefix,current_group),n = n_total, dir = out_dir)
+exams2moodle(file = list(expar("hypothesis_testing/hypothesis_testing.Rmd",in_czech = F)),name = "Intervals_hypotheses8", stitle = sprintf("%s/%s/Hypotheses/Hypothesis testing - general principes",bank_prefix,current_group),n = n_total, dir = out_dir)
+exams2moodle(file = list(expar("hypothesis_testing/t_test_jamovi.Rmd",in_czech = F)),name = "Intervals_hypotheses9", stitle = sprintf("%s/%s/Hypotheses/t-test",bank_prefix,current_group),n = n_total, dir = out_dir)
+exams2moodle(file = list(expar("hypothesis_testing/tailedness.Rmd",in_czech = F)),name = "Intervals_hypotheses10", stitle = sprintf("%s/%s/Hypotheses/One-twosided test",bank_prefix,current_group),n = n_total, dir = out_dir)
+
+
+clean_moodle_categories <- function(exam_dir, bank_root) {
+  fs <- dir(exam_dir, pattern = "*.xml", full.names = T)
+  for (i in 1:length(fs)) {
+    f <- fs[i]
+    txt <- read_file(f)
+    txt <- str_replace(txt, sprintf("(<text>\\$course\\$)/.*/(%s)",bank_root),"\\1/\\2")
+    write_file(txt, fs[i])
+  }
+}
+
+
+clean_moodle_categories("generated_questions", "vsechny ulohy")
 

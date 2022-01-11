@@ -32,7 +32,7 @@ text_question <- sample(df_assignmnent$question,1)
 
 plot_types <- c("scatter","hist","pie","boxplot")
 if(lang == "CZ") {
-  plot_names <- c("Bodový graf","Histogram","Koláčový graf","Krabickový graf")  
+  plot_names <- c("Bodový graf","Histogram","Koláčový graf","Krabicový graf")  
 } else {
   plot_names <- c("Scatter plot","Histogram","Pie chart","Box plot")  
 }

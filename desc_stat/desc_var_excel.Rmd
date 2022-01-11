@@ -105,10 +105,14 @@ cat(eval(parse(text=text_question)))
 
 ```{r eval=in_czech, results='asis'}
 cat(sprintf("Spočítejte %s pro následující data.", questions[ix]))
+
+cat("Zaokrouhlete na dvě desetinná místa.")
 ```
 
 ```{r eval=in_english, results='asis'}
 cat(sprintf("Compute %s for following data.", questions[ix]))
+
+cat("Round to two decimal points.")
 ```
 
 ```{r plot, fig.path = "", fig.cap = ""}
@@ -139,5 +143,6 @@ extype: num
 exsolution: `r solutions`
 exname:  `r exam_title`
 extitle: `r exam_title`
+extol: 0.01
 expoints: 1
 
