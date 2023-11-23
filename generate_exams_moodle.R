@@ -104,6 +104,15 @@ bank_prefix <- "vsechny ulohy_jamovi"
 n_total <- 50
 out_dir <- "generated_questions"
 
+set.seed(9871)
+
+current_group <- "Casove rady"
+
+exams2moodle(file = list(expar("time_series/time_series.Rmd",ix = 1)),name = "Casove rady1", stitle = sprintf("%s/%s/Vypocet koeficentu rustu",bank_prefix,current_group),n = n_total, dir = out_dir)
+exams2moodle(file = list(expar("time_series/time_series.Rmd",ix = 2)),name = "Casove rady2", stitle = sprintf("%s/%s/Vypocet absolutniho prirustku",bank_prefix,current_group),n = n_total, dir = out_dir)
+exams2moodle(file = list(expar("time_series/time_series.Rmd",ix = 3)),name = "Casove rady3", stitle = sprintf("%s/%s/Vypocet relativniho prirustku",bank_prefix,current_group),n = n_total, dir = out_dir)
+
+
 set.seed(1)
 
 current_group <- "Deskriptivni statistika"
@@ -114,6 +123,7 @@ exams2moodle(file = list(expar("desc_stat/desc_var_jamovi.Rmd",ix = 3)),name = "
 exams2moodle(file = list(expar("desc_stat/desc_var_jamovi.Rmd",ix = 4)),name = "Deskriptivni statistika4", stitle = sprintf("%s/%s/Vypocet rozptylu",bank_prefix,current_group),n = n_total, dir = out_dir)
 exams2moodle(file = list(expar("desc_stat/desc_var_jamovi.Rmd",ix = 5)),name = "Deskriptivni statistika5", stitle = sprintf("%s/%s/Vypocet dolniho kvartilu",bank_prefix,current_group),n = n_total, dir = out_dir)
 exams2moodle(file = list(expar("desc_stat/desc_var_jamovi.Rmd",ix = 6)),name = "Deskriptivni statistika6", stitle = sprintf("%s/%s/Vypocet horniho kvartilu",bank_prefix,current_group),n = n_total, dir = out_dir)
+
 
 set.seed(123)
 current_group <- "Deskriptivni statistika"
